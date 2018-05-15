@@ -9,7 +9,11 @@ Each instruction is a command, and a description of the command.
    ```
    python3 -m pip install --upgrade .
    ```
-2. Start downloading taxi locations.
+2. Make a data folder.
    ```
-   python3 -m geoinfo.download_json
+   mkdir -p data
+   ```
+3. Start downloading taxi locations forever.
+   ```
+   python3 -m geoinfo.download_json data
    ```
