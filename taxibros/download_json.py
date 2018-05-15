@@ -6,6 +6,7 @@ import datetime
 import time
 import os
 import sys
+import abc
 from argparse import ArgumentParser
 
 class DownloadJson:
@@ -34,6 +35,21 @@ class DownloadJson:
             os.makedirs(self._subfolder)
         self._log = os.path.join(self._subfolder, 'log.md')
 
+    @abc.abstractmethod
+    def get_features_timestamp(self, json):
+        """Given a JSON, extract features and timestamp.
+        @return features: JSON features to be stored.
+        @return timestamp: server-side time that JSON was updated.
+        """
+        ...
+
+    @abc.abstractmethod
+    def get_health(self, json):
+        """Given a JSON, extract status of the API.
+        @return status: healthy or not.
+        """
+        ...
+
     def download(self):
         """Generic method to download JSON streams.
         Assume logging format in JSON stream.
@@ -49,8 +65,7 @@ class DownloadJson:
             return
 
         # Only download when timestamp doesn't match.
-        features = json['features'][0]
-        timestamp = features['properties']['timestamp']
+        features, timestamp = self.get_features_timestamp(json)
         self.store_on_timestamp(timestamp, features)
 
     def store_on_timestamp(self, timestamp, features):
@@ -64,7 +79,7 @@ class DownloadJson:
 
             # Dump JSON and log health.
             self.dump_json(features)
-            self.write_log(timestamp, features['properties']['api_info']['status'])
+            self.write_log(timestamp, self.get_health(features))
 
     def dump_json(self, features):
         """Write JSON as BSON to file.
@@ -84,17 +99,26 @@ class DownloadJson:
                                         string_one, string_two))
 
 
-if __name__ == "__main__":
-    parser = ArgumentParser(description='Instantly query taxi arrival times')
-    parser.add_argument('-folder', type=str, nargs='?',
-                        default='data',
-                        help='folder to download JSON data to')
-    parser.add_argument('-url', type=str, nargs='?',
-                        default='https://api.data.gov.sg/v1/transport/taxi-availability',
-                        help='url to download JSON data from')
+class TaxiAvailability(DownloadJson):
+    """Downloads taxi availability JSON.
+    """
 
-    args = parser.parse_args()
-    dj = DownloadJson(args.folder, args.url)
+    def __init__(self):
+        folder = 'data'
+        url = 'https://api.data.gov.sg/v1/transport/taxi-availability'
+        super().__init__(folder, url)
+
+    def get_features_timestamp(self, json):
+        features = json['features'][0]
+        timestamp = features['properties']['timestamp']
+        return features, timestamp
+
+    def get_health(self, json):
+        health = json['properties']['api_info']['status']
+        return health
+
+if __name__ == "__main__":
+    dj = TaxiAvailability()
     # Download forever
     while True:
         dj.download()
