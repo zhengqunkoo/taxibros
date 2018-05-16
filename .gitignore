@@ -1,7 +1,25 @@
+### Project-specific ###
+# Data folder of downloaded JSON
 data/
+
+### Python ###
+# Compiled Python modules
 __pycache__/
-*.pyc
+*.py[cod]
+
+# Other Python files
 .pytest*
 .python*
-.*.swo
-.*.swp
+
+### Vim ###
+# Swap files
+.*.sw[op]
+
+### Django ###
+*.log
+*.pot
+*.pyc
+__pycache__/
+local_settings.py
+.env
+db.sqlite3
