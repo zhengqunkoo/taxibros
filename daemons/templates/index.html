@@ -1,0 +1,17 @@
+{% extends "_base.html" %}
+
+{% block title %}
+Welcome!
+{% endblock %}
+
+{% block content %}
+<h1>TaxiBros</h1>
+
+<h2>Dynamic content</h2>
+
+    <p>The database has the following record counts:</p>
+    <ul>
+        <li><strong>Timestamps:</strong> {{ num_timestamps }}</li>
+        <li><strong>Coordinates:</strong> {{ num_coordinates }}</li>
+    </ul>
+{% endblock %}

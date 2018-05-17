@@ -14,9 +14,9 @@ setup(
     include_package_data=True,
     install_requires=[
         'requests',
-        'bson',
         'django',
         'django-dotenv',
+        'django-background-tasks',
     ],
     zip_safe=False
 )
