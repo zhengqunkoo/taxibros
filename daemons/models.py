@@ -1,24 +1,18 @@
 from django.db import models
-from django.urls import reverse
 
 
 class Timestamp(models.Model):
-    """Model representing timestamp.
-    Assume timestamp is unique.
+    """Model representing time.
+    Assume time is unique.
     """
-    timestamp = models.DateTimeField()
+    date_and_time = models.DateTimeField()
     
     def __str__(self):
         """
         String for representing the Model object.
         """
-        return str(self.timestamp)
+        return str(self.date_and_time)
     
-    
-    def get_absolute_url(self):
-        """Returns the url to access a detail record for this timestamp."""
-        return reverse('timestamp-detail', args=[str(self.id)])
-
 
 class Coordinate(models.Model):
     """Model representing a coordinate recorded at timestamp.

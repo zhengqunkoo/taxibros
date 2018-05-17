@@ -1,10 +1,6 @@
 #!/usr/bin/env python3
 
 import requests
-import datetime
-import time
-import os
-import sys
 import abc
 from background_task import background
 from .models import Timestamp, Coordinate
@@ -22,13 +18,13 @@ class DownloadJson:
         @param url: url to download JSON data from.
         """
         self._url = url
-        self._timestamp = None
+        self._date_and_time = None
         self._logger = getLogger(__name__)
 
     @abc.abstractmethod
-    def get_timestamp_features(self, json):
-        """Given a JSON, extract features and timestamp.
-        @return timestamp: server-side time that JSON was updated.
+    def get_time_features(self, json):
+        """Given a JSON, extract features and time.
+        @return date_and_time: server-side time that JSON was updated.
         @return features: JSON features to be logged or stored.
         """
         ...
@@ -61,34 +57,34 @@ class DownloadJson:
             self._logger.debug('{} {}'.format(json['code'], json['message']))
             return
 
-        # Only download when timestamp doesn't match.
-        self.store_on_timestamp(*self.get_timestamp_features(json))
+        # Only download when time doesn't match.
+        self.store_on_time_change(*self.get_time_features(json))
 
-    def store_on_timestamp(self, timestamp, features):
-        """Only dump JSON when timestamp updates.
-        @param timestamp: server-side time that JSON was updated.
+    def store_on_time_change(self, date_and_time, features):
+        """Only dump JSON when time updates.
+        @param date_and_time: server-side time that JSON was updated.
         @param features: JSON features to be stored or logged.
         """
-        # If timestamp changes, update timestamp.
-        if self._timestamp == None or self._timestamp != timestamp:
-            self._timestamp = timestamp
+        # If date_and_time changes, update date_and_time.
+        if self._date_and_time == None or self._date_and_time != time:
+            self._date_and_time = date_and_time
 
             # Log properties of JSON.
             self._logger.debug(self.get_properties(features))
-            timestamp_model = Timestamp(timestamp=self._timestamp)
-            timestamp_model.save()
-            self.store(timestamp_model, self.get_coordinates(features))
+            self.store(self._date_and_time, self.get_coordinates(features))
 
-    def store(self, timestamp_model, coordinates):
-        """Store each feature with same timestamp.
-        @param timestamp_model: django Model object.
+    def store(self, date_and_time, coordinates):
+        """Store each coordinate with same date_and_time.
+        @param date_and_time: server-side date_and_time that JSON was updated.
         @param coordinates: list of coordinates to be stored.
         """
+        timestamp = Timestamp(date_and_time=date_and_time)
+        timestamp.save()
         for coordinate in coordinates:
             Coordinate(
                 lat=coordinate[1],
                 long=coordinate[0],
-                timestamp=timestamp_model,
+                timestamp=timestamp,
             ).save()
 
 
@@ -113,26 +109,25 @@ class TaxiAvailability(DownloadJson):
         url = 'https://api.data.gov.sg/v1/transport/taxi-availability'
         super().__init__(folder, url)
 
-    def get_timestamp_features(self, json):
+    def get_time_features(self, json):
         features = json['features'][0]
-        timestamp = features['properties']['timestamp']
-        return timestamp, features
+        date_and_timestamp = features['properties']['timestamp']
+        return date_and_timestamp, features
 
     def get_coordinates(self, json):
         return json['geometry']['coordinates']
 
     def get_properties(self, json):
-        timestamp = json['properties']['timestamp']
+        date_and_timestamp = json['properties']['timestamp']
         taxi_count = json['properties']['taxi_count']
         status = json['properties']['api_info']['status']
-        return '{} {} {}'.format(timestamp, taxi_count, status)
+        return '{} {} {}'.format(date_and_timestamp, taxi_count, status)
 
-from logging import getLogger
-logger = getLogger(__name__)
-logger.debug(__name__)
 
-@background(schedule=60)
+
+@background(queue='taxi-availability')
 def start_download():
-    logger.debug('start_download')
+    logger = getLogger(__name__)
+    logger.debug('daemons.download.start_download')
     ta = TaxiAvailability()
     ta.download()
