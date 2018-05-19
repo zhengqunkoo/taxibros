@@ -17,6 +17,7 @@ setup(
         'bson',
         'django',
         'django-dotenv',
+        'django-background-tasks',
     ],
     zip_safe=False
 )
