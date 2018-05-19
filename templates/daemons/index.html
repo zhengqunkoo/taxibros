@@ -1,0 +1,11 @@
+{% extends "_base.html" %}
+
+{% block header %}Daemons{% endblock %}
+
+{% block containercontent %}
+<p>The database has the following record counts:</p>
+<ul>
+  <li><strong>Timestamps:</strong> {{ num_timestamps }}</li>
+  <li><strong>Coordinates:</strong> {{ num_coordinates }}</li>
+</ul>
+{% endblock %}
