@@ -46,11 +46,24 @@ Each instruction is a command, and a description of the command.
 
    DEBUG 2018-05-17 12:26:58,045 process_tasks 8245 140658619733760 waiting for tasks
    ...
-   DEBUG 2018-05-17 12:27:48,140 process_tasks 8245 140658619733760 waiting for tasks
-
-   DEBUG 2018-05-17 12:27:53,932 download 8681 139710976792320 daemons.download
-   INFO 2018-05-17 12:27:53,948 tasks 8681 139710976792320 Running daemons.download.start_download
-   DEBUG 2018-05-17 12:27:53,948 download 8681 139710976792320 start_download
-   DEBUG 2018-05-17 12:27:54,256 download 8681 139710976792320 2018-05-17T12:26:46+08:00 4950 healthy
-   INFO 2018-05-17 12:27:55,522 tasks 8681 139710976792320 Ran task and deleting daemons.download.start_download
    ```
+
+## Creating PostGIS database
+1. Download dependencies.
+   ```
+   sudo apt install postgresql-server-dev-9.5 postgresql-9.5-postgis-2.3
+   ```
+2. Create user and database.
+   ```
+   sudo -u postgres -i
+   psql
+   CREATE USER geodjango PASSWORD 'geodjango';
+   ALTER ROLE geodjango SUPERUSER;
+   CREATE DATABASE geodjango OWNER geodjango;
+   exit
+   ```
+
+## Installing Open Street Map
+1. For more context in map (including street and thoroughfare details), [install PROJ.4 datum shifting files].
+
+[install PROJ.4 datum shifting files]: https://docs.djangoproject.com/en/2.0/ref/contrib/gis/install/geolibs/#proj4
