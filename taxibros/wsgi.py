@@ -13,10 +13,15 @@ from daemons.download import start_download
 import subprocess
 from django.core.wsgi import get_wsgi_application
 
-dotenv.read_dotenv(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), '.env')
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "taxibros.settings.development")
 
+
+#Reading .env file
+dotenv.read_dotenv(os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env'))
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "taxibros.settings.development")
 application = get_wsgi_application()
+
+
+
 #HACK: Runs the cron job here as wsgi.py is ran only once on server start-up
 #Ensures that there is only one instance of the task
 # Download JSON stream.

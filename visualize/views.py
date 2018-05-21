@@ -3,13 +3,14 @@ from daemons.models import Coordinate, Timestamp
 from django.utils import timezone
 from itertools import chain
 import datetime
+import os
 
 def index(request):
     """View function for home page of site."""
-
     return render(
         request,
-        'visualize/index.html'
+        'visualize/index.html',
+        {"api_key":os.getenv("GOOGLEMAPS_SECRET_KEY")}
     )
 def genjs(request):
     # Render the js template index.html with the data in the context variable.
