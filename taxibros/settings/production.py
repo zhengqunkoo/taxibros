@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/2.0/ref/settings/
 
 import os
 
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -21,6 +22,10 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
+DATAMALL_SECRET_KEY = os.getenv('DATAMALL_SECRET_KEY')
+GOOGLEMAPS_SECRET_KEY = os.getenv('GOOGLEMAPS_SECRET_KEY')
+
+
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
@@ -173,3 +178,6 @@ LOGGING = {
         },
     },
 }
+
+
+#RUNNING BACKGROUND TASK

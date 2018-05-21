@@ -51,7 +51,5 @@ function getPoints() {
     {% for coord in coordinates %}
       new google.maps.LatLng({{ coord.lat }}, {{ coord.long }}),
     {% endfor %}
-    new google.maps.LatLng(37.752986, -122.403112),
-    new google.maps.LatLng(37.751266, -122.403355)
   ];
 }

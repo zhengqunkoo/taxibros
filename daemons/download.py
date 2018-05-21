@@ -5,6 +5,10 @@ import abc
 from background_task import background
 from .models import Timestamp, Coordinate
 from logging import getLogger
+from django.utils import timezone
+import datetime
+from background_task.models import Task
+
 
 class DownloadJson:
     """Download one JSON stream using HTTP GET.
@@ -57,7 +61,7 @@ class DownloadJson:
             self._logger.debug('{} {}'.format(json['code'], json['message']))
             return
 
-        # Only download when time doesn't match.
+        # Only download when timestamp minute not in db
         self.store_on_time_change(*self.get_time_features(json))
 
     def store_on_time_change(self, date_and_time, features):
@@ -65,10 +69,10 @@ class DownloadJson:
         @param date_and_time: server-side time that JSON was updated.
         @param features: JSON features to be stored or logged.
         """
-        # If date_and_time changes, update date_and_time.
-        if self._date_and_time == None or self._date_and_time != time:
+        # If time minute not in db, add into db (Needed if system fails and restarts/rerunning app)
+        times = Timestamp.objects.filter(date_and_time__range = [timezone.now() - datetime.timedelta(minutes=1), timezone.now()])
+        if (self._date_and_time == None or self._date_and_time != date_and_time) and times.count() == 0:
             self._date_and_time = date_and_time
-
             # Log properties of JSON.
             self._logger.debug(self.get_properties(features))
             self.store(self._date_and_time, self.get_coordinates(features))
@@ -78,7 +82,9 @@ class DownloadJson:
         @param date_and_time: server-side date_and_time that JSON was updated.
         @param coordinates: list of coordinates to be stored.
         """
-        timestamp = Timestamp(date_and_time=date_and_time)
+        time = datetime.datetime.now()
+        time = time.replace(second=0, microsecond=0)
+        timestamp = Timestamp(date_and_time=time)
         timestamp.save()
         for coordinate in coordinates:
             Coordinate(
@@ -127,6 +133,8 @@ class TaxiAvailability(DownloadJson):
 
 @background(queue='taxi-availability')
 def start_download():
+    #Deletes all previous tasks before running current task
+    Task.objects.all().delete()
     logger = getLogger(__name__)
     logger.debug('daemons.download.start_download')
     ta = TaxiAvailability()
