@@ -32,15 +32,7 @@ Each instruction is a command, and a description of the command.
 
 ## Downloading data
 1. Run the server (see `Running django server` section).
-2. Visit `/daemons` to start a daemon. **Do this only once, else you have multiple daemons.**
-   - Daemons are scheduled to run at some time.
-   - Daemons persist in the database after server restart.
-   - If you run this command:
-     ```
-     python3 manage.py process_tasks --queue taxi-availability
-     ```
-     * If current time exceeds a daemon's scheduled time, it will run.
-     * Then they are replaced by a new daemon scheduled in the future.
+2. Visit `/daemons` to check number of coordinates and timestamp, or `/admin` and select background_tasks to check if daemon is running
 3. Check `logs/debug.log` for debug output. For example:
    ```
    INFO 2018-05-17 12:26:54,905 tasks 8245 140658619733760 Running daemons.download.start_download
