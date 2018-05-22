@@ -3,7 +3,7 @@
 
 {% block headerstatic %}
   <link rel="stylesheet" href="{% static 'css/maps.css' %}">
-  <script type="text/javascript" src="{% url 'js'%}" ></script>
+  <script type="text/javascript" src="{% url 'visualize:js'%}" ></script>
   <script async defer
     src="https://maps.googleapis.com/maps/api/js?key={{ api_key }}&libraries=visualization&callback=initMap&region=SG">
   </script>

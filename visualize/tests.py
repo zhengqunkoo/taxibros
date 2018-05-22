@@ -1,5 +1,6 @@
 from django.test import TestCase
-from django.background_task import Task
+from background_task.models import Task
+from django.urls import reverse
 
 # Create your tests here.
 class VisualizeIndexViewTests(TestCase):
@@ -15,4 +16,4 @@ class VisualizeIndexViewTests(TestCase):
         response = self.client.get(reverse('visualize:index'))
         self.assertEqual(response.status_code,200)
         self.assertContains(response,"Im sorry. The service appears to be experiencing a malfunction.")
-        self.assertQuerysetEqual(Tasks.objects.all(),[])
+        self.assertQuerysetEqual(Task.objects.all(),[])
