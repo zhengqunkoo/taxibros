@@ -44,6 +44,13 @@ Each instruction is a command, and a description of the command.
    ...
    ```
 
+## Running Tests
+Tests are executed using the django manager.
+1. Run the test client
+   ```
+   python3 manage.py test
+   ```
+
 ## Creating PostGIS database
 1. Download dependencies.
    ```
