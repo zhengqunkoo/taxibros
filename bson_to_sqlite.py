@@ -14,15 +14,15 @@ from daemons.models import Timestamp, Coordinate
 
 
 if __name__ == '__main__':  
-    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "taxibros.settings.production")
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "taxibros.settings.local_settings")
     django.setup()
 
     _, path = sys.argv
-    # Filename is date_and_time.
-    for date_and_time in [f for f in os.listdir(path) if os.path.isfile(os.path.join(path, f))]:
-        print(date_and_time)
-        with open(os.path.join(path, date_and_time), 'rb') as f:
-            timestamp = Timestamp(date_and_time=date_and_time)
+    # Filename is date_time.
+    for date_time in [f for f in os.listdir(path) if os.path.isfile(os.path.join(path, f))]:
+        print(date_time)
+        with open(os.path.join(path, date_time), 'rb') as f:
+            timestamp = Timestamp(date_time=date_time)
             timestamp.save()
             json = bson.loads(f.read())
             for coordinate in json['geometry']['coordinates']:

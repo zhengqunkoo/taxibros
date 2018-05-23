@@ -22,13 +22,13 @@ class DownloadJson:
         @param url: url to download JSON data from.
         """
         self._url = url
-        self._date_and_time = None
+        self._date_time = None
         self._logger = getLogger(__name__)
 
     @abc.abstractmethod
     def get_time_features(self, json):
         """Given a JSON, extract features and time.
-        @return date_and_time: server-side time that JSON was updated.
+        @return date_time: server-side time that JSON was updated.
         @return features: JSON features to be logged or stored.
         """
         ...
@@ -64,27 +64,25 @@ class DownloadJson:
         # Only download when timestamp minute not in db
         self.store_on_time_change(*self.get_time_features(json))
 
-    def store_on_time_change(self, date_and_time, features):
+    def store_on_time_change(self, date_time, features):
         """Only dump JSON when time updates.
-        @param date_and_time: server-side time that JSON was updated.
+        @param date_time: server-side time that JSON was updated.
         @param features: JSON features to be stored or logged.
         """
         # If time minute not in db, add into db (Needed if system fails and restarts/rerunning app)
-        times = Timestamp.objects.filter(date_and_time__range = [timezone.now() - datetime.timedelta(minutes=1), timezone.now()])
-        if (self._date_and_time == None or self._date_and_time != date_and_time) and times.count() == 0:
-            self._date_and_time = date_and_time
+        times = Timestamp.objects.filter(date_time__range = [timezone.now() - datetime.timedelta(minutes=1), timezone.now()])
+        if (self._date_time == None or self._date_time != date_time) and times.count() == 0:
+            self._date_time = date_time
             # Log properties of JSON.
             self._logger.debug(self.get_properties(features))
-            self.store(self._date_and_time, self.get_coordinates(features))
+            self.store(self._date_time, self.get_coordinates(features))
 
-    def store(self, date_and_time, coordinates):
-        """Store each coordinate with same date_and_time.
-        @param date_and_time: server-side date_and_time that JSON was updated.
+    def store(self, date_time, coordinates):
+        """Store each coordinate with same date_time.
+        @param date_time: LTA date_time that JSON was updated.
         @param coordinates: list of coordinates to be stored.
         """
-        time = datetime.datetime.now()
-        time = time.replace(second=0, microsecond=0)
-        timestamp = Timestamp(date_and_time=time)
+        timestamp = Timestamp(date_time=date_time)
         timestamp.save()
         for coordinate in coordinates:
             Coordinate(
@@ -117,18 +115,17 @@ class TaxiAvailability(DownloadJson):
 
     def get_time_features(self, json):
         features = json['features'][0]
-        date_and_timestamp = features['properties']['timestamp']
-        return date_and_timestamp, features
+        date_timestamp = features['properties']['timestamp']
+        return date_timestamp, features
 
     def get_coordinates(self, json):
         return json['geometry']['coordinates']
 
     def get_properties(self, json):
-        date_and_timestamp = json['properties']['timestamp']
+        date_timestamp = json['properties']['timestamp']
         taxi_count = json['properties']['taxi_count']
         status = json['properties']['api_info']['status']
-        return '{} {} {}'.format(date_and_timestamp, taxi_count, status)
-
+        return '{} {} {}'.format(date_timestamp, taxi_count, status)
 
 
 @background(queue='taxi-availability')
