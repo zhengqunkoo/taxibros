@@ -10,8 +10,9 @@
 {% endblock %}
 
 {% block header %}Visualize{% endblock %}
-
 {% block content %}
+{% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+
   <div id="floating-panel">
     <button onclick="toggleHeatmap()">Toggle Heatmap</button>
     <button onclick="changeGradient()">Change gradient</button>
