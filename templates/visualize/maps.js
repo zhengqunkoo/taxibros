@@ -95,7 +95,7 @@ function minutesChange(e) {
   $.ajax({
       url: "{% url 'visualize:gen.js' %}",
       data: {
-          minutes: e.value,
+          minutes: minutes,
       },
       dataType: 'json',
       success: function(data) {
