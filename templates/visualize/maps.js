@@ -1,5 +1,6 @@
 // Javacript file is "dynamically" generated using django's template generation
 var map, heatmap;
+var pointArray;
 
 function initMap() {
   map = new google.maps.Map(document.getElementById('map'), {
@@ -8,8 +9,10 @@ function initMap() {
     mapTypeId: 'roadmap'
   });
 
+  pointArray = new google.maps.MVCArray(getPoints());
+
   heatmap = new google.maps.visualization.HeatmapLayer({
-    data: getPoints(),
+    data: pointArray,
     map: map
   });
 }
@@ -52,4 +55,28 @@ function getPoints() {
       new google.maps.LatLng({{ coord.lat }}, {{ coord.long }}),
     {% endfor %}
   ];
+}
+
+function minutesChange(e) {
+  // Asynchronously update maps with serialized coordinates.
+  $.ajax({
+      url: "{% url 'visualize:gen.js' %}",
+      data: {
+          minutes: e.value,
+      },
+      dataType: 'json',
+      success: function(data) {
+          pointArray.clear();
+          var coordinates = data.coordinates
+          var length = coordinates.length;
+          var coord;
+          for (var i=0; i<length; i++) {
+            coord = coordinates[i];
+            pointArray.push(new google.maps.LatLng(coord[0], coord[1]));
+          }
+      },
+      error: function(rs, e) {
+          alert("Failed to reach {% url 'visualize:gen.js' %}.");
+      }
+  });
 }

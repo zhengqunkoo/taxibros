@@ -2,6 +2,10 @@
 {% load static %}
 
 {% block headerstatic %}
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/9.9.0/css/bootstrap-slider.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/9.9.0/bootstrap-slider.js"></script>
+
+  <link rel="stylesheet" href="{% static 'css/ui.css' %}">
   <link rel="stylesheet" href="{% static 'css/maps.css' %}">
   <script type="text/javascript" src="{% url 'visualize:js'%}" ></script>
   <script async defer
@@ -21,6 +25,14 @@
   </div>
 
   <!-- Slider: zero is now, positive is future. -->
+  <input type="range" id="minutes" data-slider-id="minutesSlider" type="text" data-slider-min="0" data-slider-max="100" data-slider-step="1" data-slider-value="0">
+  <script type='text/javascript'>
+    $('#minutes').slider({
+        formatter: function (value) {
+            return 'Current value: ' + value;
+        }
+    }).on('slideStop', minutesChange);
+  </script>
 
   <!-- Google maps. -->
   <div id="map"></div>
