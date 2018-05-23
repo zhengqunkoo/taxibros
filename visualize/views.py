@@ -15,8 +15,8 @@ def index(request):
     )
 
 def get_coordinates(request):
-    """Filter range one minute long, ensures at least one date_and_time returned.
-    If two date_and_times returned, select most recent one.
+    """Filter range one minute long, ensures at least one date_time returned.
+    If two date_times returned, select most recent one.
     @param request: HTTP GET request containing other variables.
         minutes:
             predict taxi locations at this amount of time into the future.
@@ -30,7 +30,7 @@ def get_coordinates(request):
     start_window = datetime.timedelta(minutes=int(minutes)+1)
     end_window = datetime.timedelta(minutes=int(minutes))
     times = Timestamp.objects.filter(
-        date_and_time__range=(
+        date_time__range=(
             now - start_window,
             now - end_window
         ),

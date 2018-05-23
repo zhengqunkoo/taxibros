@@ -5,7 +5,7 @@ from .models import Timestamp, Coordinate
 
 @admin.register(Timestamp)
 class TimestampAdmin(admin.ModelAdmin):
-    list_display = ('date_and_time', 'coordinates')
+    list_display = ('date_time', 'coordinates')
 
     def coordinates(self, obj):
         size = 3
