@@ -35,6 +35,10 @@ DAEMON_START = True
 # False: relative to latest timestamp.
 HEATMAP_NOW = True
 
+# Slider event that changes heatmap.
+# https://github.com/seiyria/bootstrap-slider#events
+SLIDE_EVENT = 'slideStop'
+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 

@@ -86,6 +86,12 @@ function getPoints() {
 
 function minutesChange(e) {
   // Asynchronously update maps with serialized coordinates.
+  var minutes = e.value;
+  if (minutes.hasOwnProperty('newValue')) {
+    minutes = minutes.newValue;
+  } else {
+    alert("Slider has no 'newValue' attribute.");
+  }
   $.ajax({
       url: "{% url 'visualize:gen.js' %}",
       data: {

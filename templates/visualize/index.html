@@ -29,9 +29,9 @@
   <script type='text/javascript'>
     $('#minutes').slider({
         formatter: function (value) {
-            return 'Current value: ' + value;
+            return value;
         }
-    }).on('slideStop', minutesChange);
+    }).on('{{ SLIDE_EVENT }}', minutesChange);
   </script>
 
   <!-- Google maps. -->

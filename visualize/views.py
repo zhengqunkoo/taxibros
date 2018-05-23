@@ -11,7 +11,10 @@ def index(request):
     return render(
         request,
         'visualize/index.html',
-        {"GOOGLEMAPS_SECRET_KEY": settings.GOOGLEMAPS_SECRET_KEY}
+        {
+            "GOOGLEMAPS_SECRET_KEY": settings.GOOGLEMAPS_SECRET_KEY,
+            "SLIDE_EVENT": settings.SLIDE_EVENT,
+        }
     )
 
 def get_coordinates(request):
