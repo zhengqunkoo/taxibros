@@ -1,8 +1,8 @@
 from django.shortcuts import render
 from daemons.models import Coordinate, Timestamp
 from django.utils import timezone
+from django.conf import settings
 import datetime
-import os
 import pytz
 from django.http import JsonResponse
 
@@ -11,7 +11,7 @@ def index(request):
     return render(
         request,
         'visualize/index.html',
-        {"GOOGLEMAPS_SECRET_KEY": os.getenv("GOOGLEMAPS_SECRET_KEY")}
+        {"GOOGLEMAPS_SECRET_KEY": settings.GOOGLEMAPS_SECRET_KEY}
     )
 
 def get_coordinates(request):
