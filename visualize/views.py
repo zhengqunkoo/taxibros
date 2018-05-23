@@ -9,29 +9,24 @@ from django.http import JsonResponse
 
 def index(request):
     """View function for home page of site."""
+    context = {
+        "GOOGLEMAPS_SECRET_KEY": settings.GOOGLEMAPS_SECRET_KEY,
+        "SLIDE_EVENT": settings.SLIDE_EVENT,
+    }
+
     #CHECK1:If daemon is running
     if (Task.objects.all().count()==0):
-        return render(
-            request,
-            'visualize/index.html',
-            {"api_key":os.getenv("GOOGLEMAPS_SECRET_KEY"), "error_message": "Im sorry. The service appears to be experiencing a malfunction."}
-        )
+        context["error_message"] = "Im sorry. The service appears to be experiencing a malfunction."
+
     #CHECK2:If there is insufficient data
-    times = Timestamp.objects.filter(date_and_time__range = [timezone.now() - datetime.timedelta(minutes=5), timezone.now()])
+    times = Timestamp.objects.filter(date_time__range = [timezone.now() - datetime.timedelta(minutes=5), timezone.now()])
     if (times.count()<5):
-        return render(
-            request,
-            'visualize/index.html',
-            {"api_key":os.getenv("GOOGLEMAPS_SECRET_KEY"), "error_message": "Data is still incomplete, please wait a few minutes before refreshing."}
-        )
+        context["error_message"] = "Data is still incomplete, please wait a few minutes before refreshing."
 
     return render(
         request,
         'visualize/index.html',
-        {
-            "GOOGLEMAPS_SECRET_KEY": settings.GOOGLEMAPS_SECRET_KEY,
-            "SLIDE_EVENT": settings.SLIDE_EVENT,
-        }
+        context
     )
 
 def get_coordinates(request):
