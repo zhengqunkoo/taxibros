@@ -16,7 +16,7 @@ from django.conf import settings
 
 #Reading .env file
 dotenv.read_dotenv(os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env'))
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "taxibros.settings.development")
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "taxibros.settings.local_settings")
 application = get_wsgi_application()
 
 if settings.DAEMON_START:

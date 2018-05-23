@@ -14,7 +14,7 @@ from daemons.models import Timestamp, Coordinate
 
 
 if __name__ == '__main__':  
-    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "taxibros.settings.production")
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "taxibros.settings.local_settings")
     django.setup()
 
     _, path = sys.argv
