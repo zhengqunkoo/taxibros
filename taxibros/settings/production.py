@@ -25,7 +25,15 @@ SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
 DATAMALL_SECRET_KEY = os.getenv('DATAMALL_SECRET_KEY')
 GOOGLEMAPS_SECRET_KEY = os.getenv('GOOGLEMAPS_SECRET_KEY')
 
+# Toggle background_task daemon.
+# True: start daemon on server start.
+# False: do not start daemon on server start.
+DAEMON_START = True
 
+# Relative time to display heatmaps.
+# True: relative to real-time.
+# False: relative to latest timestamp.
+HEATMAP_NOW = True
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False

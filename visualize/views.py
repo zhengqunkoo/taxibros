@@ -20,13 +20,20 @@ def get_coordinates(request):
     @param request: HTTP GET request containing other variables.
         minutes:
             predict taxi locations at this amount of time into the future.
-            default: 0.
+            default: 0 (meaning now).
     @return list of coordinates.
     """
     minutes = request.GET.get('minutes')
     if minutes == None:
         minutes = 0
-    now = datetime.datetime.now(pytz.utc)
+
+    # If true, minutes=0 means current time.
+    # If false, minutes=0 means time of latest timestamp.
+    if settings.HEATMAP_NOW:
+        now = datetime.datetime.now(pytz.utc)
+    else:
+        now = Timestamp.objects.latest('date_time').date_time
+
     start_window = datetime.timedelta(minutes=int(minutes)+1)
     end_window = datetime.timedelta(minutes=int(minutes))
     times = Timestamp.objects.filter(
@@ -35,6 +42,7 @@ def get_coordinates(request):
             now - end_window
         ),
     )
+
     # If no times, return empty list.
     coordinates = []
     if times:
