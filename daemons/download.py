@@ -79,12 +79,10 @@ class DownloadJson:
 
     def store(self, date_time, coordinates):
         """Store each coordinate with same date_time.
-        @param date_time: server-side date_time that JSON was updated.
+        @param date_time: LTA date_time that JSON was updated.
         @param coordinates: list of coordinates to be stored.
         """
-        time = datetime.datetime.now()
-        time = time.replace(second=0, microsecond=0)
-        timestamp = Timestamp(date_time=time)
+        timestamp = Timestamp(date_time=date_time)
         timestamp.save()
         for coordinate in coordinates:
             Coordinate(
