@@ -130,7 +130,6 @@ class TaxiAvailability(DownloadJson):
         return '{} {} {}'.format(date_and_timestamp, taxi_count, status)
 
 
-
 @background(queue='taxi-availability')
 def start_download():
     #Deletes all previous tasks before running current task

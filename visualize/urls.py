@@ -4,5 +4,6 @@ from . import views
 app_name = 'visualize'
 urlpatterns = [
     path('', views.index, name='index'),
-    path('maps.js', views.genjs, name='js'),
+    path('gen.js', views.gen_js, name='gen.js'),
+    path('maps.js', views.maps_js, name='js'),
 ]
