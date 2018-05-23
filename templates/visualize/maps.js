@@ -1,4 +1,4 @@
-//Javacript file is "dynamically" generated using django's template generation
+// Javacript file is "dynamically" generated using django's template generation
 var map, heatmap;
 
 function initMap() {

@@ -11,7 +11,7 @@ def index(request):
     return render(
         request,
         'visualize/index.html',
-        {"api_key":os.getenv("GOOGLEMAPS_SECRET_KEY")}
+        {"GOOGLEMAPS_SECRET_KEY": os.getenv("GOOGLEMAPS_SECRET_KEY")}
     )
 
 def get_coordinates(request):

@@ -5,18 +5,23 @@
   <link rel="stylesheet" href="{% static 'css/maps.css' %}">
   <script type="text/javascript" src="{% url 'visualize:js'%}" ></script>
   <script async defer
-    src="https://maps.googleapis.com/maps/api/js?key={{ api_key }}&libraries=visualization&callback=initMap&region=SG">
+    src="https://maps.googleapis.com/maps/api/js?key={{ GOOGLEMAPS_SECRET_KEY }}&libraries=visualization&callback=initMap&region=SG">
   </script>
 {% endblock %}
 
 {% block header %}Visualize{% endblock %}
 
 {% block content %}
+  <!-- Heatmap buttons. -->
   <div id="floating-panel">
     <button onclick="toggleHeatmap()">Toggle Heatmap</button>
     <button onclick="changeGradient()">Change gradient</button>
     <button onclick="changeRadius()">Change radius</button>
     <button onclick="changeOpacity()">Change opacity</button>
   </div>
+
+  <!-- Slider: zero is now, positive is future. -->
+
+  <!-- Google maps. -->
   <div id="map"></div>
 {% endblock %}
