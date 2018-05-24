@@ -79,18 +79,21 @@ class DownloadJson:
         self.store(date_time, coordinates)
 
     def store(self, date_time, coordinates):
-        """Store each coordinate with same date_time.
+        """Stores each coordinate with the same unique date_time.
+        If date_time is not unique, do not update coordinates.
         @param date_time: LTA date_time that JSON was updated.
         @param coordinates: list of coordinates to be stored.
         """
-        timestamp = Timestamp(date_time=date_time)
-        timestamp.save()
-        for coordinate in coordinates:
-            Coordinate(
-                lat=coordinate[1],
-                long=coordinate[0],
-                timestamp=timestamp,
-            ).save()
+        timestamp, created = Timestamp.objects.get_or_create(date_time=date_time)
+        if created:
+            # If created timestamp, store coordinates.
+            print('Store {}'.format(date_time))
+            for coordinate in coordinates:
+                Coordinate(
+                    lat=coordinate[1],
+                    long=coordinate[0],
+                    timestamp=timestamp,
+                ).save()
 
     def get_missing_timestamps(self):
         """Get current timestamps in database.
