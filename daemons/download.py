@@ -3,17 +3,25 @@
 import requests
 import abc
 from background_task import background
-from .models import Timestamp, Coordinate
 from logging import getLogger
-from django.utils import timezone
 import datetime
+import time
+import pytz
+
+from django.utils import dateparse, timezone
+from django.conf import settings
 from background_task.models import Task
+from .models import Timestamp, Coordinate
 
 
 class DownloadJson:
     """Download one JSON stream using HTTP GET.
     Assume stream has timestamp (when data was last updated).
-    When timestamp changes, store data and log errors.
+    Stores all JSON data, with timestamps, in a database.
+    
+    Search for missing timestamps within a date_time range.
+    Range is (settings.DATE_TIME_START, now).
+    For each missing timestamp, download it.
     """
 
     def __init__(self, folder, url):
@@ -22,8 +30,11 @@ class DownloadJson:
         @param url: url to download JSON data from.
         """
         self._url = url
-        self._date_time = None
         self._logger = getLogger(__name__)
+
+        # Range of date_time to search missing timestamps.
+        self._date_time_start = dateparse.parse_datetime(settings.DATE_TIME_START)
+        self._date_time_end = timezone.now()
 
     @abc.abstractmethod
     def get_time_features(self, json):
@@ -47,11 +58,13 @@ class DownloadJson:
         """
         ...
 
-    def download(self):
+    def download(self, url=None):
         """Generic method to download JSON streams.
-        Assume logging format in JSON stream.
+        @param url: URL to download from. Default: self._url.
         """
-        response = requests.get(self._url)
+        if url == None:
+            url = self._url
+        response = requests.get(url)
         json = response.json()
 
         # Log errors and exit from function if error.
@@ -61,21 +74,9 @@ class DownloadJson:
             self._logger.debug('{} {}'.format(json['code'], json['message']))
             return
 
-        # Only download when timestamp minute not in db
-        self.store_on_time_change(*self.get_time_features(json))
-
-    def store_on_time_change(self, date_time, features):
-        """Only dump JSON when time updates.
-        @param date_time: server-side time that JSON was updated.
-        @param features: JSON features to be stored or logged.
-        """
-        # If time minute not in db, add into db (Needed if system fails and restarts/rerunning app)
-        times = Timestamp.objects.filter(date_time__range = [timezone.now() - datetime.timedelta(minutes=1), timezone.now()])
-        if (self._date_time == None or self._date_time != date_time) and times.count() == 0:
-            self._date_time = date_time
-            # Log properties of JSON.
-            self._logger.debug(self.get_properties(features))
-            self.store(self._date_time, self.get_coordinates(features))
+        date_time, features = self.get_time_features(json)
+        coordinates = self.get_coordinates(features)
+        self.store(date_time, coordinates)
 
     def store(self, date_time, coordinates):
         """Store each coordinate with same date_time.
@@ -91,10 +92,45 @@ class DownloadJson:
                 timestamp=timestamp,
             ).save()
 
+    def get_missing_timestamps(self):
+        """Get current timestamps in database.
+        Identify missing timestamps.
+        """
+        timestamps = Timestamp.objects.filter(
+            date_time__range=(
+                self._date_time_start,
+                self._date_time_end,
+            ),
+        )
+
+        # Convert to local timezone.
+        timezone.activate(pytz.timezone(settings.TIME_ZONE))
+        times = [timezone.localtime(x.date_time) for x in timestamps]
+
+        # Set seconds to same as start to check for missing times.
+        times = [time.replace(second=self._date_time_start.second) for time in times]
+        date_set = set(
+            self._date_time_start + datetime.timedelta(minutes=m) for m in \
+            range((self._date_time_end - self._date_time_start).seconds // 60)
+        )
+        missing = date_set - set(times)
+        return [time.strftime('%Y-%m-%dT%H:%M:%S') for time in missing]
+
+    def download_missing_timestamps(self):
+        """Make timestamps in database continuous, in terms of minutes.
+        Also, download with current timestamp.
+        """
+        missing = self.get_missing_timestamps()
+        for date_time in sorted(missing):
+            print('Check {}'.format(date_time))
+            self.download('{}?date_time={}'.format(self._url, date_time))
+        print('Check latest')
+        self.download()
+        print('Stored all missing timestamps!')
+
 
 class DownloadJsonAuth(DownloadJson):
-    """For APIs that need authentication key.
-    """
+    """For APIs that need authentication key."""
 
     def __init__(self, folder, url, auth):
         url = urllib.parse.urljoin(
@@ -105,8 +141,7 @@ class DownloadJsonAuth(DownloadJson):
 
 
 class TaxiAvailability(DownloadJson):
-    """Downloads taxi availability JSON.
-    """
+    """Downloads taxi availability JSON."""
 
     def __init__(self):
         folder = 'data'
@@ -135,4 +170,4 @@ def start_download():
     logger = getLogger(__name__)
     logger.debug('daemons.download.start_download')
     ta = TaxiAvailability()
-    ta.download()
+    ta.download_missing_timestamps()
