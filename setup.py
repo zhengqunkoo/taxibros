@@ -15,6 +15,7 @@ setup(
     install_requires=[
         'requests',
         'bson',
+        'psutil',
         'django',
         'django-dotenv',
         'django-background-tasks',
