@@ -89,8 +89,6 @@ function minutesChange(e) {
   var minutes = e.value;
   if (minutes.hasOwnProperty('newValue')) {
     minutes = minutes.newValue;
-  } else {
-    alert("Slider has no 'newValue' attribute.");
   }
   $.ajax({
       url: "{% url 'visualize:gen.js' %}",
