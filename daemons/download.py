@@ -82,7 +82,9 @@ class DownloadJson:
         @param date_time: LTA date_time that JSON was updated.
         @param coordinates: list of coordinates to be stored.
         """
-        timestamp = Timestamp(date_time=date_time)
+        dt = timezone.now()
+        dt = dt.replace(second=0, microsecond=0)
+        timestamp = Timestamp(date_time=dt)
         timestamp.save()
         for coordinate in coordinates:
             Coordinate(

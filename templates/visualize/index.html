@@ -7,7 +7,7 @@
 
   <link rel="stylesheet" href="{% static 'css/ui.css' %}">
   <link rel="stylesheet" href="{% static 'css/maps.css' %}">
-  <script type="text/javascript" src="{% url 'visualize:js'%}" ></script>
+  <script type="text/javascript" src="{% url 'visualize:map' %}" ></script>
   <script async defer
     src="https://maps.googleapis.com/maps/api/js?key={{ GOOGLEMAPS_SECRET_KEY }}&libraries=visualization&callback=initMap&region=SG">
   </script>
@@ -22,6 +22,7 @@
     <button onclick="changeGradient()">Change gradient</button>
     <button onclick="changeRadius()">Change radius</button>
     <button onclick="changeOpacity()">Change opacity</button>
+    <button onclick="showNearby()">Show near-by taxis</button>
   </div>
 
   <!-- Slider: zero is now, positive is future. -->

@@ -3,9 +3,10 @@ from daemons.models import Coordinate, Timestamp
 from background_task.models import Task
 from django.utils import timezone
 from django.conf import settings
+from django.http import JsonResponse
 import datetime
 import pytz
-from django.http import JsonResponse
+import math
 
 def index(request):
     """View function for home page of site."""
@@ -29,7 +30,25 @@ def index(request):
         context
     )
 
-def get_coordinates(request):
+
+def gen_time_js(request):
+    """Return Json of serialized list of coordinates according to time."""
+    return JsonResponse({'coordinates': serialize_coordinates(get_coordinates_time(request))})
+
+def gen_loc_js(request):
+    """Return Json of serialized list of coordinates according to the location"""
+    return JsonResponse({'coordinates': serialize_coordinates(get_coordinates_location(request))})
+
+
+def maps_js(request):
+    """Render Javascript file with list of coordinates in context."""
+    return render(
+        request,
+        'visualize/maps.js',
+        {'coordinates': serialize_coordinates(get_coordinates_time(request))}
+    )
+
+def get_coordinates_time(request):
     """Filter range one minute long, ensures at least one date_time returned.
     If two date_times returned, select most recent one.
     @param request: HTTP GET request containing other variables.
@@ -63,25 +82,32 @@ def get_coordinates(request):
     if times:
         # If many times, Select most recent time.
         time = times[0]
-        print(start_window, end_window)
-        print(time)
         coordinates = time.coordinate_set.all()
     return coordinates
 
-def get_coordinates_serial(request):
-    """Need serialize list to output as JsonResponse.
+def get_coordinates_location(request):
+    lat = request.GET.get('lat')
+    long = request.GET.get('long')
+    #Approximating lat/long
+    #http://www.longitudestore.com/how-big-is-one-gps-degree.html
+    distFunc = lambda x: math.pow(math.pow(110570 * (x.lat - lat),2) + math.pow(111320(x.long - long),2),0.5)
+
+    #Assumption: position passes on the coordinates
+    now = Timestamp.objects.latest('date_time')
+    coords = now.coordinate_set.all()
+
+    result = []
+    for coord in coords:
+        if distFunc(coord) < 500:
+            result.append(coord)
+    return result
+
+
+
+
+
+def serialize_coordinates(coordinates):
+    """Helper function to serialize list to output as needed in JsonResponse.
     @return serialized list of coordinates.
     """
-    return [[c.lat, c.long] for c in get_coordinates(request)]
-
-def gen_js(request):
-    """Return Json of serialized list of coordinates."""
-    return JsonResponse({'coordinates': get_coordinates_serial(request)})
-
-def maps_js(request):
-    """Render Javascript file with list of coordinates in context."""
-    return render(
-        request,
-        'visualize/maps.js',
-        {'coordinates': get_coordinates(request)}
-    )
+    return [[c.lat, c.long] for c in coordinates]

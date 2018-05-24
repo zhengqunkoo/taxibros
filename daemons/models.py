@@ -6,13 +6,13 @@ class Timestamp(models.Model):
     Assume time is unique.
     """
     date_time = models.DateTimeField()
-    
+
     def __str__(self):
         """
         String for representing the Model object.
         """
         return str(self.date_time)
-    
+
 
 class Coordinate(models.Model):
     """Model representing a coordinate recorded at timestamp.

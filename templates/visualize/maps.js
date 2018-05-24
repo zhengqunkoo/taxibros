@@ -84,6 +84,49 @@ function getPoints() {
   ];
 }
 
+function showNearby() {
+    // Try HTML5 geolocation.
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(function(position) {
+        var pos = {
+          lat: position.coords.latitude,
+          lng: position.coords.longitude
+        };
+
+        infoWindow.setPosition(pos);
+        infoWindow.setContent('Location found.');
+        infoWindow.open(map);
+        map.setCenter(pos);
+
+        $.ajax({
+            url: "{% url 'visualize:genLoc' %}",
+            data: {
+                lat: pos.lat,
+                long: pos.long
+            },
+            dataType: 'json',
+            success: function(data) {
+                pointArray.clear();
+                var coordinates = data.coordinates
+                var length = coordinates.length;
+                var coord;
+                for (var i=0; i<length; i++) {
+                  coord = coordinates[i];
+                  pointArray.push(new google.maps.LatLng(coord[0], coord[1]));
+                }
+            },
+            error: function(rs, e) {
+                alert("Failed to reach {% url 'visualize:genLoc' %}.");
+            }
+        });
+      }, function() {
+        handleLocationError(true, infoWindow, map.getCenter());
+      });
+    } else {
+      // Browser doesn't support Geolocation
+      handleLocationError(false, infoWindow, map.getCenter());
+    }
+}
 function minutesChange(e) {
   // Asynchronously update maps with serialized coordinates.
   var minutes = e.value;
@@ -93,7 +136,7 @@ function minutesChange(e) {
     alert("Slider has no 'newValue' attribute.");
   }
   $.ajax({
-      url: "{% url 'visualize:gen.js' %}",
+      url: "{% url 'visualize:genTime' %}",
       data: {
           minutes: minutes,
       },
@@ -109,7 +152,7 @@ function minutesChange(e) {
           }
       },
       error: function(rs, e) {
-          alert("Failed to reach {% url 'visualize:gen.js' %}.");
+          alert("Failed to reach {% url 'visualize:genTime' %}.");
       }
   });
 }
