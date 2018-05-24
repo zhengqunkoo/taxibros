@@ -8,6 +8,7 @@ import datetime
 import pytz
 import math
 import json
+import decimal
 
 def index(request):
     """View function for home page of site."""
@@ -89,13 +90,14 @@ def get_coordinates_time(request):
 def get_coordinates_location(request):
     pos = request.GET.get('pos')
 
-    #TODO: Remove this
+    #TODO: Remove this. Only wrote for debugging. i.e. can call /visualize/genLoc.js
     if (pos == None):
         pos = {"lat":1.3521, "lng":103.8198}
-        distFunc = lambda x: math.pow(math.pow(110570 * (x.lat - pos["lat"]),2) + math.pow(111320(x.long - pos["lng"]),2),0.5)
+        distFunc = lambda x: math.pow(math.pow(110570 * (x.lat - decimal.Decimal(pos["lat"])),2) + math.pow(111320*(x.long - decimal.Decimal(pos["lng"])),2),0.5)
     else:
+        print("All okay")
         pos = json.loads(pos)
-        distFunc = lambda x: math.pow(math.pow(110570 * (x.lat - int(pos["lat"])),2) + math.pow(111320(x.long - int(pos["lng"])),2),0.5)
+        distFunc = lambda x: math.pow(math.pow(110570 * (x.lat - decimal.Decimal(pos["lat"])),2) + math.pow(111320*(x.long - decimal.Decimal(pos["lng"])),2),0.5)
 
     #Approximating lat/long
     #http://www.longitudestore.com/how-big-is-one-gps-degree.html
@@ -103,7 +105,6 @@ def get_coordinates_location(request):
     #Assumption: position passes on the coordinates
     now = Timestamp.objects.latest('date_time')
     coords = now.coordinate_set.all()
-    print("HERERERERERE")
 
     result = []
     for coord in coords:
