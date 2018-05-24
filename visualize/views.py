@@ -7,6 +7,7 @@ from django.http import JsonResponse
 import datetime
 import pytz
 import math
+import json
 
 def index(request):
     """View function for home page of site."""
@@ -86,25 +87,29 @@ def get_coordinates_time(request):
     return coordinates
 
 def get_coordinates_location(request):
-    lat = request.GET.get('lat')
-    long = request.GET.get('long')
+    pos = request.GET.get('pos')
+
+    #TODO: Remove this
+    if (pos == None):
+        pos = {"lat":1.3521, "lng":103.8198}
+        distFunc = lambda x: math.pow(math.pow(110570 * (x.lat - pos["lat"]),2) + math.pow(111320(x.long - pos["lng"]),2),0.5)
+    else:
+        pos = json.loads(pos)
+        distFunc = lambda x: math.pow(math.pow(110570 * (x.lat - int(pos["lat"])),2) + math.pow(111320(x.long - int(pos["lng"])),2),0.5)
+
     #Approximating lat/long
     #http://www.longitudestore.com/how-big-is-one-gps-degree.html
-    distFunc = lambda x: math.pow(math.pow(110570 * (x.lat - lat),2) + math.pow(111320(x.long - long),2),0.5)
 
     #Assumption: position passes on the coordinates
     now = Timestamp.objects.latest('date_time')
     coords = now.coordinate_set.all()
+    print("HERERERERERE")
 
     result = []
     for coord in coords:
         if distFunc(coord) < 500:
             result.append(coord)
     return result
-
-
-
-
 
 def serialize_coordinates(coordinates):
     """Helper function to serialize list to output as needed in JsonResponse.

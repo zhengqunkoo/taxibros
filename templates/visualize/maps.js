@@ -31,6 +31,7 @@ function initMap() {
         lng: position.coords.longitude
       };
 
+
       infoWindow.setPosition(pos);
       infoWindow.setContent('Location found.');
       infoWindow.open(map);
@@ -101,8 +102,7 @@ function showNearby() {
         $.ajax({
             url: "{% url 'visualize:genLoc' %}",
             data: {
-                lat: pos.lat,
-                long: pos.long
+                pos: JSON.stringify(pos)
             },
             dataType: 'json',
             success: function(data) {
@@ -132,8 +132,6 @@ function minutesChange(e) {
   var minutes = e.value;
   if (minutes.hasOwnProperty('newValue')) {
     minutes = minutes.newValue;
-  } else {
-    alert("Slider has no 'newValue' attribute.");
   }
   $.ajax({
       url: "{% url 'visualize:genTime' %}",

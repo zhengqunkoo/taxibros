@@ -10,9 +10,12 @@ https://docs.djangoproject.com/en/2.0/howto/deployment/wsgi/
 import os
 import dotenv
 import subprocess
+import psutil
+
 from daemons.download import start_download
 from django.core.wsgi import get_wsgi_application
 from django.conf import settings
+
 
 #Reading .env file
 dotenv.read_dotenv(os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env'))
@@ -24,6 +27,13 @@ if settings.DAEMON_START:
     #Ensures that there is only one instance of the task
     # Download JSON stream.
     start_download(repeat=60, repeat_until=None)
+
     #Runs the subprocess asynchronously in the background
+    # Runs only if no command already running.
     cmd = ['python3', 'manage.py', 'process_tasks', '--queue', 'taxi-availability']
-    subprocess.Popen(cmd)
+    for pid in psutil.pids():
+        p = psutil.Process(pid)
+        if p.cmdline() == cmd:
+            break
+    else:
+        subprocess.Popen(cmd)
