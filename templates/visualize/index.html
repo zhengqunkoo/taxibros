@@ -16,13 +16,23 @@
 {% block header %}Visualize{% endblock %}
 {% block content %}
 {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+<!-- Stats -->
+
 
   <div id="floating-panel">
+    <table>
+        <tr>
     <button onclick="toggleHeatmap()">Toggle Heatmap</button>
     <button onclick="changeGradient()">Change gradient</button>
     <button onclick="changeRadius()">Change radius</button>
     <button onclick="changeOpacity()">Change opacity</button>
     <button onclick="showNearby()">Show near-by taxis</button>
+        </tr>
+        <tr>
+        <th><div>Average distance away of taxis within 500m:</div><div id="average_dist">"-"</div></th>
+        <th><div>Number of taxis within 500m:</div><div id="num">"-"</div></th>
+    </tr>
+    </table>
   </div>
 
   <!-- Slider: zero is now, positive is future. -->
@@ -37,4 +47,5 @@
 
   <!-- Google maps. -->
   <div id="map"></div>
+
 {% endblock %}
