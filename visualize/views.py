@@ -48,7 +48,7 @@ def maps_js(request):
     return render(
         request,
         'visualize/maps.js',
-        {'coordinates': serialize_coordinates(get_coordinates_time(request))}
+        {'coordinates': get_coordinates_time(request)}
     )
 
 def get_coordinates_time(request):
