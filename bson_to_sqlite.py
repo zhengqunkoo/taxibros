@@ -7,15 +7,17 @@
 import bson
 import sys
 import os
+import dotenv
 import django
 from django.db import models
-from taxibros.wsgi import application
-from daemons.models import Timestamp, Coordinate
 
 
 if __name__ == '__main__':  
+    dotenv.read_dotenv(os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env'))
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "taxibros.settings.local_settings")
     django.setup()
+    from taxibros.wsgi import application
+    from daemons.models import Timestamp, Coordinate
 
     _, path = sys.argv
     # Filename is date_time.
