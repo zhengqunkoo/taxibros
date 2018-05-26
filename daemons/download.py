@@ -120,7 +120,7 @@ class DownloadJson:
         times = [time.replace(second=self._date_time_start.second) for time in times]
         date_set = set(
             self._date_time_start + datetime.timedelta(minutes=m) for m in \
-            range((self._date_time_end - self._date_time_start).seconds // 60)
+            range(int((self._date_time_end - self._date_time_start).total_seconds()) // 60)
         )
         missing = date_set - set(times)
         return [time.strftime('%Y-%m-%dT%H:%M:%S') for time in missing]
