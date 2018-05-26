@@ -130,17 +130,6 @@ class DownloadJson:
         print('Stored all missing timestamps!')
 
 
-class DownloadJsonAuth(DownloadJson):
-    """For APIs that need authentication key."""
-
-    def __init__(self, folder, url, auth):
-        url = urllib.parse.urljoin(
-            'https://api.data.gov.sg/v1/transport/busarrival?',
-            auth
-        )
-        super().__init__(folder, url)
-
-
 class TaxiAvailability(DownloadJson):
     """Downloads taxi availability JSON."""
 
