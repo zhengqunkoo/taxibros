@@ -52,7 +52,7 @@ class DownloadJson:
     @abc.abstractmethod
     def get_properties(self, json):
         """Given a JSON, extract properties.
-        @return properties: string.
+        @return list of properties.
         """
         ...
 
@@ -66,11 +66,11 @@ class DownloadJson:
         # Assume 'code' in json means error.
         # Assume there is 'message' in json with error message.
         if 'code' in json:
-            self._logger.debug('{} {}'.format(json['code'], json['message']))
+            self.log(json['code'], json['message'])
             return
 
         date_time, features = self.get_time_features(json)
-        self._logger.debug(self.get_properties(features))
+        self.log(*self.get_properties(features))
         coordinates = self.get_coordinates(features)
         self.store(date_time, coordinates)
 
@@ -137,6 +137,12 @@ class DownloadJson:
         self.download()
         print('Stored all missing timestamps!')
 
+    def log(self, *args):
+        """Logs with space-separated list of strings.
+        @param args: list of values that can be converted into strings.
+        """
+        self._logger.debug(' '.join(map(str, args)))
+
 
 class TaxiAvailability(DownloadJson):
     """Downloads taxi availability JSON."""
@@ -158,7 +164,7 @@ class TaxiAvailability(DownloadJson):
         date_timestamp = json['properties']['timestamp']
         taxi_count = json['properties']['taxi_count']
         status = json['properties']['api_info']['status']
-        return '{} {} {}'.format(date_timestamp, taxi_count, status)
+        return date_timestamp, taxi_count, status
 
 
 @background(queue='taxi-availability')
