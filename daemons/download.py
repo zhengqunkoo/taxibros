@@ -58,12 +58,9 @@ class DownloadJson:
 
     def download(self, url=None):
         """Generic method to download JSON streams.
-        @param url: URL to download from. Default: self._url.
+        @param url: URL to download from. Default: None.
         """
-        if url == None:
-            url = self._url
-        response = requests.get(url)
-        json = response.json()
+        json = self.get_json(url)
 
         # Log errors and exit from function if error.
         # Assume 'code' in json means error.
@@ -73,8 +70,19 @@ class DownloadJson:
             return
 
         date_time, features = self.get_time_features(json)
+        self._logger.debug(self.get_properties(features))
         coordinates = self.get_coordinates(features)
         self.store(date_time, coordinates)
+
+    def get_json(self, url=None):
+        """Generic method to download JSON streams.
+        @param url: URL to download from. Default: self._url.
+        @return JSON.
+        """
+        if url == None:
+            url = self._url
+        response = requests.get(url)
+        return response.json()
 
     def store(self, date_time, coordinates):
         """Stores each coordinate with the same unique date_time.
