@@ -107,13 +107,20 @@ function showNearby() {
             dataType: 'json',
             success: function(data) {
                 pointArray.clear();
-                var coordinates = data.coordinates
+                var coordinates = data.coordinates;
+                var average_dist = data.average_dist;
+                var number = data.number;
+                //Filling up map
                 var length = coordinates.length;
                 var coord;
                 for (var i=0; i<length; i++) {
                   coord = coordinates[i];
                   pointArray.push(new google.maps.LatLng(coord[0], coord[1]));
                 }
+                //Load stats
+                document.getElementById('average_dist').innerHTML = average_dist;
+                document.getElementById('num').innerHTML = number;
+
             },
             error: function(rs, e) {
                 alert("Failed to reach {% url 'visualize:genLoc' %}.");
