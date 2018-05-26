@@ -98,6 +98,7 @@ function showNearby() {
         infoWindow.setContent('Location found.');
         infoWindow.open(map);
         map.setCenter(pos);
+        map.setZoom(16);
 
         $.ajax({
             url: "{% url 'visualize:genLoc' %}",
@@ -120,6 +121,18 @@ function showNearby() {
                 //Load stats
                 document.getElementById('average_dist').innerHTML = average_dist;
                 document.getElementById('num').innerHTML = number;
+
+                //Draw circle
+                var circle = new google.maps.Circle({
+                  strokeColor: '#FF7F50',
+                  strokeOpacity: 0.2,
+                  strokeWeight: 2,
+                  fillColor: '#FF7F50',
+                  fillOpacity: 0.05,
+                  map: map,
+                  center: pos,
+                  radius: 500,
+                });
 
             },
             error: function(rs, e) {
