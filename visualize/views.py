@@ -95,10 +95,9 @@ def get_coordinates_location(request):
     #TODO: Remove this. Only wrote for debugging. i.e. can call /visualize/genLoc.js in browser
     if (pos == None):
         pos = {"lat":1.3521, "lng":103.8198}
-        distFunc = lambda x: math.pow(math.pow(110570 * (x.lat - decimal.Decimal(pos["lat"])),2) + math.pow(111320*(x.long - decimal.Decimal(pos["lng"])),2),0.5)
     else:
         pos = json.loads(pos)
-        distFunc = lambda x: math.pow(math.pow(110570 * (x.lat - decimal.Decimal(pos["lat"])),2) + math.pow(111320*(x.long - decimal.Decimal(pos["lng"])),2),0.5)
+    distFunc = lambda x: math.pow(math.pow(110570 * (x.lat - decimal.Decimal(pos["lat"])),2) + math.pow(111320*(x.long - decimal.Decimal(pos["lng"])),2),0.5)
 
     #Approximating lat/long
     #http://www.longitudestore.com/how-big-is-one-gps-degree.html
@@ -116,7 +115,16 @@ def get_coordinates_location(request):
             result.append(coord)
             num += 1
             total_dist += dist
-    """
+
+
+
+    #timezone.activate(pytz.timezone(settings.TIME_ZONE))
+    date_time_end = Timestamp.objects.latest('date_time').date_time
+    #TODO: Uncomment below. Currently this way cause not enough data
+    #date_time_end = timezone.localtime(date_time_end)
+    date_time_end = date_time_end.replace(hour=0,minute=0,second=0)
+    date_time_start = date_time_end - datetime.timedelta(days=1)
+
     #Generating the coordinates in 10min intervals for yesterday's time
     timestamps = Timestamp.objects.filter(
         date_time__range=(
@@ -125,24 +133,12 @@ def get_coordinates_location(request):
         ),
     )
 
-    # Convert to local timezone.
-    timezone.activate(pytz.timezone(settings.TIME_ZONE))
-    times = [timezone.localtime(x.date_time) for x in timestamps]
-
-    # Set seconds to same as start to check for missing times.
-
-    date_time_end = timezone.now().replace(hour=0, minute=0,second=0, microsecond=0)
-    date_time_start = date_time_end - timedelta(day=1)
-    times = [time.replace(second=date_time_start.second) for time in times]
-    date_set = set(
-        date_time_start + datetime.timedelta(minutes=m) for m in \
-        range((date_time_end - date_time_start).minutes)
-    )
-    """
 
 
+    timestamps = filter(lambda time: ((time.date_time.replace(second=0) - date_time_start).seconds) % 300 == 0, timestamps)
 
-    return result, total_dist/num, num
+
+    return result, total_dist/num if num != 0 else 0, num
 
 
 
