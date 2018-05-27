@@ -63,10 +63,16 @@ class DownloadJson:
         json = self.get_json(url)
 
         # Log errors and exit from function if error.
-        # Assume 'code' in json means error.
-        # Assume there is 'message' in json with error message.
-        if 'code' in json:
-            self.log(json['code'], json['message'])
+        # Assume 'code' or 'message' in JSON means error.
+        contains_code = 'code' in json
+        contains_message = 'message' in json
+        if contains_code or contains_message:
+            error_array = []
+            if contains_code:
+                error_array.append(json['code'])
+            if contains_message:
+                error_array.append(json['message'])
+            self.log(*error_array)
             return
 
         date_time, features = self.get_time_features(json)
