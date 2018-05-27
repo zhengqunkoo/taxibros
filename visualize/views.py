@@ -20,12 +20,23 @@ def index(request):
     #CHECK1:If daemon is running
     if (Task.objects.all().count()==0):
         context["error_message"] = "Im sorry. The service appears to be experiencing a malfunction."
+        return render(
+            request,
+            'visualize/index.html',
+            context
+        )
 
     #CHECK2:If there is insufficient data
     times = Timestamp.objects.filter(date_time__range = [timezone.now() - datetime.timedelta(minutes=5), timezone.now()])
     if (times.count()<5):
         context["error_message"] = "Data is still incomplete, please wait a few minutes before refreshing."
+        return render(
+            request,
+            'visualize/index.html',
+            context
+        )
 
+    # Else: render with normal context.
     return render(
         request,
         'visualize/index.html',
