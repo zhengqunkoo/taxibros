@@ -9,10 +9,10 @@ def delete_selected(modeladmin, request, queryset):
 
 @admin.register(Timestamp)
 class TimestampAdmin(admin.ModelAdmin):
-    list_display = ('date_time',)
+    list_display = ("date_time",)
     actions = (delete_selected,)
 
 
 @admin.register(Coordinate)
 class CoordinateAdmin(admin.ModelAdmin):
-    list_display = ('lat', 'long')
+    list_display = ("lat", "long")

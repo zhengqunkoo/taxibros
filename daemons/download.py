@@ -63,14 +63,14 @@ class DownloadJson:
 
         # Log errors and exit from function if error.
         # Assume 'code' or 'message' in JSON means error.
-        contains_code = 'code' in json
-        contains_message = 'message' in json
+        contains_code = "code" in json
+        contains_message = "message" in json
         if contains_code or contains_message:
             error_array = []
             if contains_code:
-                error_array.append(json['code'])
+                error_array.append(json["code"])
             if contains_message:
-                error_array.append(json['message'])
+                error_array.append(json["message"])
             self.log(*error_array)
             return
 
@@ -98,12 +98,10 @@ class DownloadJson:
         timestamp, created = Timestamp.objects.get_or_create(date_time=date_time)
         if created:
             # If created timestamp, store coordinates.
-            print('Store {}'.format(date_time))
+            print("Store {}".format(date_time))
             for coordinate in coordinates:
                 Coordinate(
-                    lat=coordinate[1],
-                    long=coordinate[0],
-                    timestamp=timestamp,
+                    lat=coordinate[1], long=coordinate[0], timestamp=timestamp
                 ).save()
 
     def get_missing_timestamps(self):
@@ -111,10 +109,7 @@ class DownloadJson:
         Identify missing timestamps.
         """
         timestamps = Timestamp.objects.filter(
-            date_time__range=(
-                self._date_time_start,
-                self._date_time_end,
-            ),
+            date_time__range=(self._date_time_start, self._date_time_end)
         )
 
         # Convert to local timezone.
@@ -124,11 +119,13 @@ class DownloadJson:
         # Set seconds to same as start to check for missing times.
         times = [time.replace(second=self._date_time_start.second) for time in times]
         date_set = set(
-            self._date_time_start + datetime.timedelta(minutes=m) for m in \
-            range(int((self._date_time_end - self._date_time_start).total_seconds()) // 60)
+            self._date_time_start + datetime.timedelta(minutes=m)
+            for m in range(
+                int((self._date_time_end - self._date_time_start).total_seconds()) // 60
+            )
         )
         missing = date_set - set(times)
-        return [time.strftime('%Y-%m-%dT%H:%M:%S') for time in missing]
+        return [time.strftime("%Y-%m-%dT%H:%M:%S") for time in missing]
 
     def download_missing_timestamps(self):
         """Make timestamps in database continuous, in terms of minutes.
@@ -136,46 +133,46 @@ class DownloadJson:
         """
         missing = self.get_missing_timestamps()
         for date_time in sorted(missing):
-            print('Check {}'.format(date_time))
-            self.download('{}?date_time={}'.format(self._url, date_time))
-        print('Check latest')
+            print("Check {}".format(date_time))
+            self.download("{}?date_time={}".format(self._url, date_time))
+        print("Check latest")
         self.download()
-        print('Stored all missing timestamps!')
+        print("Stored all missing timestamps!")
 
     def log(self, *args):
         """Logs with space-separated list of strings.
         @param args: list of values that can be converted into strings.
         """
-        self._logger.debug(' '.join(map(str, args)))
+        self._logger.debug(" ".join(map(str, args)))
 
 
 class TaxiAvailability(DownloadJson):
     """Downloads taxi availability JSON."""
 
     def __init__(self):
-        url = 'https://api.data.gov.sg/v1/transport/taxi-availability'
+        url = "https://api.data.gov.sg/v1/transport/taxi-availability"
         super().__init__(url)
 
     def get_time_features(self, json):
-        features = json['features'][0]
-        date_timestamp = features['properties']['timestamp']
+        features = json["features"][0]
+        date_timestamp = features["properties"]["timestamp"]
         return date_timestamp, features
 
     def get_coordinates(self, json):
-        return json['geometry']['coordinates']
+        return json["geometry"]["coordinates"]
 
     def get_properties(self, json):
-        date_timestamp = json['properties']['timestamp']
-        taxi_count = json['properties']['taxi_count']
-        status = json['properties']['api_info']['status']
+        date_timestamp = json["properties"]["timestamp"]
+        taxi_count = json["properties"]["taxi_count"]
+        status = json["properties"]["api_info"]["status"]
         return date_timestamp, taxi_count, status
 
 
-@background(queue='taxi-availability')
+@background(queue="taxi-availability")
 def start_download():
-    #Deletes all previous tasks before running current task
+    # Deletes all previous tasks before running current task
     Task.objects.all().delete()
     logger = getLogger(__name__)
-    logger.debug('daemons.download.start_download')
+    logger.debug("daemons.download.start_download")
     ta = TaxiAvailability()
     ta.download_missing_timestamps()

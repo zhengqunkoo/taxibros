@@ -86,5 +86,11 @@ Tests are executed using the django manager.
    coverage-badge -o coverage.svg
    ```
 
+## Code formatting
+1. Run with sensible defaults.
+   ```
+   black .
+   ```
+
 [coverage badge]: https://github.com/zhengqunkoo/taxibros/raw/master/coverage.svg "Generated using coverage-badge."
 [install PROJ.4 datum shifting files]: https://docs.djangoproject.com/en/2.0/ref/contrib/gis/install/geolibs/#proj4
