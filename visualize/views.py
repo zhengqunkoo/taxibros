@@ -20,23 +20,12 @@ def index(request):
     #CHECK1:If daemon is running
     if (Task.objects.all().count()==0):
         context["error_message"] = "Im sorry. The service appears to be experiencing a malfunction."
-        return render(
-            request,
-            'visualize/index.html',
-            context
-        )
 
     #CHECK2:If there is insufficient data
     times = Timestamp.objects.filter(date_time__range = [timezone.now() - datetime.timedelta(minutes=5), timezone.now()])
     if (times.count()<5):
         context["error_message"] = "Data is still incomplete, please wait a few minutes before refreshing."
-        return render(
-            request,
-            'visualize/index.html',
-            context
-        )
 
-    # Else: render with normal context.
     return render(
         request,
         'visualize/index.html',
@@ -108,14 +97,13 @@ def get_coordinates_location(request):
         pos = {"lat":1.3521, "lng":103.8198}
         distFunc = lambda x: math.pow(math.pow(110570 * (x.lat - decimal.Decimal(pos["lat"])),2) + math.pow(111320*(x.long - decimal.Decimal(pos["lng"])),2),0.5)
     else:
-        print("All okay")
         pos = json.loads(pos)
         distFunc = lambda x: math.pow(math.pow(110570 * (x.lat - decimal.Decimal(pos["lat"])),2) + math.pow(111320*(x.long - decimal.Decimal(pos["lng"])),2),0.5)
 
     #Approximating lat/long
     #http://www.longitudestore.com/how-big-is-one-gps-degree.html
 
-    #Assumption: position passes on the coordinates
+    #Generating the coordinates associated with the first time stamp
     now = Timestamp.objects.latest('date_time')
     coords = now.coordinate_set.all()
 
@@ -128,7 +116,35 @@ def get_coordinates_location(request):
             result.append(coord)
             num += 1
             total_dist += dist
+    """
+    #Generating the coordinates in 10min intervals for yesterday's time
+    timestamps = Timestamp.objects.filter(
+        date_time__range=(
+            date_time_start,
+            date_time_end,
+        ),
+    )
+
+    # Convert to local timezone.
+    timezone.activate(pytz.timezone(settings.TIME_ZONE))
+    times = [timezone.localtime(x.date_time) for x in timestamps]
+
+    # Set seconds to same as start to check for missing times.
+
+    date_time_end = timezone.now().replace(hour=0, minute=0,second=0, microsecond=0)
+    date_time_start = date_time_end - timedelta(day=1)
+    times = [time.replace(second=date_time_start.second) for time in times]
+    date_set = set(
+        date_time_start + datetime.timedelta(minutes=m) for m in \
+        range((date_time_end - date_time_start).minutes)
+    )
+    """
+
+
+
     return result, total_dist/num, num
+
+
 
 def serialize_coordinates(coordinates):
     """Helper function to serialize list to output as needed in JsonResponse.

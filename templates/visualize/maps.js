@@ -119,7 +119,9 @@ function showNearby() {
                   pointArray.push(new google.maps.LatLng(coord[0], coord[1]));
                 }
                 //Load stats
-                document.getElementById('average_dist').innerHTML = average_dist;
+                if (number != 0) {
+                    document.getElementById('average_dist').innerHTML = average_dist;
+                }
                 document.getElementById('num').innerHTML = number;
 
                 //Draw circle
@@ -133,6 +135,8 @@ function showNearby() {
                   center: pos,
                   radius: 500,
                 });
+
+
 
             },
             error: function(rs, e) {
