@@ -1,4 +1,6 @@
 # TaxiBros
+![Coverage Status][coverage badge]
+
 Instantly query taxi arrival times.
 
 ## Installing and running django server
@@ -69,4 +71,20 @@ Tests are executed using the django manager.
 ## Installing Open Street Map
 1. For more context in map (including street and thoroughfare details), [install PROJ.4 datum shifting files].
 
+## Coverage testing
+1. Generate `.coverage` file.
+   ```
+   coverage run manage.py test
+   ```
+2. Optional: show report.
+   ```
+   coverage report -m
+   ```
+3. Generate coverage badge. You might have to alias
+   `python3 .../path/to/coverage_badge/__main__.py` to `coverage-badge`.
+   ```
+   coverage-badge -o coverage.svg
+   ```
+
+[coverage badge]: https://github.com/zhengqunkoo/taxibros/raw/master/coverage.svg "Generated using coverage-badge."
 [install PROJ.4 datum shifting files]: https://docs.djangoproject.com/en/2.0/ref/contrib/gis/install/geolibs/#proj4

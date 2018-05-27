@@ -1,0 +1,16 @@
+[run]
+branch = true
+source = .
+omit =
+    */tests/*
+    */migrations/*
+    */settings/*
+    */urls.py
+    */wsgi.py
+
+[report]
+exclude_lines =
+    pragma: no cover
+    if __name__ == .__main__.:
+
+show_missing = true
