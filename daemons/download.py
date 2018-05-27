@@ -22,9 +22,8 @@ class DownloadJson:
     For each missing timestamp, download it.
     """
 
-    def __init__(self, folder, url):
+    def __init__(self, url):
         """
-        @param folder: folder to log to. Fail if folder does not exist.
         @param url: url to download JSON data from.
         """
         self._url = url
@@ -154,9 +153,8 @@ class TaxiAvailability(DownloadJson):
     """Downloads taxi availability JSON."""
 
     def __init__(self):
-        folder = 'data'
         url = 'https://api.data.gov.sg/v1/transport/taxi-availability'
-        super().__init__(folder, url)
+        super().__init__(url)
 
     def get_time_features(self, json):
         features = json['features'][0]
