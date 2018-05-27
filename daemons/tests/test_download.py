@@ -1,12 +1,12 @@
 import datetime
 import pytz
-from unittest import mock
 from unittest.mock import patch
 
 from django.conf import settings
 from django.test import TestCase, override_settings
 from django.utils import timezone
 from daemons.download import DownloadJson, TaxiAvailability
+from daemons.models import Timestamp
 
 
 @patch('daemons.download.DownloadJson.get_json')
@@ -15,25 +15,26 @@ class DownloadApiTest(TestCase):
     Mock API calls in DownloadJson.
     """
 
-    def setUp(self):
+    @classmethod
+    def setUpTestData(cls):
         """Test functionality using TaxiAvailability.
         Override init with mock superclass.
         Define some mock JSONs returned from API.
         """
-        self._json_unavailable = {
+        cls._json_unavailable = {
             "message": "Forbidden",
         }
-        self._json_error = {
+        cls._json_error = {
             "code": 0,
             "message": "string",
         }
-        self._json_no_results = {
+        cls._json_no_results = {
             "api_info": {
                 "status": "healthy",
             },
             "message": "no results found",
         }
-        self._json_results = {
+        cls._json_results = {
             "type": "FeatureCollection",
             "crs": {
                 "type": "link",
@@ -93,3 +94,73 @@ class DownloadApiTest(TestCase):
         mock_get_json.return_value = self._json_unavailable
         TaxiAvailability().download()
         mock_log.assert_called_with("Forbidden")
+
+
+class DownloadDatabaseTest(TestCase):
+    """Tests daemon's interactions with database."""
+
+    @classmethod
+    def setUpTestData(cls):
+        """Activate timezone for DATE_TIME_START."""
+        from django.conf import settings
+        timezone.activate(pytz.timezone(settings.TIME_ZONE))
+        cls._json_results = {
+            "type": "FeatureCollection",
+            "crs": {
+                "type": "link",
+                "properties": {
+                    "href": "http://spatialreference.org/ref/epsg/4326/ogcwkt/",
+                    "type": "ogcwkt",
+                },
+            },
+            "features": [{
+                "type": "Feature",
+                "geometry": {
+                    "type": "MultiPoint",
+                    "coordinates": [
+                        [103.99528, 1.3754],
+                        [104.00055, 1.3809],
+                        [104.00057, 1.38101],
+                        [104.00072, 1.3807],
+                        [104.00098, 1.38424],
+                    ],
+                },
+                "properties": {
+                    "timestamp": "2017-05-15T13:02:57+08:00",
+                    "taxi_count": 5,
+                    "api_info": {
+                        "status": "healthy"
+                    },
+                },
+            }],
+        }
+
+    # Make start_date_time always one minute before end_date_time (now).
+    @override_settings(DATE_TIME_START= \
+        timezone.localtime(
+            (timezone.now()-datetime.timedelta(minutes=1))
+        )
+        .strftime('%Y-%m-%dT%H:%M:%S%z')
+    )
+    def setUp(self):
+        """Create TaxiAvailability class.
+        Filter always returns a queryset with a one minute time range.
+        """
+        self._ta = TaxiAvailability()
+
+    def test_one_timestamp(self):
+        """One minute of filtering should return one timestamp."""
+        missing = self._ta.get_missing_timestamps()
+        self.assertEqual(len(missing), 1)
+
+    @patch('daemons.download.DownloadJson.get_json')
+    def test_unique_timestamp(self, mock_get_json):
+        """Download one timestamp. Download the same timestamp again.
+        On second download, Timestamp.save() shouldn't be called.
+        """
+        mock_get_json.return_value = self._json_results
+        self.assertEquals(Timestamp.objects.all().count(), 0)
+        self._ta.download()
+        self.assertEquals(Timestamp.objects.all().count(), 1)
+        self._ta.download()
+        self.assertEquals(Timestamp.objects.all().count(), 1)
