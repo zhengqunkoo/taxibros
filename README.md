@@ -92,5 +92,5 @@ Tests are executed using the django manager.
    black .
    ```
 
-[coverage badge]: https://github.com/zhengqunkoo/taxibros/raw/master/coverage.svg "Generated using coverage-badge."
+[coverage badge]: https://github.com/zhengqunkoo/taxibros/raw/master/coverage.svg?sanitize=True "Generated using coverage-badge."
 [install PROJ.4 datum shifting files]: https://docs.djangoproject.com/en/2.0/ref/contrib/gis/install/geolibs/#proj4
