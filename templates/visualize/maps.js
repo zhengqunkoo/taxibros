@@ -124,6 +124,7 @@ function showNearby() {
                 var coordinates = data.coordinates;
                 var average_dist = data.average_dist;
                 var number = data.number;
+                var day_stats = data.day_stats;
                 //Filling up map
                 var length = coordinates.length;
                 var coord;
@@ -132,7 +133,7 @@ function showNearby() {
                   pointArray.push(new google.maps.LatLng(coord[0], coord[1]));
                 }
                 //Load stats
-                if (number != 0) {
+                if (number != 0) { //Gets around zero division error
                     document.getElementById('average_dist').innerHTML = average_dist;
                 }
                 document.getElementById('num').innerHTML = number;
@@ -149,7 +150,8 @@ function showNearby() {
                   center: pos,
                   radius: 500,
                 });
-
+                //Draw chart
+                drawChart(day_stats);
 
 
             },
@@ -199,4 +201,33 @@ function handleLocationError(browserHasGeolocation, infoWindow, pos) {
                         'Error: The Geolocation service failed.' :
                         'Error: Your browser doesn\'t support geolocation.');
   infoWindow.open(map);
+}
+
+
+function drawChart(day_stats) {
+    var width = 420,
+        barHeight = 20;
+
+    var x = d3.scaleLinear()
+        .domain([0, d3.max(day_stats)])
+        .range([0, 420]);
+    var chart = d3.select(".chart")
+        .attr("width", width);
+    chart.attr("height", barHeight * day_stats.length);
+
+    var bar = chart.selectAll("g")
+        .data(day_stats)
+      .enter().append("g")
+        .attr("transform", function(d, i) { return "translate(0," + i * barHeight + ")"; });
+
+    bar.append("rect")
+        .attr("width", function(d) { return x(d); })
+        .attr("height", barHeight - 1);
+
+    bar.append("text")
+    .attr("x", function(d) { return x(d) - 3; })
+    .attr("y", barHeight / 2)
+    .attr("dy", ".35em")
+    .text(function(d) { return d; });
+
 }

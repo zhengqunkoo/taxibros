@@ -51,12 +51,13 @@ def gen_time_js(request):
 
 def gen_loc_js(request):
     """Return Json of serialized list of coordinates, average distance away, and number of taxis according to the location"""
-    coords, average, number = get_coordinates_location(request)
+    coords, average, number, day_stats = get_coordinates_location(request)
     return JsonResponse(
         {
             "coordinates": serialize_coordinates(coords),
             "average_dist": average,
             "number": number,
+            "day_stats": day_stats
         }
     )
 
@@ -152,8 +153,19 @@ def get_coordinates_location(request):
 
     timestamps = filter(lambda time: ((time.date_time.replace(second=0) - date_time_start).seconds) % 300 == 0, timestamps)
 
+    day_stats = []
+    for time in timestamps:
+        coords = time.coordinate_set.all()
+        num_at_time = 0
+        for coord in coords:
+            dist = distFunc(coord)
+            if dist < 500:
+                num_at_time += 1
+        day_stats.append(num_at_time)
 
-    return result, total_dist/num if num != 0 else 0, num
+
+
+    return result, total_dist/num if num != 0 else 0, num, day_stats
 
 
 

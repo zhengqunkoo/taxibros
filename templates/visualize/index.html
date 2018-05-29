@@ -49,4 +49,21 @@
   <!-- Google maps. -->
   <div id="map"></div>
 
+  <!--SVG for charts -->
+  <svg class="chart"></svg>
+  <script src="https://d3js.org/d3.v4.min.js"></script>
+  <style>
+
+  .chart rect {
+    fill: steelblue;
+  }
+
+  .chart text {
+    fill: white;
+    font: 10px sans-serif;
+    text-anchor: end;
+  }
+
+  </style>
+
 {% endblock %}
