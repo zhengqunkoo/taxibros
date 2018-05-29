@@ -226,7 +226,6 @@ function drawChart(day_stats) {
         .attr("transform", function(d, i) { return "translate(" + (margin.left + (i * barWidth)) + "," + y(d) + ")"; })
         .attr("width", barWidth - 1);
     //Height attribute set in delay
-
     rect.transition()
         .delay(function(d, i) {return i * 10; })
         .attr("height", function(d) {return height-y(d); });
