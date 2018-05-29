@@ -212,11 +212,10 @@ function drawChart(day_stats) {
 
     var y = d3.scaleLinear()
         .domain([0, d3.max(day_stats)])
-        .range([0, height]);
-
+        .range([height,0]);
     var yAxis = d3.axisLeft(y)
         .scale(y)
-        .ticks(10, "%");
+        .ticks(10, "s");
     var chart = d3.select(".chart")
         .attr("height", height);
     chart.attr("width", barWidth * day_stats.length);
@@ -224,13 +223,13 @@ function drawChart(day_stats) {
     var bar = chart.selectAll("g")
         .data(day_stats)
       .enter().append("g")
-        .attr("transform", function(d, i) { return "translate(" + (margin.left + (i * barWidth)) + "," + (height-y(d)) + ")"; });
+        .attr("transform", function(d, i) { return "translate(" + (margin.left + (i * barWidth)) + "," + y(d) + ")"; });
     bar.append("rect")
-        .attr("height", function(d) { return y(d); })
+        .attr("height", function(d) { return (height - y(d)); })
         .attr("width", barWidth - 1)
 
     bar.append("text")
-        .attr("y", function(d) { return y(d) - 3; })
+        .attr("y", function(d) { return (height-y(d)) - 3; })
         .attr("x", barWidth / 2)
         .attr("dx", ".10em")
         .text(function(d) { return d; });
