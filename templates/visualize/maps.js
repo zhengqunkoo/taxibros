@@ -220,24 +220,16 @@ function drawChart(day_stats) {
         .attr("height", height);
     chart.attr("width", barWidth * day_stats.length);
 
-    var bar = chart.selectAll("g")
+    var rect = chart.selectAll("g")
         .data(day_stats)
-      .enter().append("g")
-        .attr("transform", function(d, i) { return "translate(" + (margin.left + (i * barWidth)) + "," + y(d) + ")"; });
-    bar.append("rect")
-        .attr("height", function(d) { return (height - y(d)); })
-        .attr("width", barWidth - 1)
+      .enter().append("rect")
+        .attr("transform", function(d, i) { return "translate(" + (margin.left + (i * barWidth)) + "," + y(d) + ")"; })
+        .attr("width", barWidth - 1);
+    //Height attribute set in delay
 
-    bar.append("text")
-        .attr("y", function(d) { return (height-y(d)) - 3; })
-        .attr("x", barWidth / 2)
-        .attr("dx", ".10em")
-        .text(function(d) { return d; });
-
-    bar.transition()
-        .delay(function(d, i) { return i * 100; })
-        .attr("y", function(d) { return y(d[1]); })
-        .attr("height", function(d) { return y(d[0]) - y(d[1]); });
+    rect.transition()
+        .delay(function(d, i) {return i * 10; })
+        .attr("height", function(d) {return height-y(d); });
 
     chart.append("g")
         .attr("transform", "translate(" + margin.left+ ",0)")
