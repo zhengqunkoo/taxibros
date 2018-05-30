@@ -11,7 +11,7 @@
   //Declared global variable here so that it may be referred to by other scripts
     function initMap (){};
   </script>
-  <script defer type="text/javascript" src="{% url 'visualize:map' %}" ></script>
+  <script type="text/javascript" src="{% url 'visualize:map' %}" ></script>
 
   <script defer
     src="https://maps.googleapis.com/maps/api/js?key={{ GOOGLEMAPS_SECRET_KEY }}&libraries=visualization&callback=initMap&region=SG">
@@ -27,11 +27,11 @@
   <div id="floating-panel">
     <table>
         <tr>
-    <button id = "toggleHeatmap" >Toggle Heatmap</button>
-    <button id = "changeGradient">Change gradient</button>
-    <button id = "changeRadius">Change radius</button>
-    <button id = "changeOpacity">Change opacity</button>
-    <button id = "showNearby">Show near-by taxis</button>
+    <button onclick="toggleHeatmap()">Toggle Heatmap</button>
+    <button onclick="changeGradient()">Change gradient</button>
+    <button onclick="changeRadius()">Change radius</button>
+    <button onclick="changeOpacity()">Change opacity</button>
+    <button onclick="showNearby()">Show near-by taxis</button>
         </tr>
         <tr>
         <th><div>Average distance away of taxis within 500m:</div><div id="average_dist">"-"</div></th>
@@ -43,7 +43,11 @@
   <!-- Slider: zero is now, positive is future. -->
   <input type="range" id="minutes" data-slider-id="minutesSlider" type="text" data-slider-min="0" data-slider-max="100" data-slider-step="1" data-slider-value="0">
   <script defer type='text/javascript'>
-
+    $('#minutes').slider({
+        formatter: function (value) {
+            return value;
+        }
+    }).on('{{ SLIDE_EVENT }}', minutesChange);
   </script>
 
   <!-- Google maps. -->

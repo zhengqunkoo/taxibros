@@ -7,19 +7,6 @@
 var map, heatmap, infoWindow;
 var pointArray;
 
-
-//Assigning button functions
-document.getElementById("toggleHeatmap").onclick=toggleHeatmap;
-document.getElementById("changeGradient").onclick=changeGradient;
-document.getElementById("changeRadius").onclick=changeRadius;
-document.getElementById("showNearby").onclick=showNearby;
-
-$('#minutes').slider({
-    formatter: function (value) {
-        return value;
-    }
-}).on('{{ SLIDE_EVENT }}', minutesChange);
-
 function initMap() {
   map = new google.maps.Map(document.getElementById('map'), {
     zoom: 12,
