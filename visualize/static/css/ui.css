@@ -1,3 +1,24 @@
+
 #minutesSlider .slider-selection {
 	background: #BABABA;
+}
+
+#container {
+    padding:10px;
+}
+.chart rect {
+  fill: steelblue;
+}
+
+.axis { font: 14px sans-serif;
+    fill: black;
+    font: 10px sans-serif;
+    text-anchor: end;}
+.line {
+    fill: none;
+    stroke: steelblue;
+    stroke-width: 2px;
+}
+.axis--x path {
+    display: none;
 }

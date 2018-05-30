@@ -51,12 +51,13 @@ def gen_time_js(request):
 
 def gen_loc_js(request):
     """Return Json of serialized list of coordinates, average distance away, and number of taxis according to the location"""
-    coords, average, number = get_coordinates_location(request)
+    coords, average, number, day_stats = get_coordinates_location(request)
     return JsonResponse(
         {
             "coordinates": serialize_coordinates(coords),
             "average_dist": average,
             "number": number,
+            "day_stats": day_stats
         }
     )
 
@@ -105,24 +106,14 @@ def get_coordinates_time(request):
 
 def get_coordinates_location(request):
     """@return coords, average_dist away of cars within 500m radius, num cars within 500m radius"""
-    pos = request.GET.get("pos")
+    pos = request.GET.get('pos')
 
-    # TODO: Remove this. Only wrote for debugging. i.e. can call /visualize/genLoc.js in browser
-    if pos == None:
-        pos = {"lat": 1.3521, "lng": 103.8198}
-        distFunc = lambda x: math.pow(
-            math.pow(110570 * (x.lat - decimal.Decimal(pos["lat"])), 2)
-            + math.pow(111320 * (x.long - decimal.Decimal(pos["lng"])), 2),
-            0.5,
-        )
+    #TODO: Remove this. Only wrote for debugging. i.e. can call /visualize/genLoc.js in browser
+    if (pos == None):
+        pos = {"lat":1.3521, "lng":103.8198}
     else:
-        print("All okay")
         pos = json.loads(pos)
-        distFunc = lambda x: math.pow(
-            math.pow(110570 * (x.lat - decimal.Decimal(pos["lat"])), 2)
-            + math.pow(111320 * (x.long - decimal.Decimal(pos["lng"])), 2),
-            0.5,
-        )
+    distFunc = lambda x: math.pow(math.pow(110570 * (x.lat - decimal.Decimal(pos["lat"])),2) + math.pow(111320*(x.long - decimal.Decimal(pos["lng"])),2),0.5)
 
     # Approximating lat/long
     # http://www.longitudestore.com/how-big-is-one-gps-degree.html
@@ -140,7 +131,42 @@ def get_coordinates_location(request):
             result.append(coord)
             num += 1
             total_dist += dist
-    return result, total_dist / num, num
+
+
+
+    #timezone.activate(pytz.timezone(settings.TIME_ZONE))
+    date_time_end = Timestamp.objects.latest('date_time').date_time
+    #TODO: Uncomment below. Currently this way cause not enough data
+    #date_time_end = timezone.localtime(date_time_end)
+    date_time_end = date_time_end.replace(hour=0,minute=0,second=0)
+    date_time_start = date_time_end - datetime.timedelta(days=1)
+
+    #Generating the coordinates in 10min intervals for yesterday's time
+    timestamps = Timestamp.objects.filter(
+        date_time__range=(
+            date_time_start,
+            date_time_end,
+        ),
+    )
+
+
+
+    timestamps = filter(lambda time: ((time.date_time.replace(second=0) - date_time_start).seconds) % 300 == 0, timestamps)
+
+    day_stats = []
+    for time in timestamps:
+        coords = time.coordinate_set.all()
+        num_at_time = 0
+        for coord in coords:
+            dist = distFunc(coord)
+            if dist < 500:
+                num_at_time += 1
+        day_stats.append(num_at_time)
+
+
+
+    return result, total_dist/num if num != 0 else 0, num, day_stats
+
 
 
 def serialize_coordinates(coordinates):

@@ -7,6 +7,19 @@
 var map, heatmap, infoWindow;
 var pointArray;
 
+
+//Assigning button functions
+document.getElementById("toggleHeatmap").onclick=toggleHeatmap;
+document.getElementById("changeGradient").onclick=changeGradient;
+document.getElementById("changeRadius").onclick=changeRadius;
+document.getElementById("showNearby").onclick=showNearby;
+
+$('#minutes').slider({
+    formatter: function (value) {
+        return value;
+    }
+}).on('{{ SLIDE_EVENT }}', minutesChange);
+
 function initMap() {
   map = new google.maps.Map(document.getElementById('map'), {
     zoom: 12,
@@ -90,6 +103,7 @@ function showNearby() {
                 var coordinates = data.coordinates;
                 var average_dist = data.average_dist;
                 var number = data.number;
+                var day_stats = data.day_stats;
                 //Filling up map
                 var length = coordinates.length;
                 var coord;
@@ -98,8 +112,11 @@ function showNearby() {
                   pointArray.push(new google.maps.LatLng(coord[0], coord[1]));
                 }
                 //Load stats
-                document.getElementById('average_dist').innerHTML = average_dist;
+                if (number != 0) { //Gets around zero division error
+                    document.getElementById('average_dist').innerHTML = average_dist;
+                }
                 document.getElementById('num').innerHTML = number;
+
 
                 //Draw circle
                 var circle = new google.maps.Circle({
@@ -112,6 +129,9 @@ function showNearby() {
                   center: pos,
                   radius: 500,
                 });
+                //Draw chart
+                drawChart(day_stats);
+
 
             },
             error: function(rs, e) {
@@ -161,4 +181,41 @@ function handleLocationError(browserHasGeolocation, infoWindow, pos) {
                         'Error: The Geolocation service failed.' :
                         'Error: Your browser doesn\'t support geolocation.');
   infoWindow.open(map);
+}
+
+
+function drawChart(day_stats) {
+    var height = 420,
+        barWidth = 10;
+    var margin = {top: 20, right: 10, bottom: 20, left: 40};
+    height = height - margin.top - margin.bottom;
+
+    var y = d3.scaleLinear()
+        .domain([0, d3.max(day_stats)])
+        .range([height,0]);
+    var yAxis = d3.axisLeft(y)
+        .scale(y)
+        .ticks(10, "s");
+    var chart = d3.select(".chart")
+        .attr("height", height);
+    chart.attr("width", barWidth * day_stats.length);
+
+    var rect = chart.selectAll("g")
+        .data(day_stats)
+      .enter().append("rect")
+        .attr("transform", function(d, i) { return "translate(" + (margin.left + (i * barWidth)) + ",0)"; })
+        .attr("y", height) //To initialize bar outside chart
+        .attr("width", barWidth - 1)
+        .attr("height", function(d) {return height-y(d);});
+
+    rect.transition()
+        .delay(function(d, i) {return i * 10; })
+        .attr("y",function(d) {return y(d);});
+
+
+    chart.append("g")
+        .attr("transform", "translate(" + margin.left+ ",0)")
+        .call(yAxis);
+
+
 }
