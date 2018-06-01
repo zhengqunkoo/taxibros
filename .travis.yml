@@ -1,16 +1,21 @@
 language: python
 python:
-  - 3.6
+- 3.6
 services:
-  - sqlite
+- sqlite
 env:
+  matrix:
   - DJANGO=2.0 DB=sqlite
+  global:
+  - secure: LuqtbOaxBj0eNZY9YSkd7i3GPFfsb7lS/N4kOK3iRsQ9XoDlljeOiJZTGA/zVacrO6uw78N7kJFjwotcQ4bNBZmFqIQuncgkr9Hp3t+ZxnhR83Jr08JwOf0He36Q/9RA5SaKGh0KgfdtAEkG9zd2S+y9F6HG5YjoLmy3rPzgtd61rlEd/Pcv9/58gy17ls+UAfYyP22buOLbnZb10rw/e/QwpEi+mGNxE4NbNo+uui+rYCBlbrRbSvzVdMEy1a9GjZLprEcztPgSGmn0PjBaUwx6utSCyyZUOr6qTJc22SNWtSH7PYJ+xvuZl0YgPuobo4GqqoGz6AFudpBXeOD+shOnOhhV5VedM9tANnEmaWxSA5f5c00Z/qJcuh+7Wju3o1xUpqJfnZ7S9dtIev9/qgpw6eLGsutXGPpnZ8fuKRhKq1lDYHTZjnwFse2svtURLB5Lp1rFidZPEXNW+PNmXauBZv0s/wwUlysQJp7Skjtdrsy/hHTC19mb3m9KgeVdv4gscFeXQsJuxzdzyP+q0Bv2o4xfe+YoY5swDTSfSz3xlMZsOWteOCzc6uzp5QnWbnp6Z17PjctMq9i/VWbXLfJz1eMMdAfN+0QcuuNzjD3p7+AYsQv5LOO3kD+EjMzPOAJAFgSH2E48NLKyvORtyTFD7oqEwoW3Prmdd4JctN4=
+  - secure: GheNbcUx8GD6ugpWyKSgZOexMHnGRjBAbVZERuBzeyyLve6DjNOAWvE/oX7J4pzb8irx1Djzx4fKWeuivueZsA/bE6pQQZ/5aggk2yRR/wtho2NgwQEYyv34gRXdnFh4D3NwU9QriPhxrn1SgdkVKk15cvheiZwYUrbmJ5pugwZI6GhGX8Xqb/Ch0GvZW3SG/YkTA1Iaa5W2wxoY84VSbomMuIOn98X8IN5fVNp/yoyzpvjVKOsJNDqWsuAI2ZdnhXj8B0y8OHqPq8fv6VBgsnz6Kpn7kj5bopvRa2hsNP5DeDlH5u6M1lnkgCMofp8jWBN9Ra66JdQoCD4ELQfztgZfsZqw5gPn2vTggF/VkXwqiNAR7FIprd+bC3GNy6/vbcSuRaRJzwngFHeRAqq2tDke6m+L566ZW4SBeJ7mv9yBScWVg+vWQ9LGHs8Y1X/rBGkDve3vHQ6nvbWoEVbIbWx0OpC2WeO9982jQEES9KUPnKswvXHH2h1OzLlEgcmUg4qKF862Y/DVJMNcdfcrDihtFtt5LJSKrtuMOgZ0rLbk2NcYjAUhRPjkq/qEZEUsR7/yYRxHXA/gEMHLhUltwsGRawPFXNlv6AgfzllSemzQU9xd3XcZ/ktDZEn3eJoZSZWD/G/8/Pg6n5kF5g2Y3AkNI3no6jCyKcJHN5fZD+k=
+  - secure: WCW9A02cU0cJa9CtjZSmiwy4zA+Q+9lpYRWT8c6ea0teoMT9BvMi1AtRP8pNkwKXuNA0FIsISOo+8vqQZuRUXcV9cm+zJjdA5PdXlhq3tj1gqY4vpjYqYyXMSdFDG97Fq3jWfGAKKtPlS0YvNidewPLwERxqZAk9Q1y0Uk1uEEDumf8Bf7DDrTGLjlNzEW6tsdUMIjO9zvV7Nv2/ixdqohL3MHhrJ/TseG9L3rJLXzJcWPX6QqH3aI3yCHBEOud9LokhXMp1DzM8d6/PS+d/oTzLMeesb7IuVjAKJO+rHdRDwP4h/FuytkIoU8QVCopsZ5XfJjd+Na/7PzbbPWRfhwHsNwoF63Bi7iVbxplLQZvR8oSgcf4dvEkalfPcbFdGPHG5hdCiUa1lpUtwfR+n+YvZErD+A91W+7xFDLJMyGTcX6mVS93cKCYBZj7pBwkvd1Wqbbicv2odynRYmhHVvp+uXT2JmIpK+WFrtxce4J7VYLO9yioBKB+9GFI1tDLDVmkPtppkBIORt/WJs6ybTOKkyQglf6jbjrA+vrQ0AckGs+Y6vaJcAGa1Zbva+nARhL2NN5W42Y8xceUXvsj27K+RwnO5ooDJ7sY48OVjl10RMt9TA2HwUFV7Ytw/FQhSKIpeZTgA6WUgzzyUmdFMLRbtfhUxFehpQveBqFxLZ3g=
 install:
-  - python3 -m pip install --upgrade .
+- python3 -m pip install --upgrade .
 before_script:
-  - cp taxibros/settings/local_settings.py.template taxibros/settings/local_settings.py
-  - python3 manage.py makemigrations
-  - python3 manage.py migrate --run-syncdb
-  - python3 manage.py runserver &
+- cp taxibros/settings/local_settings.py.template taxibros/settings/local_settings.py
+- python3 manage.py makemigrations
+- python3 manage.py migrate --run-syncdb
+- python3 manage.py runserver &
 script:
-  - coverage run manage.py test
+- coverage run manage.py test
