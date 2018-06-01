@@ -1,6 +1,6 @@
 ### Project-specific ###
-# Data folder of downloaded JSON
-data/
+# Coverage report
+.coverage
 
 ### Python ###
 # Compiled Python modules

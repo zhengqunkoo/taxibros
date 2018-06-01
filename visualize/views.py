@@ -75,7 +75,12 @@ def map_js(request):
 # TODO debug
 def heatmap(request):
     """Convert one minute of coordinates into heatmap."""
+    context = {
+        "GOOGLEMAPS_SECRET_KEY": settings.GOOGLEMAPS_SECRET_KEY,
+        "SLIDE_EVENT": settings.SLIDE_EVENT,
+    }
+
     ch = ConvertHeatmap()
     ch._date_time_end = ch._date_time_start + datetime.timedelta(minutes=1)
     ch.store()
-    return render(request, "visualize/index.html", {"coordinates": []})
+    return render(request, "visualize/index.html", context)
