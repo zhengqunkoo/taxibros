@@ -24,5 +24,6 @@ class VisualizeIndexViewTests(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(
-            response, "Im sorry. The service appears to be experiencing a malfunction."
+            response,
+            "No daemons running. Please run server once with DAEMON_START=True.",
         )

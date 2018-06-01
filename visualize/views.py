@@ -22,7 +22,7 @@ def index(request):
     if Task.objects.all().count() == 0:
         context[
             "error_message"
-        ] = "Im sorry. The service appears to be experiencing a malfunction."
+        ] = "No daemons running. Please run server once with DAEMON_START=True."
         return render(request, "visualize/index.html", context)
 
     # CHECK2:If there is insufficient data
@@ -57,7 +57,7 @@ def gen_loc_js(request):
             "coordinates": serialize_coordinates(coords),
             "average_dist": average,
             "number": number,
-            "day_stats": day_stats
+            "day_stats": day_stats,
         }
     )
 
