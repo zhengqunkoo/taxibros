@@ -11,6 +11,7 @@ from django.shortcuts import render
 from django.utils import timezone
 from django.conf import settings
 from django.http import JsonResponse
+from visualize.convert import ConvertHeatmap
 
 
 def index(request):
@@ -71,3 +72,10 @@ def map_js(request):
     )
 
 
+# TODO debug
+def heatmap(request):
+    """Convert one minute of coordinates into heatmap."""
+    ch = ConvertHeatmap()
+    ch._date_time_end = ch._date_time_start + datetime.timedelta(minutes=1)
+    ch.store()
+    return render(request, "visualize/index.html", {"coordinates": []})
