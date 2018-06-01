@@ -107,13 +107,12 @@ def get_coordinates_time(request):
 def get_coordinates_location(request):
     """@return coords, average_dist away of cars within 500m radius, num cars within 500m radius"""
     pos = request.GET.get('pos')
-
-    #TODO: Remove this. Only wrote for debugging. i.e. can call /visualize/genLoc.js in browser
-    if (pos == None):
-        pos = {"lat":1.3521, "lng":103.8198}
-    else:
-        pos = json.loads(pos)
-    distFunc = lambda x: math.pow(math.pow(110570 * (x.lat - decimal.Decimal(pos["lat"])),2) + math.pow(111320*(x.long - decimal.Decimal(pos["lng"])),2),0.5)
+    pos = json.loads(pos)
+    distFunc = lambda x: math.pow(
+        math.pow(110570 * (float(x.lat) - pos["lat"]), 2)
+        + math.pow(111320 * (float(x.long) - pos["lng"]), 2),
+        0.5,
+    )
 
     # Approximating lat/long
     # http://www.longitudestore.com/how-big-is-one-gps-degree.html
@@ -173,4 +172,4 @@ def serialize_coordinates(coordinates):
     """Helper function to serialize list to output as needed in JsonResponse.
     @return serialized list of coordinates.
     """
-    return [[c.lat, c.long] for c in coordinates]
+    return [[float(c.lat), float(c.long)] for c in coordinates]
