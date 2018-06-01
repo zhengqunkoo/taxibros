@@ -1,4 +1,5 @@
 # TaxiBros
+![Build Status][travis badge]
 ![Coverage Status][coverage badge]
 
 Instantly query taxi arrival times.
@@ -92,5 +93,6 @@ Tests are executed using the django manager.
    black .
    ```
 
+[travis badge]: https://travis-ci.com/zhengqunkoo/taxibros.svg?token=zQpqs1cgYrwMmHCBfnPg&branch=master "From travis-ci."
 [coverage badge]: https://github.com/zhengqunkoo/taxibros/raw/master/coverage.svg?sanitize=True "Generated using coverage-badge."
 [install PROJ.4 datum shifting files]: https://docs.djangoproject.com/en/2.0/ref/contrib/gis/install/geolibs/#proj4

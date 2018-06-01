@@ -1,0 +1,15 @@
+language: python
+python:
+  - 3.6
+services:
+  - sqlite
+env:
+  - DJANGO=2.0 DB=sqlite
+install:
+  - python3 -m pip install --upgrade .
+before_script:
+  - python manage.py makemigrations
+  - python manage.py migrate --run-syncdb
+  - python3 manage.py runserver &
+script:
+  - coverage run manage.py test
