@@ -20,7 +20,7 @@ class Coordinate(models.Model):
     """
     lat = models.DecimalField(max_digits=9, decimal_places=6, help_text="Latitude")
     long = models.DecimalField(max_digits=9, decimal_places=6, help_text="Longitude")
-    timestamp = models.ForeignKey(Timestamp, on_delete=models.CASCADE, null=True)
+    timestamp = models.ForeignKey(Timestamp, on_delete=models.CASCADE)
 
     def __str__(self):
         """

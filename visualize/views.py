@@ -62,10 +62,10 @@ def gen_loc_js(request):
     )
 
 
-def maps_js(request):
+def map_js(request):
     """Render Javascript file with list of coordinates in context."""
     return render(
-        request, "visualize/maps.js", {"coordinates": get_coordinates_time(request)}
+        request, "visualize/map.js", {"coordinates": get_coordinates_time(request)}
     )
 
 

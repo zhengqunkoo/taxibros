@@ -15,4 +15,4 @@ class TimestampAdmin(admin.ModelAdmin):
 
 @admin.register(Coordinate)
 class CoordinateAdmin(admin.ModelAdmin):
-    list_display = ("lat", "long")
+    list_display = ("lat", "long", "timestamp")
