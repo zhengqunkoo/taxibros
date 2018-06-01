@@ -46,9 +46,9 @@ Each instruction is a command, and a description of the command.
    DEBUG 2018-05-17 12:26:58,045 process_tasks 8245 140658619733760 waiting for tasks
    ...
    ```
-* When the `download_missing_timestamps` function is called, there are some
+* When the `download_timestamps` function is called, there are some
   changes to the database. These changes are removed if a `SIGINT` by `C-C`
-  is sent before `download_missing_timestamps` finishes.
+  is sent before `download_timestamps` finishes.
 
 ## Running Tests
 Tests are executed using the django manager.

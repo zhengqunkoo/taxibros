@@ -141,11 +141,6 @@ class DownloadDatabaseTest(TestCase):
         """
         self._ta = TaxiAvailability()
 
-    def test_one_timestamp(self):
-        """One minute of filtering should return one timestamp."""
-        missing = self._ta.get_missing_timestamps()
-        self.assertEqual(len(missing), 1)
-
     @patch("daemons.download.DownloadJson.get_json")
     def test_unique_timestamp(self, mock_get_json):
         """Download one timestamp. Download the same timestamp again.

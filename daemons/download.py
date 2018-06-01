@@ -3,7 +3,6 @@ import abc
 from background_task import background
 from logging import getLogger
 import datetime
-import time
 import pytz
 
 from django.utils import dateparse, timezone
@@ -58,6 +57,7 @@ class DownloadJson:
     def download(self, url=None):
         """Generic method to download JSON streams.
         @param url: URL to download from. Default: None.
+        @return date_time: LTA date_time that JSON was updated.
         """
         json = self.get_json(url)
 
@@ -78,6 +78,7 @@ class DownloadJson:
         self.log(*self.get_properties(features))
         coordinates = self.get_coordinates(features)
         self.store(date_time, coordinates)
+        return date_time
 
     def get_json(self, url=None):
         """Generic method to download JSON streams.
@@ -104,37 +105,42 @@ class DownloadJson:
                     lat=coordinate[1], long=coordinate[0], timestamp=timestamp
                 ).save()
 
-    def get_missing_timestamps(self):
-        """Get current timestamps in database.
-        Identify missing timestamps.
+    def download_missing_timestamps(self):
+        """Get current timestamps in database. Identify missing timestamps.
+        Timestamps are always more or less 60 seconds apart.
+        @return missing: sorted list of missing timestamps.
         """
         timestamps = Timestamp.objects.filter(
             date_time__range=(self._date_time_start, self._date_time_end)
         )
 
         # Convert to local timezone.
+        # Get sorted filtered timestamps. If none, use self._date_time_start and self._date_time_end.
         timezone.activate(pytz.timezone(settings.TIME_ZONE))
-        times = [timezone.localtime(x.date_time) for x in timestamps]
+        times = sorted([timezone.localtime(x.date_time) for x in timestamps])
+        if not times:
+            times = [self._date_time_start, self._date_time_end]
 
-        # Set seconds to same as start to check for missing times.
-        times = [time.replace(second=self._date_time_start.second) for time in times]
-        date_set = set(
-            self._date_time_start + datetime.timedelta(minutes=m)
-            for m in range(
-                int((self._date_time_end - self._date_time_start).total_seconds()) // 60
-            )
-        )
-        missing = date_set - set(times)
-        return [time.strftime("%Y-%m-%dT%H:%M:%S") for time in missing]
+        # If current and next timestamps more than missing_seconds apart,
+        # then there must be a missing timestamp before (current + missing_seconds).
+        missing_seconds = 65
+        missing = []
+        for i in range(len(times) - 1):
+            cur, next = times[i], times[i + 1]
 
-    def download_missing_timestamps(self):
+            # Download all contiguous missing timestamps.
+            while (next - cur).seconds > missing_seconds:
+                missing = cur + datetime.timedelta(seconds=missing_seconds)
+                missing = missing.strftime("%Y-%m-%dT%H:%M:%S")
+                print("Check {}".format(missing))
+                date_time = self.download("{}?date_time={}".format(self._url, missing))
+                cur = dateparse.parse_datetime(date_time)
+
+    def download_timestamps(self):
         """Make timestamps in database continuous, in terms of minutes.
-        Also, download with current timestamp.
+        Also, download with latest timestamp.
         """
-        missing = self.get_missing_timestamps()
-        for date_time in sorted(missing):
-            print("Check {}".format(date_time))
-            self.download("{}?date_time={}".format(self._url, date_time))
+        self.download_missing_timestamps()
         print("Check latest")
         self.download()
         print("Stored all missing timestamps!")
@@ -175,4 +181,4 @@ def start_download():
     logger = getLogger(__name__)
     logger.debug("daemons.download.start_download")
     ta = TaxiAvailability()
-    ta.download_missing_timestamps()
+    ta.download_timestamps()
