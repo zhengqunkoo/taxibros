@@ -8,8 +8,9 @@ env:
 install:
   - python3 -m pip install --upgrade .
 before_script:
-  - python manage.py makemigrations
-  - python manage.py migrate --run-syncdb
+  - cp taxibros/settings/local_settings.py.template taxibros/settings/local_settings.py
+  - python3 manage.py makemigrations
+  - python3 manage.py migrate --run-syncdb
   - python3 manage.py runserver &
 script:
   - coverage run manage.py test
