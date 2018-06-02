@@ -107,7 +107,8 @@ class DownloadJson:
 
     def download_missing_timestamps(self):
         """Get current timestamps in database. Identify missing timestamps.
-        Timestamps are always more or less 60 seconds apart.
+        Timestamps are more or less 60 seconds apart.
+        But sometimes they are 90 seconds apart, subsequently 30 seconds apart.
         @return missing: sorted list of missing timestamps.
         """
         timestamps = Timestamp.objects.filter(
@@ -115,26 +116,49 @@ class DownloadJson:
         )
 
         # Convert to local timezone.
-        # Get sorted filtered timestamps. If none, use self._date_time_start and self._date_time_end.
+        # Get sorted filtered timestamps, between start and end.
         timezone.activate(pytz.timezone(settings.TIME_ZONE))
-        times = sorted([timezone.localtime(x.date_time) for x in timestamps])
-        if not times:
-            times = [self._date_time_start, self._date_time_end]
+        times = sorted(
+            [self._date_time_start, self._date_time_end]
+            + [timezone.localtime(x.date_time) for x in timestamps]
+        )
 
         # If current and next timestamps more than missing_seconds apart,
-        # then there must be a missing timestamp before (current + missing_seconds).
+        # then there could be a missing timestamp before (current + missing_seconds).
+        # If not, then there must be a missing timestamp before (current + missing_seconds_long).
+        # If not, raise exception.
         missing_seconds = 65
+        missing_seconds_long = 95
         missing = []
         for i in range(len(times) - 1):
             cur, next = times[i], times[i + 1]
 
             # Download all contiguous missing timestamps.
             while (next - cur).seconds > missing_seconds:
-                missing = cur + datetime.timedelta(seconds=missing_seconds)
-                missing = missing.strftime("%Y-%m-%dT%H:%M:%S")
-                print("Check {}".format(missing))
-                date_time = self.download("{}?date_time={}".format(self._url, missing))
-                cur = dateparse.parse_datetime(date_time)
+                missing = self.download_missing_timestamp(cur, missing_seconds)
+
+                # Try longer missing seconds.
+                if cur == missing:
+                    missing = self.download_missing_timestamp(cur, missing_seconds_long)
+                    if cur == missing:
+                        raise Exception(
+                            "Gap between adjacent timestamps greater than {} seconds.".format(
+                                missing_seconds_long
+                            )
+                        )
+                cur = missing
+
+    def download_missing_timestamp(self, cur, seconds):
+        """
+        @param cur: current timestamp.
+        @param seconds: time after @param cur to query the API with.
+        @return datetime object of LTA timestamp.
+        """
+        missing = cur + datetime.timedelta(seconds=seconds)
+        missing = missing.strftime("%Y-%m-%dT%H:%M:%S")
+        print("Check {}".format(missing))
+        date_time = self.download("{}?date_time={}".format(self._url, missing))
+        return dateparse.parse_datetime(date_time)
 
     def download_timestamps(self):
         """Make timestamps in database continuous, in terms of minutes.
