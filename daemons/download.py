@@ -4,6 +4,7 @@ from background_task import background
 from logging import getLogger
 import datetime
 import pytz
+import json
 
 from django.utils import dateparse, timezone
 from django.conf import settings
@@ -33,7 +34,7 @@ class DownloadJson:
         self._date_time_end = timezone.now()
 
     @abc.abstractmethod
-    def get_time_features(self, json):
+    def get_time_features(self, json_val):
         """Given a JSON, extract features and time.
         @return date_time: server-side time that JSON was updated.
         @return features: JSON features to be logged or stored.
@@ -41,14 +42,14 @@ class DownloadJson:
         ...
 
     @abc.abstractmethod
-    def get_coordinates(self, json):
+    def get_coordinates(self, json_val):
         """Given a JSON, extract coordinates.
         @return coordinates: tuple or list of coordinates.
         """
         ...
 
     @abc.abstractmethod
-    def get_properties(self, json):
+    def get_properties(self, json_val):
         """Given a JSON, extract properties.
         @return list of properties.
         """
@@ -59,22 +60,22 @@ class DownloadJson:
         @param url: URL to download from. Default: None.
         @return date_time: LTA date_time that JSON was updated.
         """
-        json = self.get_json(url)
+        json_val = self.get_json(url)
 
         # Log errors and exit from function if error.
         # Assume 'code' or 'message' in JSON means error.
-        contains_code = "code" in json
-        contains_message = "message" in json
+        contains_code = "code" in json_val
+        contains_message = "message" in json_val
         if contains_code or contains_message:
             error_array = []
             if contains_code:
-                error_array.append(json["code"])
+                error_array.append(json_val["code"])
             if contains_message:
-                error_array.append(json["message"])
+                error_array.append(json_val["message"])
             self.log(*error_array)
             return
 
-        date_time, features = self.get_time_features(json)
+        date_time, features = self.get_time_features(json_val)
         self.log(*self.get_properties(features))
         coordinates = self.get_coordinates(features)
         self.store(date_time, coordinates)
@@ -88,6 +89,8 @@ class DownloadJson:
         if url == None:
             url = self._url
         response = requests.get(url)
+
+        import pdb; pdb.set_trace()
         return response.json()
 
     def store(self, date_time, coordinates):
@@ -97,6 +100,8 @@ class DownloadJson:
         @param coordinates: list of coordinates to be stored.
         """
         timestamp, created = Timestamp.objects.get_or_create(date_time=date_time)
+        #INSERTED HERE. Dont uncomment unless you know what you are doing
+        #self.get_closest_roads(coordinates)
         if created:
             # If created timestamp, store coordinates.
             print("Store {}".format(date_time))
@@ -175,6 +180,24 @@ class DownloadJson:
         """
         self._logger.debug(" ".join(map(str, args)))
 
+    def get_closest_roads(self,coordinates):
+        """Returns a list of ids of roads associated to coordinates
+        """
+
+        coords_params = '|'.join([str(coordinate[1]) + ',' + str(coordinate[0]) for coordinate in coordinates])
+        url = "https://roads.googleapis.com/v1/nearestRoads?points=" + coords_params + "&key=" + settings.GOOGLEMAPS_SECRET_KEY
+        json_val = self.get_json(url)
+
+        result = [None] * len(coordinates)
+        for point in json_val["snappedPoints"]:
+            index = point["original_index"]
+            result[index] = point["placeId"]
+        print(result)
+
+
+
+
+
 
 class TaxiAvailability(DownloadJson):
     """Downloads taxi availability JSON."""
@@ -183,18 +206,18 @@ class TaxiAvailability(DownloadJson):
         url = "https://api.data.gov.sg/v1/transport/taxi-availability"
         super().__init__(url)
 
-    def get_time_features(self, json):
-        features = json["features"][0]
+    def get_time_features(self, json_val):
+        features = json_val["features"][0]
         date_timestamp = features["properties"]["timestamp"]
         return date_timestamp, features
 
-    def get_coordinates(self, json):
-        return json["geometry"]["coordinates"]
+    def get_coordinates(self, json_val):
+        return json_val["geometry"]["coordinates"]
 
-    def get_properties(self, json):
-        date_timestamp = json["properties"]["timestamp"]
-        taxi_count = json["properties"]["taxi_count"]
-        status = json["properties"]["api_info"]["status"]
+    def get_properties(self, json_val):
+        date_timestamp = json_val["properties"]["timestamp"]
+        taxi_count = json_val["properties"]["taxi_count"]
+        status = json_val["properties"]["api_info"]["status"]
         return date_timestamp, taxi_count, status
 
 
