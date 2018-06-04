@@ -9,7 +9,7 @@ import json
 from django.utils import dateparse, timezone
 from django.conf import settings
 from background_task.models import Task
-from .models import Timestamp, Coordinate
+from .models import Timestamp, Coordinate, Location, LocationRecord
 
 
 class DownloadJson:
@@ -90,7 +90,6 @@ class DownloadJson:
             url = self._url
         response = requests.get(url)
 
-        import pdb; pdb.set_trace()
         return response.json()
 
     def store(self, date_time, coordinates):
@@ -100,9 +99,10 @@ class DownloadJson:
         @param coordinates: list of coordinates to be stored.
         """
         timestamp, created = Timestamp.objects.get_or_create(date_time=date_time)
-        #INSERTED HERE. Dont uncomment unless you know what you are doing
-        #self.get_closest_roads(coordinates)
         if created:
+            # Dont uncomment unless you know what you are doing
+            #self.get_closest_roads(coordinates, timestamp)
+
             # If created timestamp, store coordinates.
             print("Store {}".format(date_time))
             for coordinate in coordinates:
@@ -180,22 +180,44 @@ class DownloadJson:
         """
         self._logger.debug(" ".join(map(str, args)))
 
-    def get_closest_roads(self,coordinates):
+
+
+
+    def store_road_data(self,road_id_list, timestamp):
+        """Stores a list of road ids into a db
+        """
+        #create a dictionary from road_id_list
+        vals = {}
+        for id in road_id_list:
+            if id == None:
+                continue
+            if id in vals:
+                vals[id] += 1
+            else:
+                vals[id] = 1
+        for id,count in vals.items():
+            location, created = Location.objects.get_or_create(location = id)
+            LocationRecord(count=count, location = location, timestamp = timestamp).save()
+
+
+    def get_closest_roads(self,coordinates, timestamp):
         """Returns a list of ids of roads associated to coordinates
         """
+        try:
+            #Breaks coordinates into smaller chunks due to error 413
+            coord_chunks = [coordinates[x:x+100] for x in range(0, len(coordinates), 20)]
+            for coord_chunk in coord_chunks:
+                coords_params = '|'.join([str(coordinate[1]) + ',' + str(coordinate[0]) for coordinate in coord_chunk])
+                url = "https://roads.googleapis.com/v1/nearestRoads?points=" + coords_params + "&key=" + settings.GOOGLEMAPS_SECRET_KEY
+                json_val = self.get_json(url)
+                result = [None] * len(coord_chunk)
+                for point in json_val["snappedPoints"]:
+                    index = point["originalIndex"]
+                    result[index] = point["placeId"]
+                self.store_road_data(result,timestamp)
 
-        coords_params = '|'.join([str(coordinate[1]) + ',' + str(coordinate[0]) for coordinate in coordinates])
-        url = "https://roads.googleapis.com/v1/nearestRoads?points=" + coords_params + "&key=" + settings.GOOGLEMAPS_SECRET_KEY
-        json_val = self.get_json(url)
-
-        result = [None] * len(coordinates)
-        for point in json_val["snappedPoints"]:
-            index = point["original_index"]
-            result[index] = point["placeId"]
-        print(result)
-
-
-
+        except Exception as e:
+            print(str(e))
 
 
 
