@@ -27,3 +27,21 @@ class Coordinate(models.Model):
         String for representing the Model object (in Admin site etc.).
         """
         return "{},{}".format(self.lat, self.long)
+
+class Location(models.Model):
+    """Model representing a location"""
+    location = models.CharField(max_length = 27)
+    def __str__(self):
+        return self.location
+
+class LocationRecord(models.Model):
+    """Model representing a location and a record of the number of taxis
+    """
+    count = models.PositiveIntegerField()
+    location = models.ForeignKey(Location,  on_delete = models.CASCADE)
+    timestamp = models.ForeignKey(Timestamp, on_delete = models.CASCADE)
+    def __str__(self):
+        """
+        String for representing a location record
+        """
+        return "{}:{}:".format(str(timestamp), str(location))
