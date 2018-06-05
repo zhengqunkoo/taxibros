@@ -11,7 +11,7 @@ from django.shortcuts import render
 from django.utils import timezone
 from django.conf import settings
 from django.http import JsonResponse
-from visualize.convert import ConvertHeatmap
+from daemons.convert import ConvertHeatmap
 
 
 def index(request):

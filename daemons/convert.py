@@ -2,11 +2,10 @@ import datetime
 import numpy as np
 from scipy.sparse import coo_matrix
 
-from daemons.models import Timestamp
+from daemons.models import Timestamp, Heatmap
 from daemons.views import serialize_coordinates
 from django.conf import settings
 from django.utils import dateparse, timezone
-from .models import Heatmap
 
 
 class ConvertHeatmap:
@@ -56,6 +55,7 @@ class ConvertHeatmap:
             lat, long = [], []
         heatmap, _, _ = np.histogram2d(lat, long, bins=self._bins)
         return coo_matrix(heatmap.astype(int))
+
 
 if __name__ == "__main__":
     import os
