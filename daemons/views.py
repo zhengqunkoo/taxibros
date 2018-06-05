@@ -2,11 +2,12 @@ import datetime
 import pytz
 import math
 import json
+import requests
+import settings
 
-from .models import Timestamp, Coordinate
+from .models import Timestamp, Coordinate, Location, LocationRecord
 from django.shortcuts import render
 from django.conf import settings
-
 
 def index(request):
     """View function for home page of site."""
@@ -85,6 +86,10 @@ def get_coordinates_location(request):
             num += 1
             total_dist += dist
 
+    best_road = get_best_road(coords)
+
+    #TODO: Refactor code to draw general graph time
+    """
     # timezone.activate(pytz.timezone(settings.TIME_ZONE))
     date_time_end = Timestamp.objects.latest("date_time").date_time
     # TODO: Uncomment below. Currently this way cause not enough data
@@ -113,8 +118,43 @@ def get_coordinates_location(request):
             if dist < 500:
                 num_at_time += 1
         day_stats.append(num_at_time)
+        """
+    return result, total_dist / num if num != 0 else 0, num, best_road
 
-    return result, total_dist / num if num != 0 else 0, num, day_stats
+
+
+def get_best_road(coordinates):
+    """Returns the road with the largest number of taxis in db
+    @param: coordinates of taxis within 500m
+    """
+    roads = get_closest_roads(coordinates)
+    max_val = 0
+    max_road = None
+    for road in get_closest_roads:
+        val = get_count_at_road(road)
+        if val > max_val:
+            max_val = val
+            max_road = road
+    return max_road
+
+def get_count_at_road(roadID):
+    loc = Location.objects.filter(location=roadID)[0]
+    records = loc.locationrecord_set.all()
+    return sum(map(lambda rec:rec.count,records))
+
+
+
+
+def get_closest_roads(coordinates):
+    """Retrieves the closest road segments to the coordinates
+    @param: coordinates of the taxis
+    @return: road segments of coordinates"""
+    coords_params = '|'.join([str(coordinate[1]) + ',' + str(coordinate[0]) for coordinate in coordinates])
+    url = "https://roads.googleapis.com/v1/nearestRoads?points=" + coords_params + "&key=" + settings.GOOGLEMAPS_SECRET_KEY
+    json_val = resquests.get(url).json()
+    result = [point["placeId"] for point in json_val["snappedPoints"]]
+
+    return set(result)
 
 
 def serialize_coordinates(coordinates):

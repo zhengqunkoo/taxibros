@@ -101,8 +101,9 @@ class DownloadJson:
         """
         timestamp, created = Timestamp.objects.get_or_create(date_time=date_time)
         if created:
+            print(len(coordinates))
             # Dont uncomment unless you know what you are doing
-            #self.get_closest_roads(coordinates, timestamp)
+            self.process_closest_roads(coordinates, timestamp)
 
             # If created timestamp, store coordinates.
             print("Store {}".format(date_time))
@@ -182,8 +183,33 @@ class DownloadJson:
         """
         self._logger.debug(" ".join(map(str, args)))
 
+    def process_closest_roads(self,coordinates, timestamp):
+        """Processes the coordinates by tabulating counts for their respective road segments
+        """
+        try:
+            #Breaks coordinates into smaller chunks due to error 413
+            coord_chunks = [coordinates[x:x+100] for x in range(0, len(coordinates), 20)]
+            for coord_chunk in coord_chunks:
+                result = self.get_closest_roads(coord_chunk)
+                self.store_road_data(result,timestamp)
 
+        except Exception as e:
+            print(str(e))
 
+    def get_closest_roads(self,coordinates):
+        """Retrieves the closest road segments to the coordinates
+        @param: coordinates of the taxis
+        @return: list of same size as coordinates containing road segment or None if none is found"""
+        coords_params = '|'.join([str(coordinate[1]) + ',' + str(coordinate[0]) for coordinate in coordinates])
+        url = "https://roads.googleapis.com/v1/nearestRoads?points=" + coords_params + "&key=" + settings.GOOGLEMAPS_SECRET_KEY
+        json_val = self.get_json(url)
+        result = [None] * len(coordinates)
+        for point in json_val["snappedPoints"]:
+            index = point["originalIndex"]
+            result[index] = point["placeId"]
+        return result
+
+    
 
     def store_road_data(self,road_id_list, timestamp):
         """Stores a list of road ids into a db
@@ -200,27 +226,6 @@ class DownloadJson:
         for id,count in vals.items():
             location, created = Location.objects.get_or_create(location = id)
             LocationRecord(count=count, location = location, timestamp = timestamp).save()
-
-
-    def get_closest_roads(self,coordinates, timestamp):
-        """Returns a list of ids of roads associated to coordinates
-        """
-        try:
-            #Breaks coordinates into smaller chunks due to error 413
-            coord_chunks = [coordinates[x:x+100] for x in range(0, len(coordinates), 20)]
-            for coord_chunk in coord_chunks:
-                coords_params = '|'.join([str(coordinate[1]) + ',' + str(coordinate[0]) for coordinate in coord_chunk])
-                url = "https://roads.googleapis.com/v1/nearestRoads?points=" + coords_params + "&key=" + settings.GOOGLEMAPS_SECRET_KEY
-                json_val = self.get_json(url)
-                result = [None] * len(coord_chunk)
-                for point in json_val["snappedPoints"]:
-                    index = point["originalIndex"]
-                    result[index] = point["placeId"]
-                self.store_road_data(result,timestamp)
-
-        except Exception as e:
-            print(str(e))
-
 
 
 class TaxiAvailability(DownloadJson, ConvertHeatmap):

@@ -90,7 +90,8 @@ function showNearby() {
                 var coordinates = data.coordinates;
                 var average_dist = data.average_dist;
                 var number = data.number;
-                var day_stats = data.day_stats;
+                //TODO: Eventually remove below
+                //var day_stats = data.day_stats;
                 //Filling up map
                 var length = coordinates.length;
                 var coord;
@@ -116,8 +117,10 @@ function showNearby() {
                   center: pos,
                   radius: 500,
                 });
+                
                 //Draw chart
-                drawChart(day_stats);
+                //TODO: to remove
+                //drawChart(day_stats);
 
 
             },
