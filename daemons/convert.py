@@ -12,12 +12,22 @@ class ConvertHeatmap:
     Heatmap is sparse matrix of intensities (mostly zeros).
     """
 
-    def __init__(self, bins=500):
+    def __init__(self, xbins=4450, ybins=2655):
         """
-        @param bins: number of bins along each of the x-, y-axes. Default 50.
-            Total number of bins is (@param bins**2).
+        @param xbins, ybins: number of bins along each of the x-, y-axes.
+            Default:
+                Width and height of Singapore in terms of lng, lat.
+                width, height: 0.445, 0.2655 (lng, lat).
+                xbins, ybins: 4450, 2655 is 4 decimal place accuracy.
+                See https://en.wikipedia.org/wiki/Decimal_degrees.
+
+                Excludes some islands (assume no taxis in islands).
+                Lower left: 1.205, 103.605 (lat, lng).
+                Upper right: 1.4705, 104.05 (lat, lng).
+            Total number of bins in heatmap is (@param bins**2).
         """
-        self._bins = bins
+        self._xbins = xbins
+        self._ybins = ybins
 
     def store_heatmap(self, timestamp, coordinates):
         """Stores heatmaps within time range.
@@ -44,5 +54,5 @@ class ConvertHeatmap:
             lat, long = zip(*coordinates)
         else:
             lat, long = [], []
-        heatmap, _, _ = np.histogram2d(lat, long, bins=self._bins)
+        heatmap, _, _ = np.histogram2d(long, lat, bins=(self._xbins, self._ybins))
         return coo_matrix(heatmap.astype(int))
