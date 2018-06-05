@@ -6,12 +6,13 @@ class Timestamp(models.Model):
     Assume time is unique.
     """
     date_time = models.DateTimeField()
+    taxi_count = models.IntegerField(help_text="Numebr of taxis at this timestamp.")
 
     def __str__(self):
         """
         String for representing the Model object.
         """
-        return str(self.date_time)
+        return "{} {}".format(self.date_time, self.taxi_count)
 
 
 class Coordinate(models.Model):

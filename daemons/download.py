@@ -49,7 +49,7 @@ class DownloadJson:
     @abc.abstractmethod
     def get_properties(self, json_val):
         """Given a JSON, extract properties.
-        @return list of properties.
+        @return taxi_count, status of API.
         """
         ...
 
@@ -74,9 +74,10 @@ class DownloadJson:
             return
 
         date_time, features = self.get_time_features(json_val)
-        self.log(*self.get_properties(features))
+        taxi_count, status = self.get_properties(features)
+        self.log(date_time, taxi_count, status)
         coordinates = self.get_coordinates(features)
-        self.store_timestamp_coordinates(date_time, coordinates)
+        self.store_timestamp_coordinates(date_time, taxi_count, coordinates)
         return date_time
 
     def get_json(self, url=None):
@@ -89,18 +90,19 @@ class DownloadJson:
         response = requests.get(url)
         return response.json()
 
-    def store_timestamp_coordinates(self, date_time, coordinates):
+    def store_timestamp_coordinates(self, date_time, taxi_count, coordinates):
         """If date_time is not unique, do not do anything.
         Stores each coordinate with the same unique date_time.
 
         @param date_time: LTA date_time that JSON was updated.
+        @param taxi_count: Number of taxis in timestamp.
         @param coordinates: list of coordinates to be stored.
         @return
             created: True if unique date_time, False if duplicate date_time.
             timestamp: Timestamp object of LTA date_time that JSON was updated.
             coordinates: list of coordinates to be stored.
         """
-        timestamp, created = Timestamp.objects.get_or_create(date_time=date_time)
+        timestamp, created = Timestamp.objects.get_or_create(date_time=date_time, taxi_count=taxi_count)
         if created:
             # Dont uncomment unless you know what you are doing
             # self.get_closest_roads(coordinates, timestamp)
@@ -241,22 +243,21 @@ class TaxiAvailability(DownloadJson, ConvertHeatmap):
 
     def get_time_features(self, json_val):
         features = json_val["features"][0]
-        date_timestamp = features["properties"]["timestamp"]
-        return date_timestamp, features
+        date_time = features["properties"]["timestamp"]
+        return date_time, features
 
     def get_coordinates(self, json_val):
         return json_val["geometry"]["coordinates"]
 
     def get_properties(self, json_val):
-        date_timestamp = json_val["properties"]["timestamp"]
         taxi_count = json_val["properties"]["taxi_count"]
         status = json_val["properties"]["api_info"]["status"]
-        return date_timestamp, taxi_count, status
+        return taxi_count, status
 
-    def store_timestamp_coordinates(self, date_time, coordinates):
+    def store_timestamp_coordinates(self, date_time, taxi_count, coordinates):
         created, timestamp, coordinates = super(
             TaxiAvailability, self
-        ).store_timestamp_coordinates(date_time, coordinates)
+        ).store_timestamp_coordinates(date_time, taxi_count, coordinates)
         if created:
             self.store_heatmap(timestamp, coordinates)
 

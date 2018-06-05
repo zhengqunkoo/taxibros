@@ -9,7 +9,7 @@ def delete_selected(modeladmin, request, queryset):
 
 @admin.register(Timestamp)
 class TimestampAdmin(admin.ModelAdmin):
-    list_display = ("date_time",)
+    list_display = ("date_time", "taxi_count")
     actions = (delete_selected,)
 
 
