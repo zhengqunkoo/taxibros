@@ -116,10 +116,3 @@ def get_coordinates_location(request):
         day_stats.append(num_at_time)
 
     return result, total_dist / num if num != 0 else 0, num, day_stats
-
-
-def serialize_coordinates(coordinates):
-    """Helper function to serialize list to output as needed in JsonResponse.
-    @return serialized list of coordinates.
-    """
-    return [[float(c.lat), float(c.long)] for c in coordinates]

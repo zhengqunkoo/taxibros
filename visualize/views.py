@@ -2,16 +2,11 @@ import datetime
 
 from background_task.models import Task
 from daemons.models import Coordinate, Timestamp
-from daemons.views import (
-    get_coordinates_time,
-    get_coordinates_location,
-    serialize_coordinates,
-)
+from daemons.views import get_coordinates_time, get_coordinates_location
 from django.shortcuts import render
 from django.utils import timezone
 from django.conf import settings
 from django.http import JsonResponse
-from daemons.convert import ConvertHeatmap
 
 
 def index(request):
@@ -121,3 +116,10 @@ def get_heatmap_time(request):
     xs = [heatmap.x for heatmap in heatmaps]
     ys = [heatmap.y for heatmap in heatmaps]
     return intensities, xs, ys, time
+
+
+def serialize_coordinates(coordinates):
+    """Helper function to serialize list to output as needed in JsonResponse.
+    @return serialized list of coordinates.
+    """
+    return [[float(c.lat), float(c.long)] for c in coordinates]
