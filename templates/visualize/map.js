@@ -134,7 +134,7 @@ function showNearby() {
     }
 }
 
-function minutesChange(e) {
+function genTimeSliderChange(e) {
   // Asynchronously update maps with serialized coordinates.
   var minutes = e.value;
   if (minutes.hasOwnProperty('newValue')) {
@@ -148,7 +148,7 @@ function minutesChange(e) {
       dataType: 'json',
       success: function(data) {
           pointArray.clear();
-          var coordinates = data.coordinates
+          var coordinates = data.coordinates;
           var length = coordinates.length;
           var coord;
           for (var i=0; i<length; i++) {
@@ -158,6 +158,30 @@ function minutesChange(e) {
       },
       error: function(rs, e) {
           alert("Failed to reach {% url 'visualize:genTime' %}.");
+      }
+  });
+}
+
+function genHeatmapSliderChange(e) {
+  // Asynchronously update maps with serialized coordinates.
+  var minutes = e.value;
+  if (minutes.hasOwnProperty('newValue')) {
+    minutes = minutes.newValue;
+  }
+  $.ajax({
+      url: "{% url 'visualize:genHeatmap' %}",
+      data: {
+          minutes: minutes,
+      },
+      dataType: 'json',
+      success: function(data) {
+          pointArray.clear();
+          var intensities = data.intensities;
+          var xs = data.xs;
+          var ys = data.ys;
+      },
+      error: function(rs, e) {
+          alert("Failed to reach {% url 'visualize:genHeatmap' %}.");
       }
   });
 }

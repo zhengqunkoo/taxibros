@@ -2,10 +2,10 @@ import datetime
 import numpy as np
 
 from daemons.models import Timestamp
+from daemons.views import serialize_coordinates
 from django.conf import settings
 from django.utils import dateparse, timezone
 from .models import Heatmap
-from daemons.views import serialize_coordinates
 
 
 class ConvertHeatmap:
