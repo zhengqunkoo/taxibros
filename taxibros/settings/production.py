@@ -158,7 +158,7 @@ LOGGING = {
             "class": "logging.FileHandler",
             "filename": "logs/debug.log",
             "formatter": "verbose",
-        },
+        }
     },
     "loggers": {
         "background_task": {

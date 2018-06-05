@@ -90,7 +90,9 @@ class DownloadJson:
             url = self._url
         response = requests.get(url)
 
-        import pdb; pdb.set_trace()
+        import pdb
+
+        pdb.set_trace()
         return response.json()
 
     def store(self, date_time, coordinates):
@@ -100,8 +102,8 @@ class DownloadJson:
         @param coordinates: list of coordinates to be stored.
         """
         timestamp, created = Timestamp.objects.get_or_create(date_time=date_time)
-        #INSERTED HERE. Dont uncomment unless you know what you are doing
-        #self.get_closest_roads(coordinates)
+        # INSERTED HERE. Dont uncomment unless you know what you are doing
+        # self.get_closest_roads(coordinates)
         if created:
             # If created timestamp, store coordinates.
             print("Store {}".format(date_time))
@@ -180,12 +182,22 @@ class DownloadJson:
         """
         self._logger.debug(" ".join(map(str, args)))
 
-    def get_closest_roads(self,coordinates):
+    def get_closest_roads(self, coordinates):
         """Returns a list of ids of roads associated to coordinates
         """
 
-        coords_params = '|'.join([str(coordinate[1]) + ',' + str(coordinate[0]) for coordinate in coordinates])
-        url = "https://roads.googleapis.com/v1/nearestRoads?points=" + coords_params + "&key=" + settings.GOOGLEMAPS_SECRET_KEY
+        coords_params = "|".join(
+            [
+                str(coordinate[1]) + "," + str(coordinate[0])
+                for coordinate in coordinates
+            ]
+        )
+        url = (
+            "https://roads.googleapis.com/v1/nearestRoads?points="
+            + coords_params
+            + "&key="
+            + settings.GOOGLEMAPS_SECRET_KEY
+        )
         json_val = self.get_json(url)
 
         result = [None] * len(coordinates)
@@ -193,10 +205,6 @@ class DownloadJson:
             index = point["original_index"]
             result[index] = point["placeId"]
         print(result)
-
-
-
-
 
 
 class TaxiAvailability(DownloadJson):
