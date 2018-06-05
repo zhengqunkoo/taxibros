@@ -1,15 +1,15 @@
-import requests
 import abc
 from background_task import background
-from logging import getLogger
+from background_task.models import Task
 import datetime
+from logging import getLogger
 import pytz
-import json
+import requests
 
+from .convert import ConvertHeatmap
+from .models import Timestamp, Coordinate
 from django.utils import dateparse, timezone
 from django.conf import settings
-from background_task.models import Task
-from .models import Timestamp, Coordinate, Location, LocationRecord
 
 
 class DownloadJson:
@@ -23,9 +23,7 @@ class DownloadJson:
     """
 
     def __init__(self, url):
-        """
-        @param url: url to download JSON data from.
-        """
+        """@param url: url to download JSON data from."""
         self._url = url
         self._logger = getLogger(__name__)
 
@@ -78,7 +76,7 @@ class DownloadJson:
         date_time, features = self.get_time_features(json_val)
         self.log(*self.get_properties(features))
         coordinates = self.get_coordinates(features)
-        self.store(date_time, coordinates)
+        self.store_timestamp_coordinates(date_time, coordinates)
         return date_time
 
     def get_json(self, url=None):
@@ -92,9 +90,12 @@ class DownloadJson:
 
         return response.json()
 
-    def store(self, date_time, coordinates):
-        """Stores each coordinate with the same unique date_time.
-        If date_time is not unique, do not update coordinates.
+    def store_timestamp_coordinates(self, date_time, coordinates):
+        """If date_time is not unique, do not do anything.
+
+        Stores each coordinate with the same unique date_time.
+        Also converts and stores heatmap.
+
         @param date_time: LTA date_time that JSON was updated.
         @param coordinates: list of coordinates to be stored.
         """
@@ -109,6 +110,7 @@ class DownloadJson:
                 Coordinate(
                     lat=coordinate[1], long=coordinate[0], timestamp=timestamp
                 ).save()
+            self.store_heatmap(timestamp, coordinates)
 
     def download_missing_timestamps(self):
         """Get current timestamps in database. Identify missing timestamps.
@@ -116,7 +118,7 @@ class DownloadJson:
         But sometimes they are 90 seconds apart, subsequently 30 seconds apart.
         @return missing: sorted list of missing timestamps.
         """
-        timestamps = Timestamp.objects.filter(
+        times = Timestamp.objects.filter(
             date_time__range=(self._date_time_start, self._date_time_end)
         )
 
@@ -125,7 +127,7 @@ class DownloadJson:
         timezone.activate(pytz.timezone(settings.TIME_ZONE))
         times = sorted(
             [self._date_time_start, self._date_time_end]
-            + [timezone.localtime(x.date_time) for x in timestamps]
+            + [timezone.localtime(x.date_time) for x in times]
         )
 
         # If current and next timestamps more than missing_seconds apart,
@@ -221,12 +223,12 @@ class DownloadJson:
 
 
 
-class TaxiAvailability(DownloadJson):
+class TaxiAvailability(DownloadJson, ConvertHeatmap):
     """Downloads taxi availability JSON."""
 
     def __init__(self):
         url = "https://api.data.gov.sg/v1/transport/taxi-availability"
-        super().__init__(url)
+        super(TaxiAvailability, self).__init__(url)
 
     def get_time_features(self, json_val):
         features = json_val["features"][0]

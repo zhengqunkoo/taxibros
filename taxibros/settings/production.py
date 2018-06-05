@@ -153,21 +153,14 @@ LOGGING = {
         "simple": {"format": "%(levelname)s %(message)s"},
     },
     "handlers": {
-        "file": {
-            "level": "DEBUG",
-            "class": "logging.FileHandler",
-            "filename": "logs/request.log",
-            "formatter": "verbose",
-        },
         "debug_file": {
             "level": "DEBUG",
             "class": "logging.FileHandler",
             "filename": "logs/debug.log",
             "formatter": "verbose",
-        },
+        }
     },
     "loggers": {
-        "django": {"handlers": ["file"], "level": "DEBUG", "propagate": True},
         "background_task": {
             "handlers": ["debug_file"],
             "level": "DEBUG",

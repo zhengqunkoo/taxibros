@@ -19,6 +19,7 @@ setup(
         "django-dotenv",
         "psutil",
         "requests",
+        "scipy",
     ],
     zip_safe=False,
 )
