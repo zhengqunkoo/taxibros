@@ -1,5 +1,6 @@
 import datetime
 import numpy as np
+from scipy.sparse import coo_matrix
 
 from daemons.models import Timestamp
 from daemons.views import serialize_coordinates
@@ -13,7 +14,7 @@ class ConvertHeatmap:
     Heatmap is sparse matrix of intensities (mostly zeros).
     """
 
-    def __init__(self, bins=50):
+    def __init__(self, bins=500):
         """
         @param bins: number of bins along each of the x-, y-axes. Default 50.
             Total number of bins is (@param bins**2).
@@ -25,29 +26,36 @@ class ConvertHeatmap:
         self._date_time_end = timezone.now()
 
     def store(self):
-        """Stores heatmaps within time range."""
+        """Stores heatmaps within time range.
+        Store as sparse matrix, do not store zeros.
+        """
         times = Timestamp.objects.filter(
             date_time__range=(self._date_time_start, self._date_time_end)
         )
         for time in times:
-            print("Store {}".format(time))
+            print("Convert {}".format(time))
 
             # Store as heat tile.
-            for index, intensity in np.ndenumerate(self.convert(time)):
-                Heatmap(
-                    intensity=intensity, x=index[0], y=index[1], timestamp=time
-                ).save()
+            coo = self.convert(time)
+            for x, y, v in zip(coo.row, coo.col, coo.data):
+                Heatmap(intensity=v, x=x, y=y, timestamp=time).save()
 
     def convert(self, time):
-        """Convert coordinates into heatmap.
+        """Convert coordinates of a timestamp into heatmap.
+        Note:
+            Database could return empty coordinate set.
+            Then, return heatmap with all zeros.
         @param time: daemons.models.Timestamp object to be stored.
-        @return heatmap: numpy array of intensities.
+        @return heatmap: scipy sparse integer coordinate matrix of intensities.
         """
         coordinates = time.coordinate_set.all()
-        y, x = zip(*serialize_coordinates(coordinates))
-        heatmap, _, _ = np.histogram2d(x, y, bins=self._bins)
-        return heatmap
-
+        serialized = serialize_coordinates(coordinates)
+        if serialized:
+            lat, long = zip(*serialized)
+        else:
+            lat, long = [], []
+        heatmap, _, _ = np.histogram2d(lat, long, bins=self._bins)
+        return coo_matrix(heatmap.astype(int))
 
 if __name__ == "__main__":
     import os

@@ -6,7 +6,7 @@ class Heatmap(models.Model):
     """Model representing one intensity.
     Compressed from coordinates by binning nearby coordinates together.
     """
-    intensity = models.FloatField(
+    intensity = models.IntegerField(
         help_text="Intensity at one unindexed tile of heatmap."
     )
     x = models.IntegerField(help_text="X-coordinate of tile of heatmap.")
