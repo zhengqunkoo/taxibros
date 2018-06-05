@@ -3,7 +3,6 @@ import numpy as np
 from scipy.sparse import coo_matrix
 
 from .models import Timestamp, Heatmap
-from .views import serialize_coordinates
 from django.conf import settings
 from django.utils import dateparse, timezone
 
@@ -23,7 +22,7 @@ class ConvertHeatmap:
     def store_heatmap(self, timestamp, coordinates):
         """Stores heatmaps within time range.
         Store as sparse matrix, do not store zeros.
-        @param timestamp: LTA date_time that JSON was updated.
+        @param timestamp: Timestamp object of LTA date_time that JSON was updated.
         @param coordinates: list of coordinates to be stored.
         """
         print("Convert {}".format(timestamp))
@@ -41,9 +40,8 @@ class ConvertHeatmap:
         @param coordinates: list of coordinates.
         @return heatmap: scipy sparse integer coordinate matrix of intensities.
         """
-        serialized = serialize_coordinates(coordinates)
-        if serialized:
-            lat, long = zip(*serialized)
+        if coordinates:
+            lat, long = zip(*coordinates)
         else:
             lat, long = [], []
         heatmap, _, _ = np.histogram2d(lat, long, bins=self._bins)

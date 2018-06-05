@@ -87,22 +87,23 @@ class DownloadJson:
         if url == None:
             url = self._url
         response = requests.get(url)
-
         return response.json()
 
     def store_timestamp_coordinates(self, date_time, coordinates):
         """If date_time is not unique, do not do anything.
-
         Stores each coordinate with the same unique date_time.
-        Also converts and stores heatmap.
 
         @param date_time: LTA date_time that JSON was updated.
         @param coordinates: list of coordinates to be stored.
+        @return
+            created: True if unique date_time, False if duplicate date_time.
+            timestamp: Timestamp object of LTA date_time that JSON was updated.
+            coordinates: list of coordinates to be stored.
         """
         timestamp, created = Timestamp.objects.get_or_create(date_time=date_time)
         if created:
             # Dont uncomment unless you know what you are doing
-            #self.get_closest_roads(coordinates, timestamp)
+            # self.get_closest_roads(coordinates, timestamp)
 
             # If created timestamp, store coordinates.
             print("Store {}".format(date_time))
@@ -110,7 +111,7 @@ class DownloadJson:
                 Coordinate(
                     lat=coordinate[1], long=coordinate[0], timestamp=timestamp
                 ).save()
-            self.store_heatmap(timestamp, coordinates)
+        return created, timestamp, coordinates
 
     def download_missing_timestamps(self):
         """Get current timestamps in database. Identify missing timestamps.
@@ -182,13 +183,10 @@ class DownloadJson:
         """
         self._logger.debug(" ".join(map(str, args)))
 
-
-
-
-    def store_road_data(self,road_id_list, timestamp):
+    def store_road_data(self, road_id_list, timestamp):
         """Stores a list of road ids into a db
         """
-        #create a dictionary from road_id_list
+        # create a dictionary from road_id_list
         vals = {}
         for id in road_id_list:
             if id == None:
@@ -197,30 +195,40 @@ class DownloadJson:
                 vals[id] += 1
             else:
                 vals[id] = 1
-        for id,count in vals.items():
-            location, created = Location.objects.get_or_create(location = id)
-            LocationRecord(count=count, location = location, timestamp = timestamp).save()
+        for id, count in vals.items():
+            location, created = Location.objects.get_or_create(location=id)
+            LocationRecord(count=count, location=location, timestamp=timestamp).save()
 
-
-    def get_closest_roads(self,coordinates, timestamp):
+    def get_closest_roads(self, coordinates, timestamp):
         """Returns a list of ids of roads associated to coordinates
         """
         try:
-            #Breaks coordinates into smaller chunks due to error 413
-            coord_chunks = [coordinates[x:x+100] for x in range(0, len(coordinates), 20)]
+            # Breaks coordinates into smaller chunks due to error 413
+            coord_chunks = [
+                coordinates[x : x + 100] for x in range(0, len(coordinates), 20)
+            ]
             for coord_chunk in coord_chunks:
-                coords_params = '|'.join([str(coordinate[1]) + ',' + str(coordinate[0]) for coordinate in coord_chunk])
-                url = "https://roads.googleapis.com/v1/nearestRoads?points=" + coords_params + "&key=" + settings.GOOGLEMAPS_SECRET_KEY
+                coords_params = "|".join(
+                    [
+                        str(coordinate[1]) + "," + str(coordinate[0])
+                        for coordinate in coord_chunk
+                    ]
+                )
+                url = (
+                    "https://roads.googleapis.com/v1/nearestRoads?points="
+                    + coords_params
+                    + "&key="
+                    + settings.GOOGLEMAPS_SECRET_KEY
+                )
                 json_val = self.get_json(url)
                 result = [None] * len(coord_chunk)
                 for point in json_val["snappedPoints"]:
                     index = point["originalIndex"]
                     result[index] = point["placeId"]
-                self.store_road_data(result,timestamp)
+                self.store_road_data(result, timestamp)
 
         except Exception as e:
             print(str(e))
-
 
 
 class TaxiAvailability(DownloadJson, ConvertHeatmap):
@@ -228,7 +236,8 @@ class TaxiAvailability(DownloadJson, ConvertHeatmap):
 
     def __init__(self):
         url = "https://api.data.gov.sg/v1/transport/taxi-availability"
-        super(TaxiAvailability, self).__init__(url)
+        DownloadJson.__init__(self, url)
+        ConvertHeatmap.__init__(self)
 
     def get_time_features(self, json_val):
         features = json_val["features"][0]
@@ -243,6 +252,13 @@ class TaxiAvailability(DownloadJson, ConvertHeatmap):
         taxi_count = json_val["properties"]["taxi_count"]
         status = json_val["properties"]["api_info"]["status"]
         return date_timestamp, taxi_count, status
+
+    def store_timestamp_coordinates(self, date_time, coordinates):
+        created, timestamp, coordinates = super(
+            TaxiAvailability, self
+        ).store_timestamp_coordinates(date_time, coordinates)
+        if created:
+            self.store_heatmap(timestamp, coordinates)
 
 
 @background(queue="taxi-availability")

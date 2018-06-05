@@ -3,6 +3,7 @@ import pytz
 import math
 import json
 
+from .download import start_download
 from .models import Timestamp, Coordinate
 from django.shortcuts import render
 from django.conf import settings
