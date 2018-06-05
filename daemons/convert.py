@@ -2,8 +2,8 @@ import datetime
 import numpy as np
 from scipy.sparse import coo_matrix
 
-from daemons.models import Timestamp, Heatmap
-from daemons.views import serialize_coordinates
+from .models import Timestamp, Heatmap
+from .views import serialize_coordinates
 from django.conf import settings
 from django.utils import dateparse, timezone
 
@@ -20,34 +20,27 @@ class ConvertHeatmap:
         """
         self._bins = bins
 
-        # Range of date_time to filter timestamps.
-        self._date_time_start = dateparse.parse_datetime(settings.DATE_TIME_START)
-        self._date_time_end = timezone.now()
-
-    def store(self):
+    def store_heatmap(self, timestamp, coordinates):
         """Stores heatmaps within time range.
         Store as sparse matrix, do not store zeros.
+        @param timestamp: LTA date_time that JSON was updated.
+        @param coordinates: list of coordinates to be stored.
         """
-        times = Timestamp.objects.filter(
-            date_time__range=(self._date_time_start, self._date_time_end)
-        )
-        for time in times:
-            print("Convert {}".format(time))
+        print("Convert {}".format(timestamp))
 
-            # Store as heat tile.
-            coo = self.convert(time)
-            for x, y, v in zip(coo.row, coo.col, coo.data):
-                Heatmap(intensity=v, x=x, y=y, timestamp=time).save()
+        # Store as heat tile.
+        coo = self.convert(coordinates)
+        for x, y, v in zip(coo.row, coo.col, coo.data):
+            Heatmap(intensity=v, x=x, y=y, timestamp=timestamp).save()
 
-    def convert(self, time):
+    def convert(self, coordinates):
         """Convert coordinates of a timestamp into heatmap.
         Note:
             Database could return empty coordinate set.
             Then, return heatmap with all zeros.
-        @param time: daemons.models.Timestamp object to be stored.
+        @param coordinates: list of coordinates.
         @return heatmap: scipy sparse integer coordinate matrix of intensities.
         """
-        coordinates = time.coordinate_set.all()
         serialized = serialize_coordinates(coordinates)
         if serialized:
             lat, long = zip(*serialized)
@@ -55,14 +48,3 @@ class ConvertHeatmap:
             lat, long = [], []
         heatmap, _, _ = np.histogram2d(lat, long, bins=self._bins)
         return coo_matrix(heatmap.astype(int))
-
-
-if __name__ == "__main__":
-    import os
-    import django
-    from taxibros.wsgi import application
-
-    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "taxibros.settings.local_settings")
-    django.setup()
-    ch = ConvertHeatmap()
-    ch.store()

@@ -49,7 +49,7 @@ def gen_heatmap_js(request):
     """Return Json of serialized list of coordinates, average distance away, and number of taxis according to the location"""
     intensities, xs, ys, timestamp = get_heatmap_time(request)
     return JsonResponse(
-        {"intensities": intensities, "x": x, "y": y, "timestamp": timestamp}
+        {"intensities": intensities, "xs": xs, "ys": ys, "timestamp": timestamp.date_time}
     )
 
 
