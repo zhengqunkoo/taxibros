@@ -2,12 +2,18 @@ import datetime
 
 from background_task.models import Task
 from daemons.models import Coordinate, Timestamp
-from daemons.views import get_coordinates_time, get_coordinates_location
+from daemons.views import (
+    get_coordinates_time,
+    get_coordinates_location,
+    serialize_coordinates,
+    get_best_road
+)
 from django.shortcuts import render
 from django.utils import timezone
 from django.conf import settings
 from django.http import JsonResponse
 from visualize.heatmap_slider import HeatmapSlider
+
 
 
 def index(request):
@@ -62,13 +68,15 @@ def gen_time_js(request):
 
 def gen_loc_js(request):
     """Return Json of serialized list of coordinates, average distance away, and number of taxis according to the location"""
-    coords, average, number, day_stats = get_coordinates_location(request)
+    coords, average, number, best_road = get_coordinates_location(request)
+    road_id = get_best_road(coords)
+
     return JsonResponse(
         {
             "coordinates": serialize_coordinates(coords),
             "average_dist": average,
             "number": number,
-            "day_stats": day_stats,
+            "best_road": best_road
         }
     )
 
