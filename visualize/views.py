@@ -99,8 +99,13 @@ def get_heatmap_time(request):
         timestamp.
     """
     minutes = request.GET.get("minutes")
+    sigma = request.GET.get("sigma")
     if minutes == None:
         minutes = 0
+    if sigma == None:
+        sigma = 1
+    else:
+        sigma = int(sigma) # TODO typecast
 
     # If true, minutes=0 means current time.
     # If false, minutes=0 means time of latest timestamp.

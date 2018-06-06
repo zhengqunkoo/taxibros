@@ -6,6 +6,7 @@
 // locate you.
 var map, heatmap, infoWindow;
 var pointArray;
+var minutes, sigma;
 
 function initMap() {
   map = new google.maps.Map(document.getElementById('map'), {
@@ -138,11 +139,12 @@ function showNearby() {
 }
 
 function genTimeSliderChange(e) {
-  // Asynchronously update maps with serialized coordinates.
-  var minutes = e.value;
+  minutes = e.value;
   if (minutes.hasOwnProperty('newValue')) {
     minutes = minutes.newValue;
   }
+
+  // Asynchronously update maps with serialized coordinates.
   $.ajax({
       url: "{% url 'visualize:genTime' %}",
       data: {
@@ -166,15 +168,17 @@ function genTimeSliderChange(e) {
 }
 
 function genHeatmapSliderChange(e) {
-  // Asynchronously update maps with serialized coordinates.
-  var minutes = e.value;
+  minutes = e.value;
   if (minutes.hasOwnProperty('newValue')) {
     minutes = minutes.newValue;
   }
+
+  // Asynchronously update maps with serialized coordinates.
   $.ajax({
     url: "{% url 'visualize:genHeatmap' %}",
     data: {
       minutes: minutes,
+      sigma: sigma,
     },
     dataType: 'json',
     success: function(data) {
@@ -228,10 +232,72 @@ function genHeatmapSliderChange(e) {
               .style("top", (d.y-size)+"px");
           }
 
+function genHeatmapSigmaSliderChange(e) {
+  sigma = e.value;
+  if (sigma.hasOwnProperty('newValue')) {
+    sigma = sigma.newValue;
+  }
+
+  // TODO duplicate code
+  // Asynchronously update maps with serialized coordinates.
+  $.ajax({
+    url: "{% url 'visualize:genHeatmap' %}",
+    data: {
+      minutes: minutes,
+      sigma: sigma,
+    },
+    dataType: 'json',
+    success: function(data) {
+      pointArray.clear();
+      var overlay = new google.maps.OverlayView();
+      overlay.onAdd = function() {
+
+        var layer = d3.select(this.getPanes().overlayLayer)
+          .append("div")
+          .attr("class", "heattiles");
+        var projection = this.getProjection();
+        var size = 10;
+
+        overlay.draw = function() {
+
+          var marker = layer.selectAll("svg")
+            .data(d3.entries(data.heattiles))
+            .each(transform) // Needed to maintain svg positions after drag.
+            .enter().append("svg")
+            .style("opacity", function(d) { return d.value[0]/10; })
+            .each(transform) // Needed to spread svgs throughout map.
+            .attr("class", "marker")
+          
+          // Draw circle at every heattile.
+          marker.append("circle")
+              .attr("cx", size)
+              .attr("cy", size)
+              .attr("r", size/2);
+
+          // Add taxi_count as text to right of circle.
+          marker.append("text")
+            .attr("x", size + 7)
+            .attr("y", size)
+            .attr("dy", ".31em")
+            .text(function (d) { return d.value[0]; });
+
         };
+
+        function transform(d) {
+          // Offset by lower left point of island.
+          d = new google.maps.LatLng(
+            1.235 + d.value[1]/16000, // Divide scale: smaller is taller.
+            103.615 + d.value[2]/7000 // Divide scale: smaller is wider.
+          );
+          d = projection.fromLatLngToDivPixel(d);
+          return d3.select(this)
+            .style("left", (d.x-size)+"px")
+            .style("top", (d.y-size)+"px");
+        }
 
       };
       overlay.setMap(map);
+
     },
     error: function(rs, e) {
       alert("Failed to reach {% url 'visualize:genHeatmap' %}.");
