@@ -43,21 +43,14 @@ def index(request):
 
 def gen_heatmap_js(request):
     """Return Json of intensity, coords, and timestamp of heat tile."""
-    coordinates = Timestamp.objects.latest("date_time").coordinate_set.all()
-    hs = HeatmapSlider(serialize_coordinates(coordinates))
-    try:
-        hs.show()
-    except:
-        pass
-    intensities, xs, ys, timestamp = get_heatmap_time(request)
-    return JsonResponse(
-        {
-            "intensities": intensities,
-            "xs": xs,
-            "ys": ys,
-            "timestamp": timestamp.date_time,
-        }
-    )
+    # coordinates = Timestamp.objects.latest("date_time").coordinate_set.all()
+    # hs = HeatmapSlider(serialize_coordinates(coordinates))
+    # try:
+    #     hs.show()
+    # except:
+    #     pass
+    heattiles, timestamp = get_heatmap_time(request)
+    return JsonResponse({"heattiles": heattiles, "timestamp": timestamp.date_time})
 
 
 def gen_time_js(request):
@@ -94,7 +87,9 @@ def get_heatmap_time(request):
         minutes:
             predict taxi locations at this amount of time into the future.
             default: 0 (meaning now).
-    @return list of heatmaps.
+    @return
+        list of heattiles, each with intensity, x-coord, and y-coord.
+        timestamp.
     """
     minutes = request.GET.get("minutes")
     if minutes == None:
@@ -119,10 +114,7 @@ def get_heatmap_time(request):
         # If many times, Select most recent time.
         time = times[0]
         heatmaps = time.heatmap_set.all()
-    intensities = [heatmap.intensity for heatmap in heatmaps]
-    xs = [heatmap.x for heatmap in heatmaps]
-    ys = [heatmap.y for heatmap in heatmaps]
-    return intensities, xs, ys, time
+    return [[heattile.intensity, heattile.x, heattile.y] for heattile in heatmaps], time
 
 
 def serialize_coordinates(coordinates):

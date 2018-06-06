@@ -169,20 +169,70 @@ function genHeatmapSliderChange(e) {
     minutes = minutes.newValue;
   }
   $.ajax({
-      url: "{% url 'visualize:genHeatmap' %}",
-      data: {
-          minutes: minutes,
-      },
-      dataType: 'json',
-      success: function(data) {
-          pointArray.clear();
-          var intensities = data.intensities;
-          var xs = data.xs;
-          var ys = data.ys;
-      },
-      error: function(rs, e) {
-          alert("Failed to reach {% url 'visualize:genHeatmap' %}.");
-      }
+    url: "{% url 'visualize:genHeatmap' %}",
+    data: {
+      minutes: minutes,
+    },
+    dataType: 'json',
+    success: function(data) {
+      pointArray.clear();
+      var overlay = new google.maps.OverlayView();
+      overlay.onAdd = function() {
+
+        var layer = d3.select(this.getPanes().overlayLayer)
+          .append("div")
+          .attr("class", "heattiles");
+        var projection = this.getProjection();
+        var size = 10;
+        var log = false;
+
+        overlay.draw = function() {
+
+          layer.selectAll("svg")
+            .data(d3.entries(data.heattiles))
+            .each(transform)
+            .enter().append("svg")
+            .style("opacity", function(d) { return d.value[0]/10; })
+            .each(transform)
+            .append("circle")
+              .attr("cx", size)
+              .attr("cy", size)
+              .attr("r", size/2);
+
+          console.log(projection.getWorldWidth());
+          log = true;
+
+          function transform(d) {
+            if (log) {
+              console.log(d.value[0], d.value[1], d.value[2]);
+            }
+
+            // Offset by lower left point of island.
+            d = new google.maps.LatLng(
+              1.235 + d.value[1]/16000, // Divide scale: smaller is taller.
+              103.615 + d.value[2]/7000 // Divide scale: smaller is wider.
+            );
+            if (log) {
+              console.log(d.lat(), d.lng());
+            }
+            d = projection.fromLatLngToDivPixel(d); // x: -130456, y: -1467929
+            if (log) {
+              console.log(d.x, d.y);
+              log = false;
+            }
+            return d3.select(this)
+              .style("left", (d.x-size)+"px")
+              .style("top", (d.y-size)+"px");
+          }
+
+        };
+
+      };
+      overlay.setMap(map);
+    },
+    error: function(rs, e) {
+      alert("Failed to reach {% url 'visualize:genHeatmap' %}.");
+    }
   });
 }
 

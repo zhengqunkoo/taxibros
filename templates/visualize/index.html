@@ -50,6 +50,15 @@
     }).on('{{ SLIDE_EVENT }}', genTimeSliderChange);
   </script>
 
+  <input type="range" id="genHeatmap" data-slider-id="genHeatmapSlider" type="text" data-slider-min="0" data-slider-max="100" data-slider-step="1" data-slider-value="0">
+  <script defer type='text/javascript'>
+    $('#genHeatmap').slider({
+        formatter: function (value) {
+            return value;
+        }
+    }).on('{{ SLIDE_EVENT }}', genHeatmapSliderChange);
+  </script>
+
   <!-- Google maps. -->
   <div id="map"></div>
 

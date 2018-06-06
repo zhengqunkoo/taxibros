@@ -102,7 +102,9 @@ class DownloadJson:
             timestamp: Timestamp object of LTA date_time that JSON was updated.
             coordinates: list of coordinates to be stored.
         """
-        timestamp, created = Timestamp.objects.get_or_create(date_time=date_time, taxi_count=taxi_count)
+        timestamp, created = Timestamp.objects.get_or_create(
+            date_time=date_time, taxi_count=taxi_count
+        )
         if created:
             # Dont uncomment unless you know what you are doing
             # self.get_closest_roads(coordinates, timestamp)
