@@ -1,6 +1,7 @@
 import datetime
 
 from background_task.models import Task
+from daemons.convert import ConvertHeatmap
 from daemons.models import Coordinate, Timestamp
 from daemons.views import (
     get_coordinates_time,
@@ -12,6 +13,8 @@ from django.shortcuts import render
 from django.utils import timezone
 from django.conf import settings
 from django.http import JsonResponse
+from scipy.sparse import coo_matrix
+from scipy.ndimage.morphology import grey_dilation
 from visualize.heatmap_slider import HeatmapSlider
 
 
@@ -105,7 +108,7 @@ def get_heatmap_time(request):
     if sigma == None:
         sigma = 1
     else:
-        sigma = int(sigma) # TODO typecast
+        sigma = int(sigma)  # TODO typecast
 
     # If true, minutes=0 means current time.
     # If false, minutes=0 means time of latest timestamp.
@@ -121,12 +124,20 @@ def get_heatmap_time(request):
     )
 
     # If no times, return empty list.
-    heatmaps = []
     if times:
+
         # If many times, Select most recent time.
         time = times[0]
-        heatmaps = time.heatmap_set.all()
-    return [[heattile.intensity, heattile.x, heattile.y] for heattile in heatmaps], time
+
+        # TODO is there another way to do this with less conversions?
+        coo = ConvertHeatmap.retrieve_heatmap(time)
+        heatmap = coo.toarray()
+        heatmap = grey_dilation(heatmap, size=(sigma, sigma))
+        coo = coo_matrix(heatmap.astype(int))
+        return list(zip(coo.data.tolist(), coo.row.tolist(), coo.col.tolist())), time
+    else:
+        # TODO return value does not fit specification.
+        return []
 
 
 def serialize_coordinates(coordinates):
