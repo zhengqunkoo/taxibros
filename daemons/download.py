@@ -108,7 +108,7 @@ class DownloadJson:
         if created:
             print(len(coordinates))
             # Dont uncomment unless you know what you are doing
-            self.process_closest_roads(coordinates, timestamp)
+            #self.process_closest_roads(coordinates, timestamp)
 
             # If created timestamp, store coordinates.
             print("Store {}".format(date_time))

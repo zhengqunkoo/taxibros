@@ -6,7 +6,7 @@ class Timestamp(models.Model):
     Assume time is unique.
     """
     date_time = models.DateTimeField()
-    taxi_count = models.IntegerField(help_text="Numebr of taxis at this timestamp.")
+    taxi_count = models.IntegerField(help_text="Number of taxis at this timestamp.")
 
     def __str__(self):
         """
