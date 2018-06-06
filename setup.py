@@ -17,6 +17,7 @@ setup(
         "django",
         "django-background-tasks",
         "django-dotenv",
+        "matplotlib",
         "psutil",
         "requests",
         "scipy",

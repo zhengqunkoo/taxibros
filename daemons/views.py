@@ -5,6 +5,7 @@ import json
 import requests
 import settings
 
+from .download import start_download
 from .models import Timestamp, Coordinate, Location, LocationRecord
 from django.shortcuts import render
 from django.conf import settings

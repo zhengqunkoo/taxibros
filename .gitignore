@@ -1,4 +1,7 @@
 ### Project-specific ###
+program_flow.plantuml
+program_flow.png
+heatmap_slider.png
 
 ### Python ###
 # Compiled Python modules

@@ -12,7 +12,7 @@ from django.shortcuts import render
 from django.utils import timezone
 from django.conf import settings
 from django.http import JsonResponse
-from daemons.convert import ConvertHeatmap
+from visualize.heatmap_slider import HeatmapSlider
 
 
 
@@ -48,10 +48,21 @@ def index(request):
 
 
 def gen_heatmap_js(request):
-    """Return Json of serialized list of coordinates, average distance away, and number of taxis according to the location"""
+    """Return Json of intensity, coords, and timestamp of heat tile."""
+    coordinates = Timestamp.objects.latest("date_time").coordinate_set.all()
+    hs = HeatmapSlider(serialize_coordinates(coordinates))
+    try:
+        hs.show()
+    except:
+        pass
     intensities, xs, ys, timestamp = get_heatmap_time(request)
     return JsonResponse(
-        {"intensities": intensities, "xs": xs, "ys": ys, "timestamp": timestamp.date_time}
+        {
+            "intensities": intensities,
+            "xs": xs,
+            "ys": ys,
+            "timestamp": timestamp.date_time,
+        }
     )
 
 
@@ -120,3 +131,10 @@ def get_heatmap_time(request):
     xs = [heatmap.x for heatmap in heatmaps]
     ys = [heatmap.y for heatmap in heatmaps]
     return intensities, xs, ys, time
+
+
+def serialize_coordinates(coordinates):
+    """Helper function to serialize list to output as needed in JsonResponse.
+    @return serialized list of coordinates.
+    """
+    return [[float(c.lat), float(c.long)] for c in coordinates]

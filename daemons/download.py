@@ -87,17 +87,18 @@ class DownloadJson:
         if url == None:
             url = self._url
         response = requests.get(url)
-
         return response.json()
 
     def store_timestamp_coordinates(self, date_time, coordinates):
         """If date_time is not unique, do not do anything.
-
         Stores each coordinate with the same unique date_time.
-        Also converts and stores heatmap.
 
         @param date_time: LTA date_time that JSON was updated.
         @param coordinates: list of coordinates to be stored.
+        @return
+            created: True if unique date_time, False if duplicate date_time.
+            timestamp: Timestamp object of LTA date_time that JSON was updated.
+            coordinates: list of coordinates to be stored.
         """
         timestamp, created = Timestamp.objects.get_or_create(date_time=date_time)
         if created:
@@ -111,7 +112,7 @@ class DownloadJson:
                 Coordinate(
                     lat=coordinate[1], long=coordinate[0], timestamp=timestamp
                 ).save()
-            self.store_heatmap(timestamp, coordinates)
+        return created, timestamp, coordinates
 
     def download_missing_timestamps(self):
         """Get current timestamps in database. Identify missing timestamps.
@@ -209,12 +210,12 @@ class DownloadJson:
             result[index] = point["placeId"]
         return result
 
-    
+
 
     def store_road_data(self,road_id_list, timestamp):
         """Stores a list of road ids into a db
         """
-        #create a dictionary from road_id_list
+        # create a dictionary from road_id_list
         vals = {}
         for id in road_id_list:
             if id == None:
@@ -223,9 +224,9 @@ class DownloadJson:
                 vals[id] += 1
             else:
                 vals[id] = 1
-        for id,count in vals.items():
-            location, created = Location.objects.get_or_create(location = id)
-            LocationRecord(count=count, location = location, timestamp = timestamp).save()
+        for id, count in vals.items():
+            location, created = Location.objects.get_or_create(location=id)
+            LocationRecord(count=count, location=location, timestamp=timestamp).save()
 
 
 class TaxiAvailability(DownloadJson, ConvertHeatmap):
@@ -233,7 +234,8 @@ class TaxiAvailability(DownloadJson, ConvertHeatmap):
 
     def __init__(self):
         url = "https://api.data.gov.sg/v1/transport/taxi-availability"
-        super(TaxiAvailability, self).__init__(url)
+        DownloadJson.__init__(self, url)
+        ConvertHeatmap.__init__(self)
 
     def get_time_features(self, json_val):
         features = json_val["features"][0]
@@ -248,6 +250,13 @@ class TaxiAvailability(DownloadJson, ConvertHeatmap):
         taxi_count = json_val["properties"]["taxi_count"]
         status = json_val["properties"]["api_info"]["status"]
         return date_timestamp, taxi_count, status
+
+    def store_timestamp_coordinates(self, date_time, coordinates):
+        created, timestamp, coordinates = super(
+            TaxiAvailability, self
+        ).store_timestamp_coordinates(date_time, coordinates)
+        if created:
+            self.store_heatmap(timestamp, coordinates)
 
 
 @background(queue="taxi-availability")
