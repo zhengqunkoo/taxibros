@@ -3,12 +3,12 @@ import pytz
 import math
 import json
 import requests
-import settings
 
 from .download import start_download
 from .models import Timestamp, Coordinate, Location, LocationRecord
 from django.shortcuts import render
 from django.conf import settings
+
 
 def index(request):
     """View function for home page of site."""
@@ -89,7 +89,7 @@ def get_coordinates_location(request):
 
     best_road = get_best_road(coords)
 
-    #TODO: Refactor code to draw general graph time
+    # TODO: Refactor code to draw general graph time
     """
     # timezone.activate(pytz.timezone(settings.TIME_ZONE))
     date_time_end = Timestamp.objects.latest("date_time").date_time
@@ -123,7 +123,6 @@ def get_coordinates_location(request):
     return result, total_dist / num if num != 0 else 0, num, best_road
 
 
-
 def get_best_road(coordinates):
     """Returns the road with the largest number of taxis in db
     @param: coordinates of taxis within 500m
@@ -138,20 +137,26 @@ def get_best_road(coordinates):
             max_road = road
     return max_road
 
+
 def get_count_at_road(roadID):
     loc = Location.objects.filter(location=roadID)[0]
     records = loc.locationrecord_set.all()
-    return sum(map(lambda rec:rec.count,records))
-
-
+    return sum(map(lambda rec: rec.count, records))
 
 
 def get_closest_roads(coordinates):
     """Retrieves the closest road segments to the coordinates
     @param: coordinates of the taxis
     @return: road segments of coordinates"""
-    coords_params = '|'.join([str(coordinate[1]) + ',' + str(coordinate[0]) for coordinate in coordinates])
-    url = "https://roads.googleapis.com/v1/nearestRoads?points=" + coords_params + "&key=" + settings.GOOGLEMAPS_SECRET_KEY
+    coords_params = "|".join(
+        [str(coordinate[1]) + "," + str(coordinate[0]) for coordinate in coordinates]
+    )
+    url = (
+        "https://roads.googleapis.com/v1/nearestRoads?points="
+        + coords_params
+        + "&key="
+        + settings.GOOGLEMAPS_SECRET_KEY
+    )
     json_val = resquests.get(url).json()
     result = [point["placeId"] for point in json_val["snappedPoints"]]
 

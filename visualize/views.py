@@ -6,14 +6,13 @@ from daemons.views import (
     get_coordinates_time,
     get_coordinates_location,
     serialize_coordinates,
-    get_best_road
+    get_best_road,
 )
 from django.shortcuts import render
 from django.utils import timezone
 from django.conf import settings
 from django.http import JsonResponse
 from visualize.heatmap_slider import HeatmapSlider
-
 
 
 def index(request):
@@ -76,7 +75,7 @@ def gen_loc_js(request):
             "coordinates": serialize_coordinates(coords),
             "average_dist": average,
             "number": number,
-            "best_road": best_road
+            "best_road": best_road,
         }
     )
 

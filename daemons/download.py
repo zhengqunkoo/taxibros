@@ -188,25 +188,37 @@ class DownloadJson:
         """
         self._logger.debug(" ".join(map(str, args)))
 
-    def process_closest_roads(self,coordinates, timestamp):
+    def process_closest_roads(self, coordinates, timestamp):
         """Processes the coordinates by tabulating counts for their respective road segments
         """
         try:
-            #Breaks coordinates into smaller chunks due to error 413
-            coord_chunks = [coordinates[x:x+100] for x in range(0, len(coordinates), 20)]
+            # Breaks coordinates into smaller chunks due to error 413
+            coord_chunks = [
+                coordinates[x : x + 100] for x in range(0, len(coordinates), 20)
+            ]
             for coord_chunk in coord_chunks:
                 result = self.get_closest_roads(coord_chunk)
-                self.store_road_data(result,timestamp)
+                self.store_road_data(result, timestamp)
 
         except Exception as e:
             print(str(e))
 
-    def get_closest_roads(self,coordinates):
+    def get_closest_roads(self, coordinates):
         """Retrieves the closest road segments to the coordinates
         @param: coordinates of the taxis
         @return: list of same size as coordinates containing road segment or None if none is found"""
-        coords_params = '|'.join([str(coordinate[1]) + ',' + str(coordinate[0]) for coordinate in coordinates])
-        url = "https://roads.googleapis.com/v1/nearestRoads?points=" + coords_params + "&key=" + settings.GOOGLEMAPS_SECRET_KEY
+        coords_params = "|".join(
+            [
+                str(coordinate[1]) + "," + str(coordinate[0])
+                for coordinate in coordinates
+            ]
+        )
+        url = (
+            "https://roads.googleapis.com/v1/nearestRoads?points="
+            + coords_params
+            + "&key="
+            + settings.GOOGLEMAPS_SECRET_KEY
+        )
         json_val = self.get_json(url)
         result = [None] * len(coordinates)
         for point in json_val["snappedPoints"]:
@@ -214,9 +226,7 @@ class DownloadJson:
             result[index] = point["placeId"]
         return result
 
-
-
-    def store_road_data(self,road_id_list, timestamp):
+    def store_road_data(self, road_id_list, timestamp):
         """Stores a list of road ids into a db
         """
         # create a dictionary from road_id_list
