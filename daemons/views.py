@@ -87,7 +87,7 @@ def get_coordinates_location(request):
             num += 1
             total_dist += dist
 
-    best_road = get_best_road(coords)
+    best_road = get_best_road(result)
 
     # TODO: Refactor code to draw general graph time
     """
@@ -130,8 +130,12 @@ def get_best_road(coordinates):
     roads = get_closest_roads(coordinates)
     max_val = 0
     max_road = None
-    for road in get_closest_roads:
+    print("LOOK")
+    print(roads)
+
+    for road in roads:
         val = get_count_at_road(road)
+        print(road, val)
         if val > max_val:
             max_val = val
             max_road = road
@@ -139,7 +143,15 @@ def get_best_road(coordinates):
 
 
 def get_count_at_road(roadID):
-    loc = Location.objects.filter(location=roadID)[0]
+    #HACK:Right now, some locations are not stored so this just skips it over
+    loc = None
+    try:
+        loc = Location.objects.get(location=roadID)
+    except Exception as e:
+        print(str(e))
+    if loc == None:
+        print("MISSING: " + roadID)
+        return 0
     records = loc.locationrecord_set.all()
     return sum(map(lambda rec: rec.count, records))
 
@@ -149,7 +161,7 @@ def get_closest_roads(coordinates):
     @param: coordinates of the taxis
     @return: road segments of coordinates"""
     coords_params = "|".join(
-        [str(coordinate[1]) + "," + str(coordinate[0]) for coordinate in coordinates]
+        [str(coordinate.lat) + "," + str(coordinate.long) for coordinate in coordinates]
     )
     url = (
         "https://roads.googleapis.com/v1/nearestRoads?points="
@@ -157,7 +169,7 @@ def get_closest_roads(coordinates):
         + "&key="
         + settings.GOOGLEMAPS_SECRET_KEY
     )
-    json_val = resquests.get(url).json()
+    json_val = requests.get(url).json()
     result = [point["placeId"] for point in json_val["snappedPoints"]]
 
     return set(result)
