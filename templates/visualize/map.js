@@ -90,6 +90,7 @@ function showNearby() {
                 var coordinates = data.coordinates;
                 var average_dist = data.average_dist;
                 var number = data.number;
+                var best_road = data.best_road;
                 //TODO: Eventually remove below
                 //var day_stats = data.day_stats;
                 //Filling up map
@@ -117,12 +118,12 @@ function showNearby() {
                   center: pos,
                   radius: 500,
                 });
-                
+
                 //Draw chart
                 //TODO: to remove
                 //drawChart(day_stats);
 
-
+                plot_best_road(best_road);
             },
             error: function(rs, e) {
                 alert("Failed to reach {% url 'visualize:genLoc' %}.");
@@ -281,5 +282,8 @@ function drawChart(day_stats) {
         .attr("transform", "translate(" + margin.left+ ",0)")
         .call(yAxis);
 
+}
+
+function plot_best_road(roadID) {
 
 }
