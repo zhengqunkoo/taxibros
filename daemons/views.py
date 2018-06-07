@@ -87,8 +87,10 @@ def get_coordinates_location(request):
             num += 1
             total_dist += dist
 
-    best_road = get_best_road(result)
+    best_road_id = get_best_road(result)
+    lat, lng, best_road = get_road_info_from_id(best_road_id)
 
+    return result, total_dist / num if num != 0 else 0, num, best_road, lat, lng
     # TODO: Refactor code to draw general graph time
     """
     # timezone.activate(pytz.timezone(settings.TIME_ZONE))
@@ -120,18 +122,18 @@ def get_coordinates_location(request):
                 num_at_time += 1
         day_stats.append(num_at_time)
         """
-    return result, total_dist / num if num != 0 else 0, num, best_road
+
 
 
 def get_best_road(coordinates):
     """Returns the road with the largest number of taxis in db
     @param: coordinates of taxis within 500m
     """
+
     roads = get_closest_roads(coordinates)
     max_val = 0
     max_road = None
-    print("LOOK")
-    print(roads)
+
 
     for road in roads:
         val = get_count_at_road(road)
@@ -140,6 +142,23 @@ def get_best_road(coordinates):
             max_val = val
             max_road = road
     return max_road
+
+def get_road_info_from_id(roadID):
+    url = "https://maps.googleapis.com/maps/api/place/details/json?placeid=" + roadID + "&key=" + settings.GOOGLEMAPS_SECRET_KEY
+    r = requests.get(url)
+    if r.status_code != 200:
+        raise Exception("Request failed")
+    json_val = r.json()
+
+    road_name = json_val["result"]["name"]
+
+    coordinates = json_val["result"]["geometry"]["location"]
+    lat = coordinates["lat"]
+    lng = coordinates["lng"]
+
+    return lat, lng, road_name
+
+
 
 
 def get_count_at_road(roadID):
@@ -160,6 +179,7 @@ def get_closest_roads(coordinates):
     """Retrieves the closest road segments to the coordinates
     @param: coordinates of the taxis
     @return: road segments of coordinates"""
+
     coords_params = "|".join(
         [str(coordinate.lat) + "," + str(coordinate.long) for coordinate in coordinates]
     )

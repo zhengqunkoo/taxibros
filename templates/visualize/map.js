@@ -22,6 +22,7 @@ function initMap() {
   });
 
   infoWindow = new google.maps.InfoWindow;
+  secondInfoWindow = new google.maps.InfoWindow;
 }
 
 function toggleHeatmap() {
@@ -91,6 +92,7 @@ function showNearby() {
                 var average_dist = data.average_dist;
                 var number = data.number;
                 var best_road = data.best_road;
+                var best_road_coords = data.best_road_coords;
                 //TODO: Eventually remove below
                 //var day_stats = data.day_stats;
                 //Filling up map
@@ -123,7 +125,9 @@ function showNearby() {
                 //TODO: to remove
                 //drawChart(day_stats);
 
-                plot_best_road(best_road);
+                infoWindow.setPosition(best_road_coords);
+                infoWindow.setContent('Better location');
+
             },
             error: function(rs, e) {
                 alert("Failed to reach {% url 'visualize:genLoc' %}.");
@@ -281,9 +285,5 @@ function drawChart(day_stats) {
     chart.append("g")
         .attr("transform", "translate(" + margin.left+ ",0)")
         .call(yAxis);
-
-}
-
-function plot_best_road(roadID) {
 
 }
