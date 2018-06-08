@@ -89,7 +89,7 @@ function showNearby() {
             success: function(data) {
                 pointArray.clear();
                 var coordinates = data.coordinates;
-                var average_dist = data.average_dist;
+                var total_dist = data.total_dist;
                 var number = data.number;
                 var best_road = data.best_road;
                 var best_road_coords = data.best_road_coords;
@@ -104,7 +104,7 @@ function showNearby() {
                 }
                 //Load stats
                 if (number != 0) { //Gets around zero division error
-                    document.getElementById('average_dist').innerHTML = average_dist;
+                    document.getElementById('average_dist').innerHTML = total_dist/number;
                 }
                 document.getElementById('num').innerHTML = number;
 
@@ -127,6 +127,8 @@ function showNearby() {
 
                 infoWindow.setPosition(best_road_coords);
                 infoWindow.setContent('Better location');
+
+                plot_route(pos, best_road_coords);
 
             },
             error: function(rs, e) {
@@ -285,5 +287,10 @@ function drawChart(day_stats) {
     chart.append("g")
         .attr("transform", "translate(" + margin.left+ ",0)")
         .call(yAxis);
+}
+
+function plotRoute(start_pos, end_pos) {
+
+
 
 }

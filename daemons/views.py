@@ -90,7 +90,7 @@ def get_coordinates_location(request):
     best_road_id = get_best_road(result)
     lat, lng, best_road = get_road_info_from_id(best_road_id)
 
-    return result, total_dist / num if num != 0 else 0, num, best_road, lat, lng
+    return result, total_dist, num, best_road, lat, lng
     # TODO: Refactor code to draw general graph time
     """
     # timezone.activate(pytz.timezone(settings.TIME_ZONE))
