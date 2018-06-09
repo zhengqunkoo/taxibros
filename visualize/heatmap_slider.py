@@ -29,9 +29,8 @@ class HeatmapSlider:
         self._sybins.on_changed(self._update)
         self._ssigma.on_changed(self._update)
         self._draw(self._sxbins.valinit, self._sybins.valinit, self._ssigma.valinit)
-        self._ax.invert_yaxis()  # Invert only works after imshow().
         # TODO
-        # plt.show() allows you to slide the sliders.
+        # plt.show() # Allows you to slide the sliders.
         # Can plt.show() but:
         #   blocks program flow.
         #   raises exceptions on exit.

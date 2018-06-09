@@ -41,23 +41,38 @@
   </div>
 
   <!-- Slider: zero is now, positive is future. -->
-  <input type="range" id="genTime" data-slider-id="genTimeSlider" type="text" data-slider-min="0" data-slider-max="100" data-slider-step="1" data-slider-value="0">
-  <script defer type='text/javascript'>
-    $('#genTime').slider({
-        formatter: function (value) {
-            return value;
-        }
-    }).on('{{ SLIDE_EVENT }}', genTimeSliderChange);
-  </script>
+  <div>
+    <input type="range" id="genTime" data-slider-id="genTimeSlider" type="text" data-slider-min="0" data-slider-max="100" data-slider-step="1" data-slider-value="0">
+    <script defer type='text/javascript'>
+      $('#genTime').slider({
+          formatter: function (value) {
+              return value;
+          }
+      }).on('{{ SLIDE_EVENT }}', genTimeSliderChange);
+    </script>
+  </div>
 
-  <input type="range" id="genHeatmap" data-slider-id="genHeatmapSlider" type="text" data-slider-min="0" data-slider-max="100" data-slider-step="1" data-slider-value="0">
-  <script defer type='text/javascript'>
-    $('#genHeatmap').slider({
-        formatter: function (value) {
-            return value;
-        }
-    }).on('{{ SLIDE_EVENT }}', genHeatmapSliderChange);
-  </script>
+  <div>
+    <input type="range" id="genHeatmap" data-slider-id="genHeatmapSlider" type="text" data-slider-min="0" data-slider-max="100" data-slider-step="1" data-slider-value="0">
+    <script defer type='text/javascript'>
+      $('#genHeatmap').slider({
+          formatter: function (value) {
+              return value;
+          }
+      }).on('{{ SLIDE_EVENT }}', genHeatmapSliderChange);
+    </script>
+  </div>
+
+  <div>
+    <input type="range" id="genHeatmapSigma" data-slider-id="genHeatmapSigmaSlider" type="text" data-slider-min="0" data-slider-max="100" data-slider-step="1" data-slider-value="0">
+    <script defer type='text/javascript'>
+      $('#genHeatmapSigma').slider({
+          formatter: function (value) {
+              return value;
+          }
+      }).on('{{ SLIDE_EVENT }}', genHeatmapSigmaSliderChange);
+    </script>
+  </div>
 
   <!-- Google maps. -->
   <div id="map"></div>

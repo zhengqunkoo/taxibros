@@ -39,8 +39,22 @@ class ConvertHeatmap:
 
         # Store as heat tile.
         coo = self.convert(coordinates)
-        for x, y, v in zip(coo.row, coo.col, coo.data):
+        for v, x, y in zip(coo.data, coo.row, coo.col):
             Heatmap(intensity=v, x=x, y=y, timestamp=timestamp).save()
+
+    @classmethod
+    def retrieve_heatmap(cls, time):
+        """Return heatmap of a certain timestamp as COO sparse matrix."""
+        heatmap = time.heatmap_set.all()
+        return coo_matrix(
+            (
+                [heattile.intensity for heattile in heatmap],
+                (
+                    [heattile.x for heattile in heatmap],
+                    [heattile.y for heattile in heatmap],
+                ),
+            )
+        )
 
     def convert(self, coordinates):
         """Convert coordinates of a timestamp into heatmap.
