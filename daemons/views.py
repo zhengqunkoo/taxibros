@@ -3,6 +3,7 @@ import pytz
 import math
 import json
 import requests
+import polyline
 
 from .download import start_download
 from .models import Timestamp, Coordinate, Location, LocationRecord
@@ -90,7 +91,9 @@ def get_coordinates_location(request):
     best_road_id = get_best_road(result)
     lat, lng, best_road = get_road_info_from_id(best_road_id)
 
-    return result, total_dist, num, best_road, lat, lng
+    path_geom = get_path_geom(pos["lat"],pos["lng"],lat,lng)
+
+    return result, total_dist, num, best_road, lat, lng, path_geom
     # TODO: Refactor code to draw general graph time
     """
     # timezone.activate(pytz.timezone(settings.TIME_ZONE))
@@ -122,7 +125,21 @@ def get_coordinates_location(request):
                 num_at_time += 1
         day_stats.append(num_at_time)
         """
-
+def get_path_geom(start_lat, start_lng, end_lat, end_lng):
+    url = "https://developers.onemap.sg/privateapi/routingsvc/route"
+    params = {
+        "start": "{},{}".format(start_lat,start_lng),
+        "end": "{},{}".format(end_lat, end_lng),
+        "routeType": "walk",
+        "token": settings.ONEMAP_SECRET_KEY,
+    }
+    r = requests.get(url,params=params)
+    if r.status_code != 200:
+        return None
+    json_val = r.json()
+    if "error" in json_val: #If route not found, only field is error
+        return None
+    return json_val["route_geometry"]
 
 
 def get_best_road(coordinates):
