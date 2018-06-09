@@ -6,6 +6,8 @@
 // locate you.
 var map, heatmap, infoWindow;
 var pointArray;
+var polylineArray;
+var walkpath;
 
 function initMap() {
   map = new google.maps.Map(document.getElementById('map'), {
@@ -23,7 +25,19 @@ function initMap() {
 
   infoWindow = new google.maps.InfoWindow;
   secondInfoWindow = new google.maps.InfoWindow;
+
+  polylineArray = new google.maps.MVCArray();
+  walkpath = new google.maps.Polyline({
+      path: polylineArray,
+      geodesic: true,
+      strokeColor: "FF000",
+      strokeOpacity: 1.0,
+      strokeWeight:2
+  });
+  walkpath.setMap(map);
+
 }
+
 
 function toggleHeatmap() {
   heatmap.setMap(heatmap.getMap() ? null : map);
@@ -93,6 +107,7 @@ function showNearby() {
                 var number = data.number;
                 var best_road = data.best_road;
                 var best_road_coords = data.best_road_coords;
+                var path_geom = data.path_geom
                 //TODO: Eventually remove below
                 //var day_stats = data.day_stats;
                 //Filling up map
@@ -128,7 +143,7 @@ function showNearby() {
                 infoWindow.setPosition(best_road_coords);
                 infoWindow.setContent('Better location');
 
-                plot_route(pos, best_road_coords);
+                var coords = decode(path_geom);
 
             },
             error: function(rs, e) {
@@ -289,8 +304,40 @@ function drawChart(day_stats) {
         .call(yAxis);
 }
 
-function plotRoute(start_pos, end_pos) {
+function decode(encoded){
+    //Decoding the encoded path geometry
+
+    var points=[ ]
+    var index = 0, len = encoded.length;
+    var lat = 0, lng = 0;
+    while (index < len) {
+        var b, shift = 0, result = 0;
+        do {
+
+    b = encoded.charAt(index++).charCodeAt(0) - 63;//finds ascii                                                                                    //and substract it by 63
+              result |= (b & 0x1f) << shift;
+              shift += 5;
+             } while (b >= 0x20);
+
+
+       var dlat = ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
+       lat += dlat;
+      shift = 0;
+      result = 0;
+     do {
+        b = encoded.charAt(index++).charCodeAt(0) - 63;
+        result |= (b & 0x1f) << shift;
+       shift += 5;
+         } while (b >= 0x20);
+     var dlng = ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
+     lng += dlng;
+
+   points.push({latitude:( lat / 1E5),longitude:( lng / 1E5)});
+   polylineArray.push(new google.maps.LatLng(( lat / 1E5),( lng / 1E5)));
 
 
 
+
+  }
+  return points
 }
