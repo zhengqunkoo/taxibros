@@ -23,6 +23,7 @@ function initMap() {
   });
 
   infoWindow = new google.maps.InfoWindow;
+  secondInfoWindow = new google.maps.InfoWindow;
 }
 
 function toggleHeatmap() {
@@ -91,6 +92,8 @@ function showNearby() {
                 var coordinates = data.coordinates;
                 var average_dist = data.average_dist;
                 var number = data.number;
+                var best_road = data.best_road;
+                var best_road_coords = data.best_road_coords;
                 //TODO: Eventually remove below
                 //var day_stats = data.day_stats;
                 //Filling up map
@@ -118,11 +121,13 @@ function showNearby() {
                   center: pos,
                   radius: 500,
                 });
-                
+
                 //Draw chart
                 //TODO: to remove
                 //drawChart(day_stats);
 
+                infoWindow.setPosition(best_road_coords);
+                infoWindow.setContent('Better location');
 
             },
             error: function(rs, e) {
@@ -353,6 +358,5 @@ function drawChart(day_stats) {
     chart.append("g")
         .attr("transform", "translate(" + margin.left+ ",0)")
         .call(yAxis);
-
 
 }

@@ -7,7 +7,7 @@ import pytz
 import requests
 
 from .convert import ConvertHeatmap
-from .models import Timestamp, Coordinate
+from .models import Timestamp, Coordinate, Location, LocationRecord, Heatmap
 from django.utils import dateparse, timezone
 from django.conf import settings
 
@@ -106,7 +106,6 @@ class DownloadJson:
             date_time=date_time, taxi_count=taxi_count
         )
         if created:
-            print(len(coordinates))
             # Dont uncomment unless you know what you are doing
             self.process_closest_roads(coordinates, timestamp)
 
@@ -196,9 +195,10 @@ class DownloadJson:
             coord_chunks = [
                 coordinates[x : x + 100] for x in range(0, len(coordinates), 20)
             ]
+            vals = {}
             for coord_chunk in coord_chunks:
-                result = self.get_closest_roads(coord_chunk)
-                self.store_road_data(result, timestamp)
+                self.add_list_to_dict(self.get_closest_roads(coord_chunk),vals)
+            self.store_road_data(vals, timestamp)
 
         except Exception as e:
             print(str(e))
@@ -225,12 +225,9 @@ class DownloadJson:
             index = point["originalIndex"]
             result[index] = point["placeId"]
         return result
-
-    def store_road_data(self, road_id_list, timestamp):
-        """Stores a list of road ids into a db
+    def add_list_to_dict(self, road_id_list, vals):
+        """Stores a road_id_list into a dictionary
         """
-        # create a dictionary from road_id_list
-        vals = {}
         for id in road_id_list:
             if id == None:
                 continue
@@ -238,6 +235,10 @@ class DownloadJson:
                 vals[id] += 1
             else:
                 vals[id] = 1
+
+    def store_road_data(self, vals, timestamp):
+        """Stores a dictionary of road ids and count into a db
+        """
         for id, count in vals.items():
             location, created = Location.objects.get_or_create(location=id)
             LocationRecord(count=count, location=location, timestamp=timestamp).save()

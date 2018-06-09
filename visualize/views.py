@@ -70,7 +70,7 @@ def gen_time_js(request):
 
 def gen_loc_js(request):
     """Return Json of serialized list of coordinates, average distance away, and number of taxis according to the location"""
-    coords, average, number, best_road = get_coordinates_location(request)
+    coords, average, number, best_road, lat, lng = get_coordinates_location(request)
     road_id = get_best_road(coords)
 
     return JsonResponse(
@@ -79,6 +79,7 @@ def gen_loc_js(request):
             "average_dist": average,
             "number": number,
             "best_road": best_road,
+            "best_road_coords": {"lat":lat, "lng":lng},
         }
     )
 
