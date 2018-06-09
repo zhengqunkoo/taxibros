@@ -144,7 +144,7 @@ function showNearby() {
                 infoWindow.setPosition(best_road_coords);
                 infoWindow.setContent('Better location');
 
-                var coords = decode(path_geom);
+                decode(path_geom);
 
             },
             error: function(rs, e) {
@@ -380,7 +380,6 @@ function drawChart(day_stats) {
 function decode(encoded){
     //Decoding the encoded path geometry
 
-    var points=[ ]
     var index = 0, len = encoded.length;
     var lat = 0, lng = 0;
     while (index < len) {
@@ -405,12 +404,6 @@ function decode(encoded){
      var dlng = ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
      lng += dlng;
 
-   points.push({latitude:( lat / 1E5),longitude:( lng / 1E5)});
    polylineArray.push(new google.maps.LatLng(( lat / 1E5),( lng / 1E5)));
-
-
-
-
   }
-  return points
 }
