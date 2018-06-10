@@ -40,20 +40,37 @@ class ConvertHeatmap:
         # Store as heat tile.
         coo, xedges, yedges = self.convert(coordinates)
         for v, x, y in zip(coo.data, coo.row, coo.col):
-            Heatmap(intensity=v, x=x, y=y, lat=xedges[x], long=yedges[y], timestamp=timestamp).save()
+            Heatmap(
+                intensity=v,
+                x=x,
+                y=y,
+                lat=xedges[x],
+                long=yedges[y],
+                timestamp=timestamp,
+            ).save()
 
     @classmethod
-    def retrieve_heatmap(cls, time):
-        """Return heatmap of a certain timestamp as COO sparse matrix."""
-        heatmap = time.heatmap_set.all()
-        return coo_matrix(
-            (
-                [heattile.intensity for heattile in heatmap],
+    def retrieve_heatmap(cls, timestamp):
+        """
+        @param timestamp: Timestamp object of LTA date_time that JSON was updated.
+        @return
+            coo_matrix of heatmap of the timestamp.
+            xedges, yedges: list of coordinate values for each heattile.
+        """
+        heatmap = timestamp.heatmap_set.all()
+        xedges, yedges = zip(*serialize_coordinates(heatmap))
+        return (
+            coo_matrix(
                 (
-                    [heattile.x for heattile in heatmap],
-                    [heattile.y for heattile in heatmap],
-                ),
-            )
+                    [heattile.intensity for heattile in heatmap],
+                    (
+                        [heattile.x for heattile in heatmap],
+                        [heattile.y for heattile in heatmap],
+                    ),
+                )
+            ),
+            xedges,
+            yedges,
         )
 
     def convert(self, coordinates):
@@ -74,3 +91,11 @@ class ConvertHeatmap:
             long, lat, bins=(self._xbins, self._ybins)
         )
         return coo_matrix(heatmap.astype(int)), xedges, yedges
+
+
+# TODO duplicate code from daemons.views
+def serialize_coordinates(coordinates):
+    """Helper function to serialize list to output as needed in JsonResponse.
+    @return serialized list of coordinates.
+    """
+    return [[float(c.lat), float(c.long)] for c in coordinates]
