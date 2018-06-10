@@ -67,10 +67,9 @@ class Heatmap(models.Model):
     """Model representing one intensity.
     Compressed from coordinates by binning nearby coordinates together.
     """
-
-    intensity = models.IntegerField(
-        help_text="Intensity at one unindexed tile of heatmap."
-    )
-    x = models.IntegerField(help_text="X-coordinate of tile of heatmap.")
-    y = models.IntegerField(help_text="Y-coordinate of tile of heatmap.")
+    intensity = models.IntegerField(help_text="Intensity at one tile of heatmap.")
+    x = models.IntegerField(help_text="Row index of tile of heatmap.")
+    y = models.IntegerField(help_text="Column index of tile of heatmap.")
+    lat = models.DecimalField(max_digits=9, decimal_places=6, help_text="Latitude")
+    long = models.DecimalField(max_digits=9, decimal_places=6, help_text="Longitude")
     timestamp = models.ForeignKey(Timestamp, on_delete=models.CASCADE)

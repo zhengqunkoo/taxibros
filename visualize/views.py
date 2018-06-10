@@ -52,6 +52,7 @@ def index(request):
 
 def gen_heatmap_js(request):
     """Return Json of intensity, coords, and timestamp of heat tile."""
+    # TODO remove. This is to show developers heatmap in GUI, and change variables on the fly.
     # coordinates = Timestamp.objects.latest("date_time").coordinate_set.all()
     # hs = HeatmapSlider(serialize_coordinates(coordinates))
     # try:
@@ -103,7 +104,7 @@ def get_heatmap_time(request):
             predict taxi locations at this amount of time into the future.
             default: 0 (meaning now).
     @return
-        list of heattiles, each with intensity, x-coord, and y-coord.
+        list of heattiles, each heattile is intensity, x-coord, and y-coord.
         timestamp.
     """
     minutes = request.GET.get("minutes")
@@ -135,14 +136,20 @@ def get_heatmap_time(request):
         time = times[0]
 
         # TODO is there another way to do this with less conversions?
-        coo = ConvertHeatmap.retrieve_heatmap(time)
+        coo, xedges, yedges = ConvertHeatmap.retrieve_heatmap(time)
         heatmap = coo.toarray()
         heatmap = grey_dilation(heatmap, size=(sigma, sigma))
         coo = coo_matrix(heatmap.astype(int))
-        return list(zip(coo.data.tolist(), coo.row.tolist(), coo.col.tolist())), time
+        data = coo.data.tolist()
+        row = coo.row.tolist()
+        col = coo.col.tolist()
+        x = [xedges[row.index(x)] for x in row]
+        y = [yedges[col.index(y)] for y in col]
+        heattiles = list(zip(data, x, y))
+        return heattiles, time
     else:
         # TODO return value does not fit specification.
-        return []
+        return [], None
 
 
 def get_chart_data_js(request):
