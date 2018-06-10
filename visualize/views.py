@@ -51,6 +51,7 @@ def index(request):
 
 def gen_heatmap_js(request):
     """Return Json of intensity, coords, and timestamp of heat tile."""
+    # TODO remove. This is to show developers heatmap in GUI, and change variables on the fly.
     # coordinates = Timestamp.objects.latest("date_time").coordinate_set.all()
     # hs = HeatmapSlider(serialize_coordinates(coordinates))
     # try:

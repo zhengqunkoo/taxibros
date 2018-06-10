@@ -38,9 +38,9 @@ class ConvertHeatmap:
         print("Convert {}".format(timestamp))
 
         # Store as heat tile.
-        coo = self.convert(coordinates)
+        coo, xedges, yedges = self.convert(coordinates)
         for v, x, y in zip(coo.data, coo.row, coo.col):
-            Heatmap(intensity=v, x=x, y=y, timestamp=timestamp).save()
+            Heatmap(intensity=v, x=x, y=y, lat=xedges[x], long=yedges[y], timestamp=timestamp).save()
 
     @classmethod
     def retrieve_heatmap(cls, time):
@@ -62,11 +62,15 @@ class ConvertHeatmap:
             Database could return empty coordinate set.
             Then, return heatmap with all zeros.
         @param coordinates: list of coordinates.
-        @return heatmap: scipy sparse integer coordinate matrix of intensities.
+        @return
+            heatmap: scipy sparse integer coordinate matrix of intensities.
+            xedges, yedges: list of coordinate values for each heattile.
         """
         if coordinates:
             lat, long = zip(*coordinates)
         else:
             lat, long = [], []
-        heatmap, _, _ = np.histogram2d(long, lat, bins=(self._xbins, self._ybins))
-        return coo_matrix(heatmap.astype(int))
+        heatmap, xedges, yedges = np.histogram2d(
+            long, lat, bins=(self._xbins, self._ybins)
+        )
+        return coo_matrix(heatmap.astype(int)), xedges, yedges
