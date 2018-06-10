@@ -12,7 +12,7 @@ class ConvertHeatmap:
     Heatmap is sparse matrix of intensities (mostly zeros).
     """
 
-    def __init__(self, xbins=4450, ybins=2655):
+    def __init__(self, xbins=890, ybins=531):
         """
         @param xbins, ybins: number of bins along each of the x-, y-axes.
             Default:
