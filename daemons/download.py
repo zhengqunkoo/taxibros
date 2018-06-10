@@ -264,7 +264,8 @@ def process_location_coordinates():
             loc.delete()
             print(str(e))
 
-def get_road_info_from_id(roadID, tries = 4):
+
+def get_road_info_from_id(roadID, tries=4):
     if tries == 0:
         raise Exception("Cannot get location")
     url = (
@@ -276,14 +277,14 @@ def get_road_info_from_id(roadID, tries = 4):
     r = requests.get(url)
     if r.status_code != 200:
         time.sleep(1)
-        return get_road_info_from_id(roadID, tries = tries-1)
+        return get_road_info_from_id(roadID, tries=tries - 1)
     json_val = r.json()
     if r.json()["status"] == "NOT_FOUND":
         raise Exception("RoadID not available")
-    #Sometimes, road_name is just Singapore
+    # Sometimes, road_name is just Singapore
     road_name = json_val["result"]["name"]
     if road_name == "Singapore":
-        road_name = 'Unnamed Road'
+        road_name = "Unnamed Road"
 
     coordinates = json_val["result"]["geometry"]["location"]
     lat = coordinates["lat"]
