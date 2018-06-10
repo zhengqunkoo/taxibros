@@ -31,6 +31,11 @@ ONEMAP_SECRET_KEY = os.getenv("ONEMAP_SECRET_KEY")
 # False: do not start daemon on server start.
 DAEMON_START = True
 
+# Toggle update location with location details
+# True: Process locations if daemon_start is false
+# False: do not process location (default)
+UPDATE_ROADS = False
+
 # Relative time to display heatmaps.
 # True: relative to real-time.
 # False: relative to latest timestamp.
