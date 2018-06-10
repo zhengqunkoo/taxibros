@@ -194,7 +194,7 @@ class DownloadJson:
         try:
             # Breaks coordinates into smaller chunks due to error 413
             coord_chunks = [
-                coordinates[x : x + 100] for x in range(0, len(coordinates), 20)
+                coordinates[x : x + 100] for x in range(0, len(coordinates), 100)
             ]
             vals = {}
             for coord_chunk in coord_chunks:
@@ -224,7 +224,10 @@ class DownloadJson:
         result = [None] * len(coordinates)
         for point in json_val["snappedPoints"]:
             index = point["originalIndex"]
-            result[index] = point["placeId"]
+            if (result[index] != None and point["placeId"] > result[index]) or result[
+                index
+            ] == None:
+                result[index] = point["placeId"]
         return result
 
     def add_list_to_dict(self, road_id_list, vals):
