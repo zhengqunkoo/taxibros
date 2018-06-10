@@ -5,7 +5,6 @@ from django.urls import reverse
 
 # Create your tests here.
 class VisualizeIndexViewTests(TestCase):
-
     def test_no_data(self):
         """If no data exists (i.e. if server starts after a period of lull), an appropriate message is displayed
         """

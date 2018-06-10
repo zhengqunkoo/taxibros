@@ -6,7 +6,6 @@ from scipy.ndimage.morphology import grey_dilation
 
 
 class HeatmapSlider:
-
     def __init__(self, coordinates):
         """
         @param coordinates: list of coordinates.
