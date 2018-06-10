@@ -2,7 +2,7 @@ import datetime
 import numpy as np
 from scipy.sparse import coo_matrix
 
-from .models import Timestamp, Heatmap
+from .models import Heatmap, Heattile
 from django.conf import settings
 from django.utils import dateparse, timezone
 
@@ -39,8 +39,11 @@ class ConvertHeatmap:
 
         # Store as heat tile.
         coo = self.convert(coordinates)
+        coo, left, right, bottom, top = self.convert(coordinates)
+        heatmap = Heatmap(left=left, right=right, bottom=bottom, top=top, xbins=self._xbins, ybins=self._ybins, timestamp=timestamp)
+        heatmap.save()
         for v, x, y in zip(coo.data, coo.row, coo.col):
-            Heatmap(intensity=v, x=x, y=y, timestamp=timestamp).save()
+            Heattile(intensity=v, x=x, y=y, heatmap=heatmap).save()
 
     @classmethod
     def retrieve_heatmap(cls, time):
@@ -62,11 +65,21 @@ class ConvertHeatmap:
             Database could return empty coordinate set.
             Then, return heatmap with all zeros.
         @param coordinates: list of coordinates.
-        @return heatmap: scipy sparse integer coordinate matrix of intensities.
+        @return
+            heatmap: scipy sparse integer coordinate matrix of intensities.
+            left, right, bottom, top: extent of data.
         """
         if coordinates:
             lat, long = zip(*coordinates)
         else:
             lat, long = [], []
-        heatmap, _, _ = np.histogram2d(long, lat, bins=(self._xbins, self._ybins))
-        return coo_matrix(heatmap.astype(int))
+        heatmap, xedges, yedges = np.histogram2d(
+            long, lat, bins=(self._xbins, self._ybins)
+        )
+        return (
+            coo_matrix(heatmap.astype(int)),
+            xedges[0],
+            xedges[-1],
+            yedges[0],
+            yedges[-1],
+        )

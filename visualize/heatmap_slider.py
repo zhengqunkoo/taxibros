@@ -46,9 +46,16 @@ class HeatmapSlider:
         xbins = int(xbins)
         ybins = int(ybins)
         sigma = int(sigma)
-        coo = ConvertHeatmap(xbins, ybins).convert(self._coordinates)
+        coo, left, right, bottom, top = ConvertHeatmap(xbins, ybins).convert(
+            self._coordinates
+        )
         heatmap = coo.toarray()
         heatmap = grey_dilation(heatmap, size=(sigma, sigma))
         self._ax.clear()
-        self._ax.imshow(heatmap.T, cmap="hot", interpolation="nearest")
+        self._ax.imshow(
+            heatmap.T,
+            extent=[left, right, bottom, top],
+            cmap="hot",
+            interpolation="nearest",
+        )
         self._fig.canvas.draw()

@@ -8,7 +8,7 @@ import requests
 import time
 
 from .convert import ConvertHeatmap
-from .models import Timestamp, Coordinate, Location, LocationRecord, Heatmap
+from .models import Timestamp, Coordinate, Location, LocationRecord
 from django.utils import dateparse, timezone
 from django.conf import settings
 
