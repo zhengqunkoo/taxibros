@@ -12,7 +12,7 @@ import dotenv
 import subprocess
 import psutil
 
-from daemons.download import start_download
+from daemons.download import start_download, process_location_coordinates
 from django.core.wsgi import get_wsgi_application
 from django.conf import settings
 
@@ -37,3 +37,5 @@ if settings.DAEMON_START:
             break
     else:
         subprocess.Popen(cmd)
+if settings.UPDATE_ROADS and not settings.DAEMON_START:
+    process_location_coordinates()
