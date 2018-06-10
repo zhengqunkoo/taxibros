@@ -3,8 +3,9 @@
 	background: #BABABA;
 }
 
-#container {
-    padding:10px;
+
+#map {
+  height: 100%;
 }
 .chart rect {
   fill: steelblue;
@@ -27,7 +28,7 @@
   position: relative;
   width: 960px;
   height: 500px;
-} 
+}
 
 .heattiles svg {
   position: absolute;

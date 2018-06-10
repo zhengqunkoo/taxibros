@@ -16,6 +16,7 @@ function initMap() {
     center: {lat: 1.3521, lng: 103.8198},
     mapTypeId: 'roadmap'
   });
+  debugger;
 
   pointArray = new google.maps.MVCArray(getPoints());
 
@@ -355,7 +356,7 @@ function drawChart() {
            // Typical action to be performed when the document is ready:
            var response = JSON.parse(this.responseText);
            day_stats = response.day_stats;
-           var height = 420,
+           var height = 210,
                barWidth = 10;
            var margin = {top: 20, right: 10, bottom: 20, left: 40};
            height = height - margin.top - margin.bottom;

@@ -67,6 +67,7 @@ class Heatmap(models.Model):
     """Model representing one intensity.
     Compressed from coordinates by binning nearby coordinates together.
     """
+
     intensity = models.IntegerField(help_text="Intensity at one tile of heatmap.")
     x = models.IntegerField(help_text="Row index of tile of heatmap.")
     y = models.IntegerField(help_text="Column index of tile of heatmap.")
