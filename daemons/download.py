@@ -5,6 +5,7 @@ import datetime
 from logging import getLogger
 import pytz
 import requests
+import time
 
 from .convert import ConvertHeatmap
 from .models import Timestamp, Coordinate, Location, LocationRecord, Heatmap
@@ -197,7 +198,7 @@ class DownloadJson:
             ]
             vals = {}
             for coord_chunk in coord_chunks:
-                self.add_list_to_dict(self.get_closest_roads(coord_chunk),vals)
+                self.add_list_to_dict(self.get_closest_roads(coord_chunk), vals)
             self.store_road_data(vals, timestamp)
 
         except Exception as e:
@@ -225,6 +226,7 @@ class DownloadJson:
             index = point["originalIndex"]
             result[index] = point["placeId"]
         return result
+
     def add_list_to_dict(self, road_id_list, vals):
         """Stores a road_id_list into a dictionary
         """
@@ -240,8 +242,54 @@ class DownloadJson:
         """Stores a dictionary of road ids and count into a db
         """
         for id, count in vals.items():
-            location, created = Location.objects.get_or_create(location=id)
+            location, created = Location.objects.get_or_create(pk=id)
             LocationRecord(count=count, location=location, timestamp=timestamp).save()
+
+
+def process_location_coordinates():
+    locations = Location.objects.filter(lat=0)
+
+    print("Total to process: " + str(len(locations)))
+    count = 1
+    for loc in locations:
+        print(str(count) + ": Processing " + loc.roadID)
+        count += 1
+        try:
+            lat, lng, road_name = get_road_info_from_id(loc.roadID)
+            loc.lat = lat
+            loc.long = lng
+            loc.road_name = road_name
+            loc.save()
+        except Exception as e:
+            loc.delete()
+            print(str(e))
+
+def get_road_info_from_id(roadID, tries = 4):
+    if tries == 0:
+        raise Exception("Cannot get location")
+    url = (
+        "https://maps.googleapis.com/maps/api/place/details/json?placeid="
+        + roadID
+        + "&key="
+        + settings.GOOGLEMAPS_SECRET_KEY
+    )
+    r = requests.get(url)
+    if r.status_code != 200:
+        time.sleep(1)
+        return get_road_info_from_id(roadID, tries = tries-1)
+    json_val = r.json()
+    if r.json()["status"] == "NOT_FOUND":
+        raise Exception("RoadID not available")
+    #Sometimes, road_name is just Singapore
+    road_name = json_val["result"]["name"]
+    if road_name == "Singapore":
+        road_name = 'Unnamed Road'
+
+    coordinates = json_val["result"]["geometry"]["location"]
+    lat = coordinates["lat"]
+    lng = coordinates["lng"]
+
+    return lat, lng, road_name
 
 
 class TaxiAvailability(DownloadJson, ConvertHeatmap):
