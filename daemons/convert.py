@@ -43,27 +43,17 @@ class ConvertHeatmap:
             Heatmap(intensity=v, x=x, y=y, timestamp=timestamp).save()
 
     @classmethod
-    def retrieve_heatmap(cls, timestamp):
-        """
-        @param timestamp: Timestamp object of LTA date_time that JSON was updated.
-        @return
-            coo_matrix of heatmap of the timestamp.
-            xedges, yedges: list of coordinate values for each heattile.
-        """
-        heatmap = timestamp.heatmap_set.all()
-        xedges, yedges = zip(*serialize_coordinates(heatmap))
-        return (
-            coo_matrix(
+    def retrieve_heatmap(cls, time):
+        """Return heatmap of a certain timestamp as COO sparse matrix."""
+        heatmap = time.heatmap_set.all()
+        return coo_matrix(
+            (
+                [heattile.intensity for heattile in heatmap],
                 (
-                    [heattile.intensity for heattile in heatmap],
-                    (
-                        [heattile.x for heattile in heatmap],
-                        [heattile.y for heattile in heatmap],
-                    ),
-                )
-            ),
-            xedges,
-            yedges,
+                    [heattile.x for heattile in heatmap],
+                    [heattile.y for heattile in heatmap],
+                ),
+            )
         )
 
     def convert(self, coordinates):

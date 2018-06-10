@@ -102,7 +102,7 @@ def get_heatmap_time(request):
             predict taxi locations at this amount of time into the future.
             default: 0 (meaning now).
     @return
-        list of heattiles, each heattile is intensity, x-coord, and y-coord.
+        list of heattiles, each with intensity, x-coord, and y-coord.
         timestamp.
     """
     minutes = request.GET.get("minutes")
@@ -134,20 +134,14 @@ def get_heatmap_time(request):
         time = times[0]
 
         # TODO is there another way to do this with less conversions?
-        coo, xedges, yedges = ConvertHeatmap.retrieve_heatmap(time)
+        coo = ConvertHeatmap.retrieve_heatmap(time)
         heatmap = coo.toarray()
         heatmap = grey_dilation(heatmap, size=(sigma, sigma))
         coo = coo_matrix(heatmap.astype(int))
-        data = coo.data.tolist()
-        row = coo.row.tolist()
-        col = coo.col.tolist()
-        x = [xedges[row.index(x)] for x in row]
-        y = [yedges[col.index(y)] for y in col]
-        heattiles = list(zip(data, x, y))
-        return heattiles, time
+        return list(zip(coo.data.tolist(), coo.row.tolist(), coo.col.tolist())), time
     else:
         # TODO return value does not fit specification.
-        return [], None
+        return []
 
 
 def serialize_coordinates(coordinates):

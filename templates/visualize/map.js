@@ -242,8 +242,8 @@ function genHeatmapSliderChange(e) {
         function transform(d) {
           // Offset by lower left point of island.
           d = new google.maps.LatLng(
-            d.value[1],
-            d.value[2],
+            1.235 + d.value[1]/16000, // Divide scale: smaller is taller.
+            103.615 + d.value[2]/7000 // Divide scale: smaller is wider.
           );
           d = projection.fromLatLngToDivPixel(d);
           return d3.select(this)
@@ -315,8 +315,8 @@ function genHeatmapSigmaSliderChange(e) {
         function transform(d) {
           // Offset by lower left point of island.
           d = new google.maps.LatLng(
-            d.value[1],
-            d.value[2],
+            1.235 + d.value[1]/16000, // Divide scale: smaller is taller.
+            103.615 + d.value[2]/7000 // Divide scale: smaller is wider.
           );
           d = projection.fromLatLngToDivPixel(d);
           return d3.select(this)
