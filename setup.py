@@ -21,7 +21,6 @@ setup(
         "psutil",
         "requests",
         "scipy",
-        "polyline",
     ],
     zip_safe=False,
 )

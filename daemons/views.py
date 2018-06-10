@@ -3,7 +3,6 @@ import pytz
 import math
 import json
 import requests
-import polyline
 
 from .download import start_download
 from .models import Timestamp, Coordinate, Location, LocationRecord
