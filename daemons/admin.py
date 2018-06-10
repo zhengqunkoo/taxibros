@@ -20,4 +20,4 @@ class CoordinateAdmin(admin.ModelAdmin):
 
 @admin.register(Heatmap)
 class HeatmapAdmin(admin.ModelAdmin):
-    list_display = ("intensity", "x", "y", "lat", "long", "timestamp")
+    list_display = ("intensity", "x", "y", "timestamp")
