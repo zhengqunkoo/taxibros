@@ -63,16 +63,6 @@
     </script>
   </div>
 
-  <div>
-    <input type="range" id="genHeatmapSigma" data-slider-id="genHeatmapSigmaSlider" type="text" data-slider-min="0" data-slider-max="100" data-slider-step="1" data-slider-value="0">
-    <script defer type='text/javascript'>
-      $('#genHeatmapSigma').slider({
-          formatter: function (value) {
-              return value;
-          }
-      }).on('{{ SLIDE_EVENT }}', genHeatmapSigmaSliderChange);
-    </script>
-  </div>
   <div id= "map-all">
       <!-- Google maps. -->
       <div id="map"></div>
