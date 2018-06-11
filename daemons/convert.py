@@ -40,23 +40,38 @@ class ConvertHeatmap:
         # Store as heat tile.
         coo = self.convert(coordinates)
         coo, left, right, bottom, top = self.convert(coordinates)
-        heatmap = Heatmap(left=left, right=right, bottom=bottom, top=top, xbins=self._xbins, ybins=self._ybins, timestamp=timestamp)
+        heatmap = Heatmap(
+            left=left,
+            right=right,
+            bottom=bottom,
+            top=top,
+            xbins=self._xbins,
+            ybins=self._ybins,
+            timestamp=timestamp,
+        )
         heatmap.save()
         for v, x, y in zip(coo.data, coo.row, coo.col):
             Heattile(intensity=v, x=x, y=y, heatmap=heatmap).save()
 
     @classmethod
     def retrieve_heatmap(cls, time):
-        """Return heatmap of a certain timestamp as COO sparse matrix."""
-        heatmap = time.heatmap_set.all()
-        return coo_matrix(
-            (
-                [heattile.intensity for heattile in heatmap],
-                (
-                    [heattile.x for heattile in heatmap],
-                    [heattile.y for heattile in heatmap],
-                ),
-            )
+        """
+        @param timestamp: Timestamp object of LTA date_time that JSON was updated.
+        @return
+            coo_matrix of heatmap of the timestamp.
+            left, right, bottom, top, xbins, ybins: Heatmap object attributes.
+        """
+        heatmap = time.heatmap
+        heattile = heatmap.heattile_set.all()
+        intensities, xs, ys = zip(*[[h.intensity, h.x, h.y] for h in heattile])
+        return (
+            coo_matrix((intensities, (xs, ys))),
+            heatmap.left,
+            heatmap.right,
+            heatmap.bottom,
+            heatmap.top,
+            heatmap.xbins,
+            heatmap.ybins,
         )
 
     def convert(self, coordinates):

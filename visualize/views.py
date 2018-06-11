@@ -137,12 +137,23 @@ def get_heatmap_time(request):
         # If many times, Select most recent time.
         time = times[0]
 
-        # TODO is there another way to do this with less conversions?
-        coo = ConvertHeatmap.retrieve_heatmap(time)
+        coo, left, right, bottom, top, xbins, ybins = ConvertHeatmap.retrieve_heatmap(
+            time
+        )
+
+        # Positive for countries above equator and to right of Greenwich.
+        width, height = right - left, top - bottom
+
         heatmap = coo.toarray()
         heatmap = grey_dilation(heatmap, size=(sigma, sigma))
         coo = coo_matrix(heatmap.astype(int))
-        return list(zip(coo.data.tolist(), coo.row.tolist(), coo.col.tolist())), time
+        data = coo.data.tolist()
+        row = coo.row.tolist()
+        col = coo.col.tolist()
+        xs = [left + width * n / xbins for n in row]
+        ys = [bottom + height * n / ybins for n in col]
+        heattiles = list(zip(data, xs, ys))
+        return heattiles, time
     else:
         # TODO return value does not fit specification.
         return []
