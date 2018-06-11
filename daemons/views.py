@@ -154,7 +154,6 @@ def get_best_road(coordinates):
 
     for road in roads:
         val = get_count_at_road(road)
-        print(road, val)
         if val > max_val:
             max_val = val
             max_road = road
@@ -186,7 +185,7 @@ def get_count_at_road(roadID):
     # HACK:Right now, some locations are not stored so this just skips it over
     loc = None
     try:
-        loc = Location.objects.get(location=roadID)
+        loc = Location.objects.get(roadID=roadID)
     except Exception as e:
         print(str(e))
     if loc == None:
