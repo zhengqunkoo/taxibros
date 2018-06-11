@@ -109,7 +109,6 @@ class DownloadJson:
         if created:
             # Dont uncomment unless you know what you are doing
             self.process_closest_roads(coordinates, timestamp)
-
             # If created timestamp, store coordinates.
             print("Store {}".format(date_time))
             for coordinate in coordinates:
@@ -250,6 +249,8 @@ class DownloadJson:
 
 
 def process_location_coordinates():
+    """Auxiliary task to run after sufficient downloads of information to update locaiton info
+    with lat lng and road_name"""
     locations = Location.objects.filter(lat=0)
 
     print("Total to process: " + str(len(locations)))
