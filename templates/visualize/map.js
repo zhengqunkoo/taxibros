@@ -211,8 +211,6 @@ function genHeatmapSliderChange(e) {
       data.heattiles.forEach(function transform(d) {
         pointArray.push(new google.maps.LatLng(d[1], d[2]));
       });
-      overlay.setMap(map);
-
     },
     error: function(rs, e) {
       alert("Failed to reach {% url 'visualize:genHeatmap' %}.");
