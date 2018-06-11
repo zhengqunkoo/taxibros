@@ -9,3 +9,9 @@ $('#genHeatmap').slider({
     return value;
   }
 }).on('{{ SLIDE_EVENT }}', genHeatmapSliderChange);
+
+$('#genHeatmapIntensity').slider({
+  formatter: function (value) {
+    return value;
+  }
+}).on('{{ SLIDE_EVENT }}', genHeatmapIntensitySliderChange);

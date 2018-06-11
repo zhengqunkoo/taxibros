@@ -5,7 +5,7 @@
 // failed.", it means you probably did not give permission for the browser to
 // locate you.
 var map, heatmap, infoWindow;
-var pointArray;
+var pointArray, intensityArray;
 var polylineArray;
 var walkpath;
 
@@ -17,6 +17,7 @@ function initMap() {
   });
 
   pointArray = new google.maps.MVCArray(getPoints());
+  intensityArray = new Array();
 
   heatmap = new google.maps.visualization.HeatmapLayer({
     data: pointArray,
@@ -191,7 +192,7 @@ function genSliderCallback(e, url, successCallback) {
 function genTimeSliderChange(e) {
   genSliderCallback(e, "{% url 'visualize:genTime' %}", function(data) {
     pointArray.clear();
-    data.coordinates.forEach(function (coord) {
+    data.coordinates.forEach(function(coord) {
       pointArray.push(new google.maps.LatLng(coord[0], coord[1]));
     });
   });
@@ -200,10 +201,26 @@ function genTimeSliderChange(e) {
 function genHeatmapSliderChange(e) {
   genSliderCallback(e, "{% url 'visualize:genHeatmap' %}", function(data) {
     pointArray.clear();
-    data.heattiles.forEach(function transform(d) {
+    while (intensityArray.length) { intensityArray.pop(); }
+    data.heattiles.forEach(function(d) {
       pointArray.push(new google.maps.LatLng(d[1], d[2]));
+      intensityArray.push(d);
     });
   });
+}
+
+function genHeatmapIntensitySliderChange(e) {
+
+  // Filters on intensityArray. Assume intensityArray defined.
+  // Only change pointArray if intensityArray has elements.
+  var value = genSliderValue(e);
+  if (intensityArray.length != 0) {
+    var intensities = intensityArray.filter(d => d[0] >= value);
+    pointArray.clear();
+    intensities.forEach(function(d) {
+      pointArray.push(new google.maps.LatLng(d[1], d[2]));
+    });
+  }
 }
 
 function handleLocationError(browserHasGeolocation, infoWindow, pos) {
