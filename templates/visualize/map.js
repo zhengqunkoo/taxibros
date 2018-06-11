@@ -208,33 +208,9 @@ function genHeatmapSliderChange(e) {
     dataType: 'json',
     success: function(data) {
       pointArray.clear();
-      var overlay = new google.maps.OverlayView();
-      overlay.onAdd = function() {
-
-        var canvas = d3.select(this.getPanes().overlayLayer)
-          .append("canvas")
-          .attr("width", 600)
-          .attr("height", 300)
-          .node();
-        var ctx = canvas.getContext("2d");
-        var projection = this.getProjection();
-        var size = 5;
-
-        overlay.draw = function() {
-          ctx.clearRect(0, 0, canvas.width, canvas.height);
-          data.heattiles.forEach(function transform(d) {
-            ctx.beginPath();
-            d = projection.fromLatLngToDivPixel(
-              new google.maps.LatLng(d[1], d[2])
-            );
-            ctx.arc(d.x, d.y, size, 0, 2*Math.PI);
-            ctx.stroke();
-          });
-        };
-
-      };
-      overlay.setMap(map);
-
+      data.heattiles.forEach(function transform(d) {
+        pointArray.push(new google.maps.LatLng(d[1], d[2]));
+      });
     },
     error: function(rs, e) {
       alert("Failed to reach {% url 'visualize:genHeatmap' %}.");
