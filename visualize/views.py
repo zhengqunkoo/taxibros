@@ -15,7 +15,6 @@ from django.utils import timezone
 from django.conf import settings
 from django.http import JsonResponse
 from scipy.sparse import coo_matrix
-from scipy.ndimage.morphology import grey_dilation
 from visualize.heatmap_slider import HeatmapSlider
 
 
@@ -64,7 +63,6 @@ def gen_heatmap_js(request):
     #     pass
     heattiles, timestamp = get_heatmap_time(request)
     return JsonResponse({"heattiles": heattiles, "timestamp": timestamp.date_time})
-
 
 def gen_time_js(request):
     """Return Json of serialized list of coordinates according to time."""
@@ -118,13 +116,8 @@ def get_heatmap_time(request):
         timestamp.
     """
     minutes = request.GET.get("minutes")
-    sigma = request.GET.get("sigma")
     if minutes == None:
         minutes = 0
-    if sigma == None:
-        sigma = 1
-    else:
-        sigma = int(sigma)  # TODO typecast
 
     # If true, minutes=0 means current time.
     # If false, minutes=0 means time of latest timestamp.
@@ -153,7 +146,6 @@ def get_heatmap_time(request):
         width, height = right - left, top - bottom
 
         heatmap = coo.toarray()
-        heatmap = grey_dilation(heatmap, size=(sigma, sigma))
         coo = coo_matrix(heatmap.astype(int))
         data = coo.data.tolist()
         row = coo.row.tolist()
