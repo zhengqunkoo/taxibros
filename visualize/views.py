@@ -99,6 +99,13 @@ def map_js(request):
     )
 
 
+def slider_js(request):
+    """Render Javascript file with list of coordinates in context."""
+    return render(
+        request, "visualize/slider.js", {"SLIDE_EVENT": settings.SLIDE_EVENT}
+    )
+
+
 def get_heatmap_time(request):
     """Filter range one minute long, ensures at least one date_time returned.
     If two date_times returned, select most recent one.
