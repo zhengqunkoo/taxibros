@@ -16,7 +16,6 @@ function initMap() {
     center: {lat: 1.3521, lng: 103.8198},
     mapTypeId: 'roadmap'
   });
-  debugger;
 
   pointArray = new google.maps.MVCArray(getPoints());
 
