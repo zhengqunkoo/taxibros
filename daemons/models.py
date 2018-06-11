@@ -45,7 +45,7 @@ class Location(models.Model):
     )
 
     def __str__(self):
-        return self.location
+        return self.roadID
 
 
 class LocationRecord(models.Model):
@@ -73,6 +73,7 @@ class Heatmap(models.Model):
         Heatmap might be a distinct coordinate.
         An extra coordinate might be returned. This is undesirable.
     """
+
     left = models.DecimalField(max_digits=9, decimal_places=6, help_text="Left extent")
     right = models.DecimalField(
         max_digits=9, decimal_places=6, help_text="Right extent"
@@ -104,6 +105,7 @@ class Heattile(models.Model):
             Not necessarily same as lower-leftmost Coordinate model.
             It is an anchor for aligning the heatmap on the map.
     """
+
     intensity = models.PositiveIntegerField(
         help_text="Intensity at one unindexed tile of heatmap."
     )

@@ -1,4 +1,5 @@
 import datetime
+import pytz
 
 from background_task.models import Task
 from daemons.convert import ConvertHeatmap
@@ -157,6 +158,31 @@ def get_heatmap_time(request):
     else:
         # TODO return value does not fit specification.
         return []
+
+
+def get_chart_data_js(request):
+    timezone.activate(pytz.timezone(settings.TIME_ZONE))
+    date_time_end = Timestamp.objects.latest("date_time").date_time
+    # TODO: Uncomment below. Currently this way cause not enough data
+    # date_time_end = timezone.localtime(date_time_end)
+    # date_time_end = date_time_end.replace(hour=0, minute=0, second=0)
+    date_time_end = date_time_end.replace(second=0)  # remove this in future.
+    date_time_start = date_time_end - datetime.timedelta(days=1)
+
+    # Generating the coordinates in 10min intervals for yesterday's time
+    timestamps = Timestamp.objects.filter(
+        date_time__range=(date_time_start, date_time_end)
+    )
+
+    timestamps = filter(
+        lambda time: ((time.date_time.replace(second=0) - date_time_start).seconds)
+        % 300
+        == 0,
+        timestamps,
+    )
+
+    day_stats = [timestamp.taxi_count for timestamp in timestamps]
+    return JsonResponse({"day_stats": day_stats})
 
 
 def serialize_coordinates(coordinates):

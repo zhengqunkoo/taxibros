@@ -109,7 +109,6 @@ class DownloadJson:
         if created:
             # Dont uncomment unless you know what you are doing
             self.process_closest_roads(coordinates, timestamp)
-
             # If created timestamp, store coordinates.
             print("Store {}".format(date_time))
             for coordinate in coordinates:
@@ -194,7 +193,7 @@ class DownloadJson:
         try:
             # Breaks coordinates into smaller chunks due to error 413
             coord_chunks = [
-                coordinates[x : x + 100] for x in range(0, len(coordinates), 20)
+                coordinates[x : x + 100] for x in range(0, len(coordinates), 100)
             ]
             vals = {}
             for coord_chunk in coord_chunks:
@@ -224,7 +223,10 @@ class DownloadJson:
         result = [None] * len(coordinates)
         for point in json_val["snappedPoints"]:
             index = point["originalIndex"]
-            result[index] = point["placeId"]
+            if (result[index] != None and point["placeId"] > result[index]) or result[
+                index
+            ] == None:
+                result[index] = point["placeId"]
         return result
 
     def add_list_to_dict(self, road_id_list, vals):
@@ -247,6 +249,8 @@ class DownloadJson:
 
 
 def process_location_coordinates():
+    """Auxiliary task to run after sufficient downloads of information to update locaiton info
+    with lat lng and road_name"""
     locations = Location.objects.filter(lat=0)
 
     print("Total to process: " + str(len(locations)))

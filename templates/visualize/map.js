@@ -16,6 +16,7 @@ function initMap() {
     center: {lat: 1.3521, lng: 103.8198},
     mapTypeId: 'roadmap'
   });
+  debugger;
 
   pointArray = new google.maps.MVCArray(getPoints());
 
@@ -36,6 +37,8 @@ function initMap() {
       strokeWeight:2
   });
   walkpath.setMap(map);
+
+  drawChart();
 
 }
 
@@ -343,38 +346,53 @@ function handleLocationError(browserHasGeolocation, infoWindow, pos) {
 }
 
 
-function drawChart(day_stats) {
-    var height = 420,
-        barWidth = 10;
-    var margin = {top: 20, right: 10, bottom: 20, left: 40};
-    height = height - margin.top - margin.bottom;
+function drawChart() {
 
-    var y = d3.scaleLinear()
-        .domain([0, d3.max(day_stats)])
-        .range([height,0]);
-    var yAxis = d3.axisLeft(y)
-        .scale(y)
-        .ticks(10, "s");
-    var chart = d3.select(".chart")
-        .attr("height", height);
-    chart.attr("width", barWidth * day_stats.length);
+    var day_stats;
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
 
-    var rect = chart.selectAll("g")
-        .data(day_stats)
-      .enter().append("rect")
-        .attr("transform", function(d, i) { return "translate(" + (margin.left + (i * barWidth)) + ",0)"; })
-        .attr("y", height) //To initialize bar outside chart
-        .attr("width", barWidth - 1)
-        .attr("height", function(d) {return height-y(d);});
+           // Typical action to be performed when the document is ready:
+           var response = JSON.parse(this.responseText);
+           day_stats = response.day_stats;
+           var height = 210,
+               barWidth = 10;
+           var margin = {top: 20, right: 10, bottom: 20, left: 40};
+           height = height - margin.top - margin.bottom;
 
-    rect.transition()
-        .delay(function(d, i) {return i * 10; })
-        .attr("y",function(d) {return y(d);});
+           var y = d3.scaleLinear()
+               .domain([0, d3.max(day_stats)])
+               .range([height,0]);
+           var yAxis = d3.axisLeft(y)
+               .scale(y)
+               .ticks(10, "s");
+           var chart = d3.select(".chart")
+               .attr("height", height);
+           chart.attr("width", barWidth * day_stats.length);
+
+           var rect = chart.selectAll("g")
+               .data(day_stats)
+             .enter().append("rect")
+               .attr("transform", function(d, i) { return "translate(" + (margin.left + (i * barWidth)) + ",0)"; })
+               .attr("y", height) //To initialize bar outside chart
+               .attr("width", barWidth - 1)
+               .attr("height", function(d) {return height-y(d);});
+
+           rect.transition()
+               .delay(function(d, i) {return i * 10; })
+               .attr("y",function(d) {return y(d);});
 
 
-    chart.append("g")
-        .attr("transform", "translate(" + margin.left+ ",0)")
-        .call(yAxis);
+           chart.append("g")
+               .attr("transform", "translate(" + margin.left+ ",0)")
+               .call(yAxis);
+        }
+    };
+    xhttp.open("GET", "{% url 'visualize:chart' %}", true);
+    xhttp.send();
+
+
 }
 
 function decode(encoded){
