@@ -14,7 +14,7 @@
   <script type="text/javascript" src="{% url 'visualize:map' %}" ></script>
 
   <script defer
-    src="https://maps.googleapis.com/maps/api/js?key={{ GOOGLEMAPS_SECRET_KEY }}&libraries=visualization&callback=initMap&region=SG">
+    src="https://maps.googleapis.com/maps/api/js?key={{ GOOGLEMAPS_SECRET_KEY }}&libraries=visualization,places&callback=initMap&region=SG">
   </script>
 {% endblock %}
 
@@ -65,6 +65,7 @@
 
   <div id= "map-all">
       <!-- Google maps. -->
+      <input id="pac-input" class="controls" type="text" placeholder="Search Google Maps">
       <div id="map"></div>
 
       <!--SVG for charts -->
