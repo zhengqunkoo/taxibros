@@ -64,6 +64,7 @@ def gen_heatmap_js(request):
     heattiles, timestamp = get_heatmap_time(request)
     return JsonResponse({"heattiles": heattiles, "timestamp": timestamp.date_time})
 
+
 def gen_time_js(request):
     """Return Json of serialized list of coordinates according to time."""
     return JsonResponse(
@@ -99,9 +100,7 @@ def map_js(request):
 
 def slider_js(request):
     """Render Javascript file with list of coordinates in context."""
-    return render(
-        request, "visualize/slider.js", {"SLIDE_EVENT": settings.SLIDE_EVENT}
-    )
+    return render(request, "visualize/slider.js", {"SLIDE_EVENT": settings.SLIDE_EVENT})
 
 
 def get_heatmap_time(request):
