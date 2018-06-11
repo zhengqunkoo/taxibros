@@ -151,8 +151,8 @@ def get_heatmap_time(request):
         data = coo.data.tolist()
         row = coo.row.tolist()
         col = coo.col.tolist()
-        xs = [left + width * n / xbins for n in row]
-        ys = [bottom + height * n / ybins for n in col]
+        xs = [round(left + width * n / xbins, 6) for n in row]
+        ys = [round(bottom + height * n / ybins, 6) for n in col]
         heattiles = list(zip(data, xs, ys))
         return heattiles, time
     else:
