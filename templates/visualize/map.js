@@ -211,48 +211,26 @@ function genHeatmapSliderChange(e) {
       var overlay = new google.maps.OverlayView();
       overlay.onAdd = function() {
 
-        var layer = d3.select(this.getPanes().overlayLayer)
-          .append("div")
-          .attr("class", "heattiles");
+        var canvas = d3.select(this.getPanes().overlayLayer)
+          .append("canvas")
+          .attr("width", 600)
+          .attr("height", 300)
+          .node();
+        var ctx = canvas.getContext("2d");
         var projection = this.getProjection();
-        var size = 10;
+        var size = 5;
 
         overlay.draw = function() {
-
-          var marker = layer.selectAll("svg")
-            .data(d3.entries(data.heattiles))
-            .each(transform) // Needed to maintain svg positions after drag.
-            .enter().append("svg")
-            .style("opacity", function(d) { return d.value[0]/10; })
-            .each(transform) // Needed to spread svgs throughout map.
-            .attr("class", "marker")
-
-          // Draw circle at every heattile.
-          marker.append("circle")
-              .attr("cx", size)
-              .attr("cy", size)
-              .attr("r", size/2);
-
-          // Add taxi_count as text to right of circle.
-          marker.append("text")
-            .attr("x", size + 7)
-            .attr("y", size)
-            .attr("dy", ".31em")
-            .text(function (d) { return d.value[0]; });
-
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          data.heattiles.forEach(function transform(d) {
+            ctx.beginPath();
+            d = projection.fromLatLngToDivPixel(
+              new google.maps.LatLng(d[1], d[2])
+            );
+            ctx.arc(d.x, d.y, size, 0, 2*Math.PI);
+            ctx.stroke();
+          });
         };
-
-        function transform(d) {
-          // Offset by lower left point of island.
-          d = new google.maps.LatLng(
-            d.value[1],
-            d.value[2],
-          );
-          d = projection.fromLatLngToDivPixel(d);
-          return d3.select(this)
-            .style("left", (d.x-size)+"px")
-            .style("top", (d.y-size)+"px");
-        }
 
       };
       overlay.setMap(map);

@@ -23,19 +23,3 @@
 .axis--x path {
     display: none;
 }
-
-.heattiles,{
-  position: relative;
-  width: 960px;
-  height: 500px;
-}
-
-.heattiles svg {
-  position: absolute;
-}
-
-.heattiles circle {
-  fill: brown;
-  stroke: black;
-  stroke-width: 0.5px;
-}
