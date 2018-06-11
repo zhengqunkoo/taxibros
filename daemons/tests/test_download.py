@@ -151,7 +151,7 @@ class DownloadDatabaseTest(TestCase):
                         ],
                     },
                     "properties": {
-                        "timestamp": "2017-05-15T13:02:58+08:00", #To simulate a second run
+                        "timestamp": "2017-05-15T13:02:58+08:00",  # To simulate a second run
                         "taxi_count": 5,
                         "api_info": {"status": "healthy"},
                     },
@@ -187,8 +187,8 @@ class DownloadDatabaseTest(TestCase):
                 },
             ]
         }
-        cls._closest_road_result1 = ["0","1","2"]
-        cls._closest_road_result2 = ["2","3","4"]
+        cls._closest_road_result1 = ["0", "1", "2"]
+        cls._closest_road_result2 = ["2", "3", "4"]
 
     # Make start_date_time always one minute before end_date_time (now).
     @override_settings(
@@ -220,7 +220,7 @@ class DownloadDatabaseTest(TestCase):
         mock_get_json.return_value = self._nearest_road_results
         expected = [None, "ChIJqSxg_mgQ2jERVYEAKmGw0aw", "ChIJNWdwM2gQ2jER0Wamoz7a4bU"]
         actual = self._ta.get_closest_roads([(0, 0), (1, 1), (2, 2)])
-        self.assertEquals(expected,actual)
+        self.assertEquals(expected, actual)
 
     @patch("daemons.download.DownloadJson.get_closest_roads")
     @patch("daemons.download.DownloadJson.get_json")
@@ -229,12 +229,12 @@ class DownloadDatabaseTest(TestCase):
         timestamp. The right number should be returned after each call"""
 
         self.assertEquals(Location.objects.all().count(), 0)
-        #First download
+        # First download
         mock_get_json.return_value = self._json_results
         mock_get_closest_roads.return_value = self._closest_road_result1
         self._ta.download()
         self.assertEquals(Location.objects.all().count(), 3)
-        #Second download
+        # Second download
         mock_get_json.return_value = self._json_results2
         mock_get_closest_roads.return_value = self._closest_road_result2
         self._ta.download()
