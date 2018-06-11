@@ -12,7 +12,7 @@ var walkpath;
 function initMap() {
   map = new google.maps.Map(document.getElementById('map'), {
     zoom: 12,
-    center: {lat: 1.3521, lng: 103.8198},
+    center: new google.maps.LatLng(1.3521, 103.8198),
     mapTypeId: 'roadmap'
   });
 
@@ -86,10 +86,10 @@ function showNearby() {
     // Try HTML5 geolocation.
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(function(position) {
-        var pos = {
-          lat: position.coords.latitude,
-          lng: position.coords.longitude
-        };
+        var pos = new google.maps.LatLng(
+          position.coords.latitude,
+          position.coords.longitude
+        );
 
         infoWindow.setPosition(pos);
         infoWindow.setContent('Location found.');
