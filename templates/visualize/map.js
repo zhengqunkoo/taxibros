@@ -161,57 +161,47 @@ function showNearby() {
     }
 }
 
-function genTimeSliderChange(e) {
+function genSliderChange(e, url, successCallback) {
+
+  // Extract value from slider event.
   var minutes = e.value;
   if (minutes.hasOwnProperty('newValue')) {
     minutes = minutes.newValue;
   }
 
-  // Asynchronously update maps with serialized coordinates.
+  // Asynchronously update maps.
   $.ajax({
-      url: "{% url 'visualize:genTime' %}",
+      url: url,
       data: {
           minutes: minutes,
       },
       dataType: 'json',
-      success: function(data) {
-          pointArray.clear();
-          var coordinates = data.coordinates;
-          var length = coordinates.length;
-          var coord;
-          for (var i=0; i<length; i++) {
-            coord = coordinates[i];
-            pointArray.push(new google.maps.LatLng(coord[0], coord[1]));
-          }
-      },
+      success: successCallback,
       error: function(rs, e) {
-          alert("Failed to reach {% url 'visualize:genTime' %}.");
+          alert("Failed to reach " + url + ".");
       }
   });
 }
 
-function genHeatmapSliderChange(e) {
-  var minutes = e.value;
-  if (minutes.hasOwnProperty('newValue')) {
-    minutes = minutes.newValue;
-  }
-
-  // Asynchronously update maps with serialized coordinates.
-  $.ajax({
-    url: "{% url 'visualize:genHeatmap' %}",
-    data: {
-      minutes: minutes,
-    },
-    dataType: 'json',
-    success: function(data) {
-      pointArray.clear();
-      data.heattiles.forEach(function transform(d) {
-        pointArray.push(new google.maps.LatLng(d[1], d[2]));
-      });
-    },
-    error: function(rs, e) {
-      alert("Failed to reach {% url 'visualize:genHeatmap' %}.");
+function genTimeSliderChange(e) {
+  genSliderChange(e, "{% url 'visualize:genTime' %}", function(data) {
+    pointArray.clear();
+    var coordinates = data.coordinates;
+    var length = coordinates.length;
+    var coord;
+    for (var i=0; i<length; i++) {
+      coord = coordinates[i];
+      pointArray.push(new google.maps.LatLng(coord[0], coord[1]));
     }
+  });
+}
+
+function genHeatmapSliderChange(e) {
+  genSliderChange(e, "{% url 'visualize:genHeatmap' %}", function(data) {
+    pointArray.clear();
+    data.heattiles.forEach(function transform(d) {
+      pointArray.push(new google.maps.LatLng(d[1], d[2]));
+    });
   });
 }
 
