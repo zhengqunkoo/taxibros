@@ -8,7 +8,6 @@ var map, heatmap, infoWindow;
 var pointArray;
 var polylineArray;
 var walkpath;
-var minutes, sigma;
 
 function initMap() {
   map = new google.maps.Map(document.getElementById('map'), {
@@ -163,7 +162,7 @@ function showNearby() {
 }
 
 function genTimeSliderChange(e) {
-  minutes = e.value;
+  var minutes = e.value;
   if (minutes.hasOwnProperty('newValue')) {
     minutes = minutes.newValue;
   }
@@ -192,7 +191,7 @@ function genTimeSliderChange(e) {
 }
 
 function genHeatmapSliderChange(e) {
-  minutes = e.value;
+  var minutes = e.value;
   if (minutes.hasOwnProperty('newValue')) {
     minutes = minutes.newValue;
   }
@@ -202,7 +201,6 @@ function genHeatmapSliderChange(e) {
     url: "{% url 'visualize:genHeatmap' %}",
     data: {
       minutes: minutes,
-      sigma: sigma,
     },
     dataType: 'json',
     success: function(data) {
