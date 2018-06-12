@@ -82,84 +82,95 @@ function getPoints() {
   ];
 }
 
-function showNearby() {
-    // Try HTML5 geolocation.
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(function(position) {
-        var pos = new google.maps.LatLng(
-          position.coords.latitude,
-          position.coords.longitude
-        );
+function genLoc(pos) {
+  map.setCenter(pos);
+  map.setZoom(16);
 
-        infoWindow.setPosition(pos);
-        infoWindow.setContent('Location found.');
-        infoWindow.open(map);
-        map.setCenter(pos);
-        map.setZoom(16);
+  $.ajax({
+    url: "{% url 'visualize:genLoc' %}",
+    data: {
+      pos: JSON.stringify(pos)
+    },
+    dataType: 'json',
+    success: function(data) {
+      pointArray.clear();
+      var coordinates = data.coordinates;
+      var total_dist = data.total_dist;
+      var number = data.number;
+      var best_road = data.best_road;
+      var best_road_coords = data.best_road_coords;
+      var path_geom = data.path_geom
+      //TODO: Eventually remove below
+      //var day_stats = data.day_stats;
+      //Filling up map
+      var length = coordinates.length;
+      var coord;
+      for (var i=0; i<length; i++) {
+        coord = coordinates[i];
+        pointArray.push(new google.maps.LatLng(coord[0], coord[1]));
+      }
+      //Load stats
+      if (number != 0) { //Gets around zero division error
+        document.getElementById('average_dist').innerHTML = total_dist/number;
+      }
+      document.getElementById('num').innerHTML = number;
 
-        $.ajax({
-            url: "{% url 'visualize:genLoc' %}",
-            data: {
-                pos: JSON.stringify(pos)
-            },
-            dataType: 'json',
-            success: function(data) {
-                pointArray.clear();
-                var coordinates = data.coordinates;
-                var total_dist = data.total_dist;
-                var number = data.number;
-                var best_road = data.best_road;
-                var best_road_coords = data.best_road_coords;
-                var path_geom = data.path_geom
-                //TODO: Eventually remove below
-                //var day_stats = data.day_stats;
-                //Filling up map
-                var length = coordinates.length;
-                var coord;
-                for (var i=0; i<length; i++) {
-                  coord = coordinates[i];
-                  pointArray.push(new google.maps.LatLng(coord[0], coord[1]));
-                }
-                //Load stats
-                if (number != 0) { //Gets around zero division error
-                    document.getElementById('average_dist').innerHTML = total_dist/number;
-                }
-                document.getElementById('num').innerHTML = number;
-
-
-                //Draw circle
-                var circle = new google.maps.Circle({
-                  strokeColor: '#FF7F50',
-                  strokeOpacity: 0.2,
-                  strokeWeight: 2,
-                  fillColor: '#FF7F50',
-                  fillOpacity: 0.05,
-                  map: map,
-                  center: pos,
-                  radius: 500,
-                });
-
-                //Draw chart
-                //TODO: to remove
-                //drawChart(day_stats);
-
-                infoWindow.setPosition(best_road_coords);
-                infoWindow.setContent('Better location');
-
-                decode(path_geom);
-
-            },
-            error: function(rs, e) {
-                alert("Failed to reach {% url 'visualize:genLoc' %}.");
-            }
-        });
-      }, function() {
-        handleLocationError(true, infoWindow, map.getCenter());
+      //Draw circle
+      var circle = new google.maps.Circle({
+        strokeColor: '#FF7F50',
+        strokeOpacity: 0.2,
+        strokeWeight: 2,
+        fillColor: '#FF7F50',
+        fillOpacity: 0.05,
+        map: map,
+        center: pos,
+        radius: 500,
       });
-    } else {
-      // Browser doesn't support Geolocation
-      handleLocationError(false, infoWindow, map.getCenter());
+
+      //Draw chart
+      //TODO: to remove
+      //drawChart(day_stats);
+
+      infoWindow.setPosition(best_road_coords);
+      infoWindow.setContent('Better location');
+
+      decode(path_geom);
+    },
+    error: function(rs, e) {
+      alert("Failed to reach {% url 'visualize:genLoc' %}.");
     }
+  });
+}
+
+function showNearby() {
+  // Try HTML5 geolocation.
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(function(position) {
+      var pos = new google.maps.LatLng(
+        position.coords.latitude,
+        position.coords.longitude
+      );
+
+      infoWindow.setPosition(pos);
+      infoWindow.setContent('Location found.');
+      infoWindow.open(map);
+      genLoc(pos);
+
+    }, function() {
+      handleLocationError(true, infoWindow, map.getCenter());
+    });
+  } else {
+    // Browser doesn't support Geolocation
+    handleLocationError(false, infoWindow, map.getCenter());
+  }
+}
+
+function handleLocationError(browserHasGeolocation, infoWindow, pos) {
+  infoWindow.setPosition(pos);
+  infoWindow.setContent(browserHasGeolocation ?
+                        'Error: The Geolocation service failed.' :
+                        'Error: Your browser doesn\'t support geolocation.');
+  infoWindow.open(map);
 }
 
 function genSliderValue(e) {
@@ -222,15 +233,6 @@ function genHeatmapIntensitySliderChange(e) {
     });
   }
 }
-
-function handleLocationError(browserHasGeolocation, infoWindow, pos) {
-  infoWindow.setPosition(pos);
-  infoWindow.setContent(browserHasGeolocation ?
-                        'Error: The Geolocation service failed.' :
-                        'Error: Your browser doesn\'t support geolocation.');
-  infoWindow.open(map);
-}
-
 
 function drawChart() {
 
