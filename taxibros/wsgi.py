@@ -7,18 +7,42 @@ For more information on this file, see
 https://docs.djangoproject.com/en/2.0/howto/deployment/wsgi/
 """
 
-import os
 import dotenv
-import subprocess
+import json
+import os
 import psutil
+import requests
+import subprocess
+import time
 
+from .dotenv_extensions import set_key
 from daemons.download import start_download, process_location_coordinates
 from django.core.wsgi import get_wsgi_application
 from django.conf import settings
 
+dotenv_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), ".env")
 
-# Reading .env file
-dotenv.read_dotenv(os.path.join(os.path.dirname(os.path.dirname(__file__)), ".env"))
+# Read .env file.
+dotenv.read_dotenv(dotenv_path)
+
+# If expired keys, update .env file, read .env file again.
+if not settings.ONEMAP_EXPIRY_TIMESTAMP or time.time() > int(
+    settings.ONEMAP_EXPIRY_TIMESTAMP
+):
+    print("Fetching new OneMap token")
+    payload = {"email": settings.ONEMAP_EMAIL, "password": settings.ONEMAP_PASSWORD}
+    request = requests.post(
+        "https://developers.onemap.sg/privateapi/auth/post/getToken",
+        data=json.dumps(payload),
+        headers={"Content-Type": "application/json"},
+    )
+    request_json = request.json()
+    set_key(dotenv_path, "ONEMAP_SECRET_KEY", request_json["access_token"])
+    set_key(dotenv_path, "ONEMAP_EXPIRY_TIMESTAMP", request_json["expiry_timestamp"])
+    dotenv.read_dotenv(dotenv_path)
+else:
+    print("Using old OneMap token")
+
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "taxibros.settings.local_settings")
 application = get_wsgi_application()
 

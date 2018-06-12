@@ -24,7 +24,10 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
 DATAMALL_SECRET_KEY = os.getenv("DATAMALL_SECRET_KEY")
 GOOGLEMAPS_SECRET_KEY = os.getenv("GOOGLEMAPS_SECRET_KEY")
+ONEMAP_EMAIL = os.getenv("ONEMAP_EMAIL")
+ONEMAP_PASSWORD = os.getenv("ONEMAP_PASSWORD")
 ONEMAP_SECRET_KEY = os.getenv("ONEMAP_SECRET_KEY")
+ONEMAP_EXPIRY_TIMESTAMP = os.getenv("ONEMAP_EXPIRY_TIMESTAMP")
 
 # Toggle background_task daemon.
 # True: start daemon on server start.
