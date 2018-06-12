@@ -9,6 +9,7 @@ import unittest
 import random
 from .models import Location
 
+
 class KdTree:
 
     def __init__(self, node=None):
@@ -87,8 +88,7 @@ class KdTree:
             if not cur:
                 continue
             # If current node in query rectangle, add to subtree.
-            if lo[0] <= cur.node[0] <= hi[0] \
-               and lo[1] <= cur.node[1] <= hi[1]:
+            if lo[0] <= cur.node[0] <= hi[0] and lo[1] <= cur.node[1] <= hi[1]:
                 subtree.add(cur.node)
             # If query rectangle in left/bottom subtree, do not search right/top subtree.
             if hi < cur.node:
@@ -120,15 +120,15 @@ class KdTree:
         if self.node:
             yield self.node
 
-    def __repr__(self, indent=''):
+    def __repr__(self, indent=""):
         str = []
         if self.node:
-            str.append(indent + self.node.__repr__() + '\n')
+            str.append(indent + self.node.__repr__() + "\n")
         if self._left:
-            str.append(self._left.__repr__(indent + 'l '))
+            str.append(self._left.__repr__(indent + "l "))
         if self._right:
-            str.append(self._right.__repr__(indent + 'r '))
-        return ''.join(str)
+            str.append(self._right.__repr__(indent + "r "))
+        return "".join(str)
 
     def __str__(self):
         return self.__repr__()
@@ -151,6 +151,7 @@ class KdNode(Location):
     Tag coord with filename payload.
     Used to identify which file coord come from in kdtree.
     """
+
     def __init__(self, *coord, **kw):
         super().__init__(*coord)
         self.kw = kw
@@ -159,16 +160,14 @@ class KdNode(Location):
         return self.__str__()
 
     def __str__(self):
-        return ','.join(map(str, self.coord))
+        return ",".join(map(str, self.coord))
 
     def __gt__(self):
-        return self.lat>self.lat
+        return self.lat > self.lat
 
     def __lt__(self):
         return self.lat < self.lat
 
 
-
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()
