@@ -1,19 +1,32 @@
-$('#genTime').slider({
-  formatter: function (value) {
-    var date = new Date();
-    return new Date(date - value*60000);
-  }
-}).on('{{ SLIDE_EVENT }}', genTimeSliderChange);
+var date = new Date();
+var MS_PER_MINUTE = 60000;
 
-$('#genHeatmap').slider({
-  formatter: function (value) {
-    var date = new Date();
-    return new Date(date - value*60000);
-  }
-}).on('{{ SLIDE_EVENT }}', genHeatmapSliderChange);
+dateSlider('#genTime', genTimeSliderChange);
+dateSlider('#genHeatmap', genHeatmapSliderChange);
 
 $('#genHeatmapIntensity').slider({
-  formatter: function (value) {
+  formatter: function(value) {
     return value;
   }
 }).on('{{ SLIDE_EVENT }}', genHeatmapIntensitySliderChange);
+
+$('#datetimepicker').datetimepicker({
+  date: date
+})
+
+function minutesToDate(minutes) {
+  return new Date(date - minutes * MS_PER_MINUTE);
+}
+
+function dateToMinutes(date) {
+  return (new Date() - date) / MS_PER_MINUTE;
+}
+
+function dateSlider(sliderName, sliderChangeCallback) {
+  $(sliderName).slider({
+    formatter: minutesToDate
+  }).on('{{ SLIDE_EVENT }}', function(e) {
+    sliderChangeCallback(e);
+    $('#datetimepicker').datetimepicker('date', minutesToDate(e.value.newValue));
+  });
+}
