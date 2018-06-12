@@ -5,20 +5,19 @@
 // failed.", it means you probably did not give permission for the browser to
 // locate you.
 var map, heatmap, infoWindow;
-var pointArray;
+var pointArray, intensityArray;
 var polylineArray;
 var walkpath;
-var minutes, sigma;
 
 function initMap() {
   map = new google.maps.Map(document.getElementById('map'), {
     zoom: 12,
-    center: {lat: 1.3521, lng: 103.8198},
+    center: new google.maps.LatLng(1.3521, 103.8198),
     mapTypeId: 'roadmap'
   });
-  debugger;
 
   pointArray = new google.maps.MVCArray(getPoints());
+  intensityArray = new Array();
 
   heatmap = new google.maps.visualization.HeatmapLayer({
     data: pointArray,
@@ -38,10 +37,10 @@ function initMap() {
   });
   walkpath.setMap(map);
 
+  initAutocomplete();
   drawChart();
 
 }
-
 
 function toggleHeatmap() {
   heatmap.setMap(heatmap.getMap() ? null : map);
@@ -87,10 +86,10 @@ function showNearby() {
     // Try HTML5 geolocation.
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(function(position) {
-        var pos = {
-          lat: position.coords.latitude,
-          lng: position.coords.longitude
-        };
+        var pos = new google.maps.LatLng(
+          position.coords.latitude,
+          position.coords.longitude
+        );
 
         infoWindow.setPosition(pos);
         infoWindow.setContent('Location found.');
@@ -163,59 +162,65 @@ function showNearby() {
     }
 }
 
-function genTimeSliderChange(e) {
-  minutes = e.value;
-  if (minutes.hasOwnProperty('newValue')) {
-    minutes = minutes.newValue;
-  }
+function genSliderValue(e) {
 
-  // Asynchronously update maps with serialized coordinates.
+  // Extract value from slider event.
+  var value = e.value;
+  if (value.hasOwnProperty('newValue')) {
+    value = value.newValue;
+  }
+  return value;
+}
+
+function genSliderCallback(e, url, successCallback) {
+
+  // Asynchronously update maps.
+  var value = genSliderValue(e);
   $.ajax({
-      url: "{% url 'visualize:genTime' %}",
+      url: url,
       data: {
-          minutes: minutes,
+          minutes: value,
       },
       dataType: 'json',
-      success: function(data) {
-          pointArray.clear();
-          var coordinates = data.coordinates;
-          var length = coordinates.length;
-          var coord;
-          for (var i=0; i<length; i++) {
-            coord = coordinates[i];
-            pointArray.push(new google.maps.LatLng(coord[0], coord[1]));
-          }
-      },
+      success: successCallback,
       error: function(rs, e) {
-          alert("Failed to reach {% url 'visualize:genTime' %}.");
+          alert("Failed to reach " + url + ".");
       }
   });
 }
 
-function genHeatmapSliderChange(e) {
-  minutes = e.value;
-  if (minutes.hasOwnProperty('newValue')) {
-    minutes = minutes.newValue;
-  }
-
-  // Asynchronously update maps with serialized coordinates.
-  $.ajax({
-    url: "{% url 'visualize:genHeatmap' %}",
-    data: {
-      minutes: minutes,
-      sigma: sigma,
-    },
-    dataType: 'json',
-    success: function(data) {
-      pointArray.clear();
-      data.heattiles.forEach(function transform(d) {
-        pointArray.push(new google.maps.LatLng(d[1], d[2]));
-      });
-    },
-    error: function(rs, e) {
-      alert("Failed to reach {% url 'visualize:genHeatmap' %}.");
-    }
+function genTimeSliderChange(e) {
+  genSliderCallback(e, "{% url 'visualize:genTime' %}", function(data) {
+    pointArray.clear();
+    data.coordinates.forEach(function(coord) {
+      pointArray.push(new google.maps.LatLng(coord[0], coord[1]));
+    });
   });
+}
+
+function genHeatmapSliderChange(e) {
+  genSliderCallback(e, "{% url 'visualize:genHeatmap' %}", function(data) {
+    pointArray.clear();
+    while (intensityArray.length) { intensityArray.pop(); }
+    data.heattiles.forEach(function(d) {
+      pointArray.push(new google.maps.LatLng(d[1], d[2]));
+      intensityArray.push(d);
+    });
+  });
+}
+
+function genHeatmapIntensitySliderChange(e) {
+
+  // Filters on intensityArray. Assume intensityArray defined.
+  // Only change pointArray if intensityArray has elements.
+  var value = genSliderValue(e);
+  if (intensityArray.length != 0) {
+    var intensities = intensityArray.filter(d => d[0] >= value);
+    pointArray.clear();
+    intensities.forEach(function(d) {
+      pointArray.push(new google.maps.LatLng(d[1], d[2]));
+    });
+  }
 }
 
 function handleLocationError(browserHasGeolocation, infoWindow, pos) {
@@ -305,4 +310,65 @@ function decode(encoded){
 
    polylineArray.push(new google.maps.LatLng(( lat / 1E5),( lng / 1E5)));
   }
+}
+
+function initAutocomplete() {
+  // Create the search box and link it to the UI element.
+  var input = document.getElementById('pac-input');
+  var searchBox = new google.maps.places.SearchBox(input);
+  map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
+
+  // Bias the SearchBox results towards current map's viewport.
+  map.addListener('bounds_changed', function() {
+    searchBox.setBounds(map.getBounds());
+  });
+
+  var markers = [];
+  // Listen for the event fired when the user selects a prediction and retrieve
+  // more details for that place.
+  searchBox.addListener('places_changed', function() {
+    var places = searchBox.getPlaces();
+
+    if (places.length == 0) {
+      return;
+    }
+
+    // Clear out the old markers.
+    markers.forEach(function(marker) {
+      marker.setMap(null);
+    });
+    markers = [];
+
+    // For each place, get the icon, name and location.
+    var bounds = new google.maps.LatLngBounds();
+    places.forEach(function(place) {
+      if (!place.geometry) {
+        console.log("Returned place contains no geometry");
+        return;
+      }
+      var icon = {
+        url: place.icon,
+        size: new google.maps.Size(71, 71),
+        origin: new google.maps.Point(0, 0),
+        anchor: new google.maps.Point(17, 34),
+        scaledSize: new google.maps.Size(25, 25)
+      };
+
+      // Create a marker for each place.
+      markers.push(new google.maps.Marker({
+        map: map,
+        icon: icon,
+        title: place.name,
+        position: place.geometry.location
+      }));
+
+      if (place.geometry.viewport) {
+        // Only geocodes have viewport.
+        bounds.union(place.geometry.viewport);
+      } else {
+        bounds.extend(place.geometry.location);
+      }
+    });
+    map.fitBounds(bounds);
+  });
 }

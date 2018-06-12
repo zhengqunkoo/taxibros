@@ -15,7 +15,6 @@ from django.utils import timezone
 from django.conf import settings
 from django.http import JsonResponse
 from scipy.sparse import coo_matrix
-from scipy.ndimage.morphology import grey_dilation
 from visualize.heatmap_slider import HeatmapSlider
 
 
@@ -99,6 +98,11 @@ def map_js(request):
     )
 
 
+def slider_js(request):
+    """Render Javascript file with list of coordinates in context."""
+    return render(request, "visualize/slider.js", {"SLIDE_EVENT": settings.SLIDE_EVENT})
+
+
 def get_heatmap_time(request):
     """Filter range one minute long, ensures at least one date_time returned.
     If two date_times returned, select most recent one.
@@ -111,13 +115,8 @@ def get_heatmap_time(request):
         timestamp.
     """
     minutes = request.GET.get("minutes")
-    sigma = request.GET.get("sigma")
     if minutes == None:
         minutes = 0
-    if sigma == None:
-        sigma = 1
-    else:
-        sigma = int(sigma)  # TODO typecast
 
     # If true, minutes=0 means current time.
     # If false, minutes=0 means time of latest timestamp.
@@ -146,13 +145,12 @@ def get_heatmap_time(request):
         width, height = right - left, top - bottom
 
         heatmap = coo.toarray()
-        heatmap = grey_dilation(heatmap, size=(sigma, sigma))
         coo = coo_matrix(heatmap.astype(int))
         data = coo.data.tolist()
         row = coo.row.tolist()
         col = coo.col.tolist()
-        xs = [left + width * n / xbins for n in row]
-        ys = [bottom + height * n / ybins for n in col]
+        xs = [round(left + width * n / xbins, 6) for n in row]
+        ys = [round(bottom + height * n / ybins, 6) for n in col]
         heattiles = list(zip(data, xs, ys))
         return heattiles, time
     else:
@@ -189,4 +187,4 @@ def serialize_coordinates(coordinates):
     """Helper function to serialize list to output as needed in JsonResponse.
     @return serialized list of coordinates.
     """
-    return [[float(c.lat), float(c.long)] for c in coordinates]
+    return [[float(c.lat), float(c.lng)] for c in coordinates]

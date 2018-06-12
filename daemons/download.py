@@ -113,7 +113,7 @@ class DownloadJson:
             print("Store {}".format(date_time))
             for coordinate in coordinates:
                 Coordinate(
-                    lat=coordinate[1], long=coordinate[0], timestamp=timestamp
+                    lat=coordinate[1], lng=coordinate[0], timestamp=timestamp
                 ).save()
         return created, timestamp, coordinates
 
@@ -261,7 +261,7 @@ def process_location_coordinates():
         try:
             lat, lng, road_name = get_road_info_from_id(loc.roadID)
             loc.lat = lat
-            loc.long = lng
+            loc.lng = lng
             loc.road_name = road_name
             loc.save()
         except Exception as e:
