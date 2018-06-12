@@ -161,37 +161,13 @@ class KdNode(Location):
     def __str__(self):
         return ','.join(map(str, self.coord))
 
+    def __gt__(self):
+        return self.lat>self.lat
 
-class TestKdTree(unittest.TestCase):
+    def __lt__(self):
+        return self.lat < self.lat
 
-    def setUp(self):
-        self._tree = KdTree()
-        nodes = 10
-        random.seed(1)
-        self._nodes = []
-        for _ in range(nodes):
-            self._nodes.append(KdNode(*[random.random() for _ in range(2)]))
 
-    def test_add(self):
-        """Tests if nodes added into tree without throwing error."""
-        for node in self._nodes:
-            self._tree.add(node)
-        assert True
-
-    def test_search(self):
-        """Tests if added nodes are searchable."""
-        self.test_add()
-        for x, y in self._nodes:
-            self.assertIsInstance(self._tree.search(KdNode(x, y)), KdNode)
-
-    def test_search_range(self):
-        """Tests if all nodes from search_range are between lo and hi."""
-        self.test_add()
-        lo = KdNode(0.49543508709194095, 0.4494910647887381)
-        hi = KdNode(0.8357651039198697, 0.43276706790505337)
-        subtree = self._tree.search_range(lo, hi)
-        for node in subtree:
-            self.assertTrue(lo <= node <= hi)
 
 
 if __name__ == '__main__':
