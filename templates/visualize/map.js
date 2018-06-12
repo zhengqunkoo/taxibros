@@ -77,7 +77,7 @@ function changeOpacity() {
 function getPoints() {
   return [
     {% for coord in coordinates %}
-      new google.maps.LatLng({{ coord.lat }}, {{ coord.long }}),
+      new google.maps.LatLng({{ coord.lat }}, {{ coord.lng }}),
     {% endfor %}
   ];
 }
