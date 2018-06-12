@@ -49,8 +49,12 @@
   <script defer type="text/javascript" src="{% url 'visualize:slider' %}" ></script>
 
   <div id= "map-all">
-      <!-- Google maps. -->
+      <div id="location-list">
+        <ul></ul>
+      </div>
       <input id="pac-input" class="controls" type="text" placeholder="Search Google Maps">
+
+      <!-- Google maps. -->
       <div id="map"></div>
 
       <!--SVG for charts -->
