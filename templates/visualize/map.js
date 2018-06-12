@@ -137,7 +137,7 @@ function genLoc(pos) {
       decode(path_geom);
     },
     error: function(rs, e) {
-      alert("Failed to reach {% url 'visualize:genLoc' %}.");
+      console.log("Failed to reach {% url 'visualize:genLoc' %}.");
     }
   });
 }
@@ -188,15 +188,15 @@ function genSliderCallback(e, url, successCallback) {
   // Asynchronously update maps.
   var value = genSliderValue(e);
   $.ajax({
-      url: url,
-      data: {
-          minutes: value,
-      },
-      dataType: 'json',
-      success: successCallback,
-      error: function(rs, e) {
-          alert("Failed to reach " + url + ".");
-      }
+    url: url,
+    data: {
+        minutes: value,
+    },
+    dataType: 'json',
+    success: successCallback,
+    error: function(rs, e) {
+        console.log("Failed to reach " + url + ".");
+    }
   });
 }
 
