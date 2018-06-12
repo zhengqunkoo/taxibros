@@ -187,4 +187,4 @@ def serialize_coordinates(coordinates):
     """Helper function to serialize list to output as needed in JsonResponse.
     @return serialized list of coordinates.
     """
-    return [[float(c.lat), float(c.long)] for c in coordinates]
+    return [[float(c.lat), float(c.lng)] for c in coordinates]

@@ -85,11 +85,11 @@ class ConvertHeatmap:
             left, right, bottom, top: extent of data.
         """
         if coordinates:
-            lat, long = zip(*coordinates)
+            lats, lngs = zip(*coordinates)
         else:
-            lat, long = [], []
+            lats, lngs = [], []
         heatmap, xedges, yedges = np.histogram2d(
-            long, lat, bins=(self._xbins, self._ybins)
+            lngs, lats, bins=(self._xbins, self._ybins)
         )
         return (
             coo_matrix(heatmap.astype(int)),

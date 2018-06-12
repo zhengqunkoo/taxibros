@@ -22,14 +22,14 @@ class Coordinate(models.Model):
     """
 
     lat = models.DecimalField(max_digits=9, decimal_places=6, help_text="Latitude")
-    long = models.DecimalField(max_digits=9, decimal_places=6, help_text="Longitude")
+    lng = models.DecimalField(max_digits=9, decimal_places=6, help_text="Longitude")
     timestamp = models.ForeignKey(Timestamp, on_delete=models.CASCADE)
 
     def __str__(self):
         """
         String for representing the Model object (in Admin site etc.).
         """
-        return "{},{}".format(self.lat, self.long)
+        return "{},{}".format(self.lat, self.lng)
 
 
 class Location(models.Model):
@@ -40,7 +40,7 @@ class Location(models.Model):
     lat = models.DecimalField(
         max_digits=9, decimal_places=6, help_text="Latitude", default=0
     )
-    long = models.DecimalField(
+    lng = models.DecimalField(
         max_digits=9, decimal_places=6, help_text="Longitude", default=0
     )
 

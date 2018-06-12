@@ -15,7 +15,7 @@ class TimestampAdmin(admin.ModelAdmin):
 
 @admin.register(Coordinate)
 class CoordinateAdmin(admin.ModelAdmin):
-    list_display = ("lat", "long", "timestamp")
+    list_display = ("lat", "lng", "timestamp")
 
 
 @admin.register(Heatmap)

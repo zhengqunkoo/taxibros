@@ -66,11 +66,11 @@ def get_coordinates_location(request):
     pos = json.loads(pos)
     distFunc = lambda x: math.pow(
         math.pow(110570 * (float(x.lat) - pos["lat"]), 2)
-        + math.pow(111320 * (float(x.long) - pos["lng"]), 2),
+        + math.pow(111320 * (float(x.lng) - pos["lng"]), 2),
         0.5,
     )
 
-    # Approximating lat/long
+    # Approximating lat/lng
     # http://www.longitudestore.com/how-big-is-one-gps-degree.html
 
     # Assumption: position passes on the coordinates
@@ -201,7 +201,7 @@ def get_closest_roads(coordinates):
     @return: road segments of coordinates"""
 
     coords_params = "|".join(
-        [str(coordinate.lat) + "," + str(coordinate.long) for coordinate in coordinates]
+        [str(coordinate.lat) + "," + str(coordinate.lng) for coordinate in coordinates]
     )
     url = (
         "https://roads.googleapis.com/v1/nearestRoads?points="
@@ -219,4 +219,4 @@ def serialize_coordinates(coordinates):
     """Helper function to serialize list to output as needed in JsonResponse.
     @return serialized list of coordinates.
     """
-    return [[float(c.lat), float(c.long)] for c in coordinates]
+    return [[float(c.lat), float(c.lng)] for c in coordinates]
