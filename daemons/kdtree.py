@@ -146,27 +146,36 @@ class KdTree:
         return count
 
 
-class KdNode(Location):
+class KdNode:
     """Tags must come before location, since locations have unknown length.
     Tag coord with filename payload.
     Used to identify which file coord come from in kdtree.
     """
-    def __init__(self, *coord, **kw):
-        super().__init__(*coord)
-        self.kw = kw
+    def __init__(self, location):
+        self.location = location
 
     def __repr__(self):
-        return self.__str__()
+        return self.location.__str__()
 
     def __str__(self):
-        return ','.join(map(str, self.coord))
+        return ','.join([str(self.location.lat), str(self.location.lng)])
 
-    def __gt__(self):
-        return self.lat>self.lat
-
-    def __lt__(self):
-        return self.lat < self.lat
-
+    def __gt__(self, other):
+        if self.location.lat!=other.location.lat:
+            return self.location.lat > other.location.lat
+        else:
+            return self.location.lng > other.location.lng
+    def __lt__(self, other):
+        if self.location.lat != other.location.lat:
+            return self.location.lat < other.location.lat
+        else:
+            return self.location.lng < other.location.lng
+    def __eq__(self, other):
+        return self.location.lat == other.location.lat and self.location.lng == other.location.lng
+    def __le__(self, other):
+        return self.__lt__(other) or self.__eq__(other)
+    def __ge__(self, other):
+        return self.__gt__(other) or self.__eq__(other)
 
 
 
