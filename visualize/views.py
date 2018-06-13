@@ -2,11 +2,11 @@ import datetime
 import pytz
 
 from background_task.models import Task
-from daemons.convert import ConvertHeatmap
 from daemons.models import Coordinate, Timestamp
 from daemons.views import (
     get_coordinates_time,
     get_coordinates_location,
+    get_heatmap_time,
     serialize_coordinates,
     get_best_road,
 )
@@ -14,7 +14,6 @@ from django.shortcuts import render
 from django.utils import timezone
 from django.conf import settings
 from django.http import JsonResponse
-from scipy.sparse import coo_matrix
 from visualize.heatmap_slider import HeatmapSlider
 
 
@@ -101,61 +100,6 @@ def map_js(request):
 def slider_js(request):
     """Render Javascript file with list of coordinates in context."""
     return render(request, "visualize/slider.js", {"SLIDE_EVENT": settings.SLIDE_EVENT})
-
-
-def get_heatmap_time(request):
-    """Filter range one minute long, ensures at least one date_time returned.
-    If two date_times returned, select most recent one.
-    @param request: HTTP GET request containing other variables.
-        minutes:
-            predict taxi locations at this amount of time into the future.
-            default: 0 (meaning now).
-    @return
-        list of heattiles, each with intensity, x-coord, and y-coord.
-        timestamp.
-    """
-    minutes = request.GET.get("minutes")
-    if minutes == None:
-        minutes = 0
-
-    # If true, minutes=0 means current time.
-    # If false, minutes=0 means time of latest timestamp.
-    if settings.HEATMAP_NOW:
-        now = datetime.datetime.now(pytz.utc)
-    else:
-        now = Timestamp.objects.latest("date_time").date_time
-
-    start_window = datetime.timedelta(minutes=int(minutes) + 1)
-    end_window = datetime.timedelta(minutes=int(minutes))
-    times = Timestamp.objects.filter(
-        date_time__range=(now - start_window, now - end_window)
-    )
-
-    # If no times, return empty list.
-    if times:
-
-        # If many times, Select most recent time.
-        time = times[0]
-
-        coo, left, right, bottom, top, xbins, ybins = ConvertHeatmap.retrieve_heatmap(
-            time
-        )
-
-        # Positive for countries above equator and to right of Greenwich.
-        width, height = right - left, top - bottom
-
-        heatmap = coo.toarray()
-        coo = coo_matrix(heatmap.astype(int))
-        data = coo.data.tolist()
-        row = coo.row.tolist()
-        col = coo.col.tolist()
-        xs = [round(left + width * n / xbins, 6) for n in row]
-        ys = [round(bottom + height * n / ybins, 6) for n in col]
-        heattiles = list(zip(data, xs, ys))
-        return heattiles, time
-    else:
-        # TODO return value does not fit specification.
-        return []
 
 
 def get_chart_data_js(request):
