@@ -11,7 +11,6 @@ from .models import Location
 
 
 class KdTree:
-
     def __init__(self, node=None):
         """Rooted tree.
         Left and right subtrees.
@@ -19,7 +18,6 @@ class KdTree:
         self.node = node
         self._left = None
         self._right = None
-
 
     def add(self, node):
         """Add node to KdTree.
@@ -153,6 +151,7 @@ class KdNode:
     Tag coord with filename payload.
     Used to identify which file coord come from in kdtree.
     """
+
     def __init__(self, location):
         self.location = location
 
@@ -160,24 +159,32 @@ class KdNode:
         return self.location.__str__()
 
     def __str__(self):
-        return ','.join([str(self.location.lat), str(self.location.lng)])
+        return ",".join([str(self.location.lat), str(self.location.lng)])
 
     def __gt__(self, other):
-        if self.location.lat!=other.location.lat:
+        if self.location.lat != other.location.lat:
             return self.location.lat > other.location.lat
         else:
             return self.location.lng > other.location.lng
+
     def __lt__(self, other):
         if self.location.lat != other.location.lat:
             return self.location.lat < other.location.lat
         else:
             return self.location.lng < other.location.lng
+
     def __eq__(self, other):
-        return self.location.lat == other.location.lat and self.location.lng == other.location.lng
+        return (
+            self.location.lat == other.location.lat
+            and self.location.lng == other.location.lng
+        )
+
     def __le__(self, other):
         return self.__lt__(other) or self.__eq__(other)
+
     def __ge__(self, other):
         return self.__gt__(other) or self.__eq__(other)
+
 
 if __name__ == "__main__":
     unittest.main()
