@@ -173,20 +173,9 @@ function handleLocationError(browserHasGeolocation, infoWindow, pos) {
   infoWindow.open(map);
 }
 
-function genSliderValue(e) {
-
-  // Extract value from slider event.
-  var value = e.value;
-  if (value.hasOwnProperty('newValue')) {
-    value = value.newValue;
-  }
-  return value;
-}
-
-function genSliderCallback(e, url, successCallback) {
+function genSliderCallback(value, url, successCallback) {
 
   // Asynchronously update maps.
-  var value = genSliderValue(e);
   $.ajax({
     url: url,
     data: {
@@ -220,11 +209,10 @@ function genHeatmapSliderChange(e) {
   });
 }
 
-function genHeatmapIntensitySliderChange(e) {
+function genHeatmapIntensitySliderChange(value) {
 
   // Filters on intensityArray. Assume intensityArray defined.
   // Only change pointArray if intensityArray has elements.
-  var value = genSliderValue(e);
   if (intensityArray.length != 0) {
     var intensities = intensityArray.filter(d => d[0] >= value);
     pointArray.clear();
