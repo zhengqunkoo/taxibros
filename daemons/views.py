@@ -27,14 +27,13 @@ def index(request):
     )
 
 
-def get_coordinates_time(request):
-    """Filter range one minute long, ensures at least one date_time returned.
-    If two date_times returned, select most recent one.
+def get_timestamp(request):
+    """Retrieve one timestamp based on request time and local_settings.
     @param request: HTTP GET request containing other variables.
         minutes:
             predict taxi locations at this amount of time into the future.
             default: 0 (meaning now).
-    @return list of coordinates.
+    @return Timestamp if exists, else None.
     """
     minutes = request.GET.get("minutes")
     if minutes == None:
@@ -53,11 +52,25 @@ def get_coordinates_time(request):
         date_time__range=(now - start_window, now - end_window)
     )
 
-    # If no times, return empty list.
+    if not times:
+        return None
+    else:
+        return times[0]
+
+
+def get_coordinates_time(request):
+    """Filter range one minute long, ensures at least one date_time returned.
+    If two date_times returned, select most recent one.
+    @param request: HTTP GET request containing other variables.
+        minutes:
+            predict taxi locations at this amount of time into the future.
+            default: 0 (meaning now).
+    @return list of coordinates.
+    """
+    # If no time, return empty list.
     coordinates = []
-    if times:
-        # If many times, Select most recent time.
-        time = times[0]
+    time = get_timestamp(request)
+    if time != None:
         coordinates = time.coordinate_set.all()
     return coordinates
 
@@ -136,32 +149,15 @@ def get_heatmap_time(request):
             predict taxi locations at this amount of time into the future.
             default: 0 (meaning now).
     @return
-        list of heattiles, each with intensity, x-coord, and y-coord.
-        timestamp.
+        If timestamp exists:
+            List of heattiles, each with intensity, x-coord, and y-coord.
+            Timestamp.
+        Else:
+            Empty list.
+            None.
     """
-    minutes = request.GET.get("minutes")
-    if minutes == None:
-        minutes = 0
-
-    # If true, minutes=0 means current time.
-    # If false, minutes=0 means time of latest timestamp.
-    if settings.HEATMAP_NOW:
-        now = datetime.datetime.now(pytz.utc)
-    else:
-        now = Timestamp.objects.latest("date_time").date_time
-
-    start_window = datetime.timedelta(minutes=int(minutes) + 1)
-    end_window = datetime.timedelta(minutes=int(minutes))
-    times = Timestamp.objects.filter(
-        date_time__range=(now - start_window, now - end_window)
-    )
-
-    # If no times, return empty list.
-    if times:
-
-        # If many times, Select most recent time.
-        time = times[0]
-
+    time = get_timestamp(request)
+    if time != None:
         coo, left, right, bottom, top, xbins, ybins = ConvertHeatmap.retrieve_heatmap(
             time
         )
@@ -179,8 +175,7 @@ def get_heatmap_time(request):
         heattiles = list(zip(data, xs, ys))
         return heattiles, time
     else:
-        # TODO return value does not fit specification.
-        return []
+        return [], None
 
 
 def get_path_geom(start_lat, start_lng, end_lat, end_lng):
