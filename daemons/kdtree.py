@@ -90,12 +90,7 @@ class KdTree:
             if not cur:
                 continue
             # If current node in query rectangle, add to subtree.
-<<<<<<< HEAD
-            if lo <= cur.node <= hi \
-               and lo <= cur.node <= hi:
-=======
-            if lo[0] <= cur.node[0] <= hi[0] and lo[1] <= cur.node[1] <= hi[1]:
->>>>>>> 60febcc06625ae27d20b67239702291a40cb901e
+            if lo <= cur.node <= hi and lo <= cur.node <= hi:
                 subtree.add(cur.node)
             # If query rectangle in left/bottom subtree, do not search right/top subtree.
             if hi < cur.node:
@@ -158,21 +153,13 @@ class KdNode:
     Tag coord with filename payload.
     Used to identify which file coord come from in kdtree.
     """
-<<<<<<< HEAD
     def __init__(self, location):
         self.location = location
-=======
-
-    def __init__(self, *coord, **kw):
-        super().__init__(*coord)
-        self.kw = kw
->>>>>>> 60febcc06625ae27d20b67239702291a40cb901e
 
     def __repr__(self):
         return self.location.__str__()
 
     def __str__(self):
-<<<<<<< HEAD
         return ','.join([str(self.location.lat), str(self.location.lng)])
 
     def __gt__(self, other):
@@ -191,16 +178,6 @@ class KdNode:
         return self.__lt__(other) or self.__eq__(other)
     def __ge__(self, other):
         return self.__gt__(other) or self.__eq__(other)
-=======
-        return ",".join(map(str, self.coord))
-
-    def __gt__(self):
-        return self.lat > self.lat
-
-    def __lt__(self):
-        return self.lat < self.lat
-
->>>>>>> 60febcc06625ae27d20b67239702291a40cb901e
 
 if __name__ == "__main__":
     unittest.main()
