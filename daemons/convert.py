@@ -2,7 +2,7 @@ import datetime
 import numpy as np
 from scipy.sparse import coo_matrix
 
-from .models import Heatmap, Heattile
+from .models import Heatmap, Heattile, Location, LocationRecord
 from django.conf import settings
 from django.utils import dateparse, timezone
 
@@ -98,3 +98,122 @@ class ConvertHeatmap:
             yedges[0],
             yedges[-1],
         )
+
+
+class ConvertRoad:
+
+    def __init__(self):
+        pass
+
+    @classmethod
+    def process_closest_roads(cls, coordinates, timestamp):
+        """Processes the coordinates by tabulating counts for their respective road segments
+        """
+        try:
+            # Breaks coordinates into smaller chunks due to error 413
+            coord_chunks = [
+                coordinates[x : x + 100] for x in range(0, len(coordinates), 100)
+            ]
+            vals = {}
+            for coord_chunk in coord_chunks:
+                cls.add_list_to_dict(cls.get_closest_roads(coord_chunk), vals)
+            cls.store_road_data(vals, timestamp)
+
+        except Exception as e:
+            print(str(e))
+
+    @classmethod
+    def get_closest_roads(cls, coordinates):
+        """Retrieves the closest road segments to the coordinates
+        @param: coordinates of the taxis
+        @return: list of same size as coordinates containing road segment or None if none is found"""
+        coords_params = "|".join(
+            [
+                str(coordinate[1]) + "," + str(coordinate[0])
+                for coordinate in coordinates
+            ]
+        )
+        url = (
+            "https://roads.googleapis.com/v1/nearestRoads?points="
+            + coords_params
+            + "&key="
+            + settings.GOOGLEMAPS_SECRET_KEY
+        )
+        json_val = cls.get_json(cls, url)
+        result = [None] * len(coordinates)
+        for point in json_val["snappedPoints"]:
+            index = point["originalIndex"]
+            if (result[index] != None and point["placeId"] > result[index]) or result[
+                index
+            ] == None:
+                result[index] = point["placeId"]
+        return result
+
+    @classmethod
+    def add_list_to_dict(cls, road_id_list, vals):
+        """Stores a road_id_list into a dictionary
+        """
+        for id in road_id_list:
+            if id == None:
+                continue
+            if id in vals:
+                vals[id] += 1
+            else:
+                vals[id] = 1
+
+    @classmethod
+    def store_road_data(cls, vals, timestamp):
+        """Stores a dictionary of road ids and count into a db
+        """
+        for id, count in vals.items():
+            location, created = Location.objects.get_or_create(pk=id)
+            LocationRecord(count=count, location=location, timestamp=timestamp).save()
+
+
+def process_location_coordinates():
+    """Auxiliary task to run after sufficient downloads of information to update locaiton info
+    with lat lng and road_name"""
+    locations = Location.objects.filter(lat=0)
+
+    print("Total to process: " + str(len(locations)))
+    count = 1
+    for loc in locations:
+        print(str(count) + ": Processing " + loc.roadID)
+        count += 1
+        try:
+            lat, lng, road_name = get_road_info_from_id(loc.roadID)
+            loc.lat = lat
+            loc.lng = lng
+            loc.road_name = road_name
+            loc.save()
+        except Exception as e:
+            loc.delete()
+            print(str(e))
+
+
+def get_road_info_from_id(roadID, tries=4):
+    if tries == 0:
+        raise Exception("Cannot get location")
+    url = (
+        "https://maps.googleapis.com/maps/api/place/details/json?placeid="
+        + roadID
+        + "&key="
+        + settings.GOOGLEMAPS_SECRET_KEY
+    )
+    r = requests.get(url)
+    if r.status_code != 200:
+        time.sleep(1)
+        return get_road_info_from_id(roadID, tries=tries - 1)
+    json_val = r.json()
+    if r.json()["status"] == "NOT_FOUND":
+        raise Exception("RoadID not available")
+    # Sometimes, road_name is just Singapore
+    road_name = json_val["result"]["name"]
+    if road_name == "Singapore":
+        road_name = "Unnamed Road"
+
+    coordinates = json_val["result"]["geometry"]["location"]
+    lat = coordinates["lat"]
+    lng = coordinates["lng"]
+
+    return lat, lng, road_name

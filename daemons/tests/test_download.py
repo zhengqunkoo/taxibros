@@ -222,7 +222,7 @@ class DownloadDatabaseTest(TestCase):
         actual = self._ta.get_closest_roads([(0, 0), (1, 1), (2, 2)])
         self.assertEquals(expected, actual)
 
-    @patch("daemons.download.DownloadJson.get_closest_roads")
+    @patch("daemons.convert.ConvertRoad.get_closest_roads")
     @patch("daemons.download.DownloadJson.get_json")
     def test_unique_location(self, mock_get_json, mock_get_closest_roads):
         """Download two timestamps, each with locations that both share and are unique to each

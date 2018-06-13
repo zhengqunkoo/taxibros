@@ -16,7 +16,8 @@ import subprocess
 import time
 
 from .dotenv_extensions import set_key
-from daemons.download import start_download, process_location_coordinates
+from daemons.download import start_download
+from daemons.convert import process_location_coordinates
 from django.core.wsgi import get_wsgi_application
 from django.conf import settings
 

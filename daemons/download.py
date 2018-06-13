@@ -7,8 +7,8 @@ import pytz
 import requests
 import time
 
-from .convert import ConvertHeatmap
-from .models import Timestamp, Coordinate, Location, LocationRecord
+from .convert import ConvertHeatmap, ConvertRoad
+from .models import Timestamp, Coordinate
 from django.utils import dateparse, timezone
 from django.conf import settings
 
@@ -107,8 +107,6 @@ class DownloadJson:
             date_time=date_time, taxi_count=taxi_count
         )
         if created:
-            # Dont uncomment unless you know what you are doing
-            self.process_closest_roads(coordinates, timestamp)
             # If created timestamp, store coordinates.
             print("Store {}".format(date_time))
             for coordinate in coordinates:
@@ -187,123 +185,15 @@ class DownloadJson:
         """
         self._logger.debug(" ".join(map(str, args)))
 
-    def process_closest_roads(self, coordinates, timestamp):
-        """Processes the coordinates by tabulating counts for their respective road segments
-        """
-        try:
-            # Breaks coordinates into smaller chunks due to error 413
-            coord_chunks = [
-                coordinates[x : x + 100] for x in range(0, len(coordinates), 100)
-            ]
-            vals = {}
-            for coord_chunk in coord_chunks:
-                self.add_list_to_dict(self.get_closest_roads(coord_chunk), vals)
-            self.store_road_data(vals, timestamp)
 
-        except Exception as e:
-            print(str(e))
-
-    def get_closest_roads(self, coordinates):
-        """Retrieves the closest road segments to the coordinates
-        @param: coordinates of the taxis
-        @return: list of same size as coordinates containing road segment or None if none is found"""
-        coords_params = "|".join(
-            [
-                str(coordinate[1]) + "," + str(coordinate[0])
-                for coordinate in coordinates
-            ]
-        )
-        url = (
-            "https://roads.googleapis.com/v1/nearestRoads?points="
-            + coords_params
-            + "&key="
-            + settings.GOOGLEMAPS_SECRET_KEY
-        )
-        json_val = self.get_json(url)
-        result = [None] * len(coordinates)
-        for point in json_val["snappedPoints"]:
-            index = point["originalIndex"]
-            if (result[index] != None and point["placeId"] > result[index]) or result[
-                index
-            ] == None:
-                result[index] = point["placeId"]
-        return result
-
-    def add_list_to_dict(self, road_id_list, vals):
-        """Stores a road_id_list into a dictionary
-        """
-        for id in road_id_list:
-            if id == None:
-                continue
-            if id in vals:
-                vals[id] += 1
-            else:
-                vals[id] = 1
-
-    def store_road_data(self, vals, timestamp):
-        """Stores a dictionary of road ids and count into a db
-        """
-        for id, count in vals.items():
-            location, created = Location.objects.get_or_create(pk=id)
-            LocationRecord(count=count, location=location, timestamp=timestamp).save()
-
-
-def process_location_coordinates():
-    """Auxiliary task to run after sufficient downloads of information to update locaiton info
-    with lat lng and road_name"""
-    locations = Location.objects.filter(lat=0)
-
-    print("Total to process: " + str(len(locations)))
-    count = 1
-    for loc in locations:
-        print(str(count) + ": Processing " + loc.roadID)
-        count += 1
-        try:
-            lat, lng, road_name = get_road_info_from_id(loc.roadID)
-            loc.lat = lat
-            loc.lng = lng
-            loc.road_name = road_name
-            loc.save()
-        except Exception as e:
-            loc.delete()
-            print(str(e))
-
-
-def get_road_info_from_id(roadID, tries=4):
-    if tries == 0:
-        raise Exception("Cannot get location")
-    url = (
-        "https://maps.googleapis.com/maps/api/place/details/json?placeid="
-        + roadID
-        + "&key="
-        + settings.GOOGLEMAPS_SECRET_KEY
-    )
-    r = requests.get(url)
-    if r.status_code != 200:
-        time.sleep(1)
-        return get_road_info_from_id(roadID, tries=tries - 1)
-    json_val = r.json()
-    if r.json()["status"] == "NOT_FOUND":
-        raise Exception("RoadID not available")
-    # Sometimes, road_name is just Singapore
-    road_name = json_val["result"]["name"]
-    if road_name == "Singapore":
-        road_name = "Unnamed Road"
-
-    coordinates = json_val["result"]["geometry"]["location"]
-    lat = coordinates["lat"]
-    lng = coordinates["lng"]
-
-    return lat, lng, road_name
-
-
-class TaxiAvailability(DownloadJson, ConvertHeatmap):
+class TaxiAvailability(DownloadJson, ConvertHeatmap, ConvertRoad):
     """Downloads taxi availability JSON."""
 
     def __init__(self):
         url = "https://api.data.gov.sg/v1/transport/taxi-availability"
         DownloadJson.__init__(self, url)
         ConvertHeatmap.__init__(self)
+        ConvertRoad.__init__(self)
 
     def get_time_features(self, json_val):
         features = json_val["features"][0]
@@ -324,6 +214,7 @@ class TaxiAvailability(DownloadJson, ConvertHeatmap):
         ).store_timestamp_coordinates(date_time, taxi_count, coordinates)
         if created:
             self.store_heatmap(timestamp, coordinates)
+            self.process_closest_roads(coordinates, timestamp)
 
 
 @background(queue="taxi-availability")
