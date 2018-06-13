@@ -20,6 +20,7 @@ class KdTree:
         self._left = None
         self._right = None
 
+
     def add(self, node):
         """Add node to KdTree.
         Split nodes have the lesser value of two children.
@@ -28,6 +29,7 @@ class KdTree:
         """
         cur = self
         if not cur.node:
+
             cur.node = node
             return
 
@@ -72,8 +74,8 @@ class KdTree:
     def search_range(self, lo, hi):
         """Search subtrees only if contains query rectangle.
         If node is in query rectangle, add to subtree.
-        @param lo: node representing lower left of query rectangle.
-        @param hi: node representing upper right of query rectangle.
+        @param lo: coords representing lower left of query rectangle.
+        @param hi: coords representing upper right of query rectangle.
         @return subtree of nodes contained in query rectangle.
         """
         # Make lo always < hi.
@@ -88,7 +90,7 @@ class KdTree:
             if not cur:
                 continue
             # If current node in query rectangle, add to subtree.
-            if lo[0] <= cur.node[0] <= hi[0] and lo[1] <= cur.node[1] <= hi[1]:
+            if lo <= cur.node <= hi and lo <= cur.node <= hi:
                 subtree.add(cur.node)
             # If query rectangle in left/bottom subtree, do not search right/top subtree.
             if hi < cur.node:
@@ -146,28 +148,36 @@ class KdTree:
         return count
 
 
-class KdNode(Location):
+class KdNode:
     """Tags must come before location, since locations have unknown length.
     Tag coord with filename payload.
     Used to identify which file coord come from in kdtree.
     """
-
-    def __init__(self, *coord, **kw):
-        super().__init__(*coord)
-        self.kw = kw
+    def __init__(self, location):
+        self.location = location
 
     def __repr__(self):
-        return self.__str__()
+        return self.location.__str__()
 
     def __str__(self):
-        return ",".join(map(str, self.coord))
+        return ','.join([str(self.location.lat), str(self.location.lng)])
 
-    def __gt__(self):
-        return self.lat > self.lat
-
-    def __lt__(self):
-        return self.lat < self.lat
-
+    def __gt__(self, other):
+        if self.location.lat!=other.location.lat:
+            return self.location.lat > other.location.lat
+        else:
+            return self.location.lng > other.location.lng
+    def __lt__(self, other):
+        if self.location.lat != other.location.lat:
+            return self.location.lat < other.location.lat
+        else:
+            return self.location.lng < other.location.lng
+    def __eq__(self, other):
+        return self.location.lat == other.location.lat and self.location.lng == other.location.lng
+    def __le__(self, other):
+        return self.__lt__(other) or self.__eq__(other)
+    def __ge__(self, other):
+        return self.__gt__(other) or self.__eq__(other)
 
 if __name__ == "__main__":
     unittest.main()
