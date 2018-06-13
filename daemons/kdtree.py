@@ -11,6 +11,7 @@ from .models import Location
 
 
 class KdTree:
+
     def __init__(self, node=None):
         """Rooted tree.
         Left and right subtrees.

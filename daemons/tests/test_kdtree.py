@@ -6,6 +6,7 @@ from daemons.kdtree import *
 
 
 class TestKdTree(unittest.TestCase):
+
     def setUp(self):
         self._tree = KdTree()
         nodes = 10

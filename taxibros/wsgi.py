@@ -16,6 +16,7 @@ import subprocess
 import time
 
 from .dotenv_extensions import set_key
+from background_task.models import Task
 from daemons.download import start_download
 from daemons.convert import process_location_coordinates
 from django.core.wsgi import get_wsgi_application
@@ -48,6 +49,10 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "taxibros.settings.local_setting
 application = get_wsgi_application()
 
 if settings.DAEMON_START:
+
+    # Delete all previous tasks before running current tasks.
+    Task.objects.all().delete()
+
     # HACK: Runs the cron job here as wsgi.py is ran only once on server start-up
     # Ensures that there is only one instance of the task
     # Download JSON stream.

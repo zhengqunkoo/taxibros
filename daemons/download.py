@@ -1,6 +1,5 @@
 import abc
 from background_task import background
-from background_task.models import Task
 import datetime
 from logging import getLogger
 import pytz
@@ -219,8 +218,6 @@ class TaxiAvailability(DownloadJson, ConvertHeatmap, ConvertRoad):
 
 @background(queue="taxi-availability")
 def start_download():
-    # Deletes all previous tasks before running current task
-    Task.objects.all().delete()
     logger = getLogger(__name__)
     logger.debug("daemons.download.start_download")
     ta = TaxiAvailability()
