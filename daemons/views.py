@@ -7,8 +7,9 @@ import requests
 from .convert import ConvertHeatmap
 from .download import start_download
 from .models import Timestamp, Coordinate, Location, LocationRecord
-from django.shortcuts import render
 from django.conf import settings
+from django.db import OperationalError
+from django.shortcuts import render
 from scipy.sparse import coo_matrix
 from scipy.spatial import KDTree
 
@@ -17,8 +18,6 @@ from scipy.spatial import KDTree
 import sys
 
 sys.setrecursionlimit(30000)
-locs = None
-tree = None
 try:
     locs = [loc for loc in Location.objects.all()]
     locs = list(filter(lambda x: x.lat != 0, locs))
@@ -26,8 +25,16 @@ try:
         tree = KDTree(
             list(map(lambda x: (float(x.lat), float(x.lng)), locs)), leafsize=3000
         )
-except Exception as e:
-    print(str(e))
+        print("Successfully populated KDTree.")
+    else:
+        tree = KDTree([[], []])
+        print("Initialized empty KDTree, due to locs empty.")
+except OperationalError as e:
+    print("Error accessing daemons_location, see: {}.".format(e))
+    locs = []
+    tree = KDTree([[], []])
+else:
+    print("Successfully populated locs and tree.")
 
 
 def index(request):
