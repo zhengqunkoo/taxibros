@@ -14,6 +14,11 @@ from scipy.sparse import coo_matrix
 from scipy.spatial import KDTree
 
 
+# Approximating lat/lng
+# http://www.longitudestore.com/how-big-is-one-gps-degree.html
+M_PER_LAT = 110570
+M_PER_LONG = 111320
+
 # Set up KDTree once on server start.
 import sys
 
@@ -117,13 +122,10 @@ def get_coordinates_location(request):
     pos = request.GET.get("pos")
     pos = json.loads(pos)
     distFunc = lambda x: math.pow(
-        math.pow(110570 * (float(x.lat) - pos["lat"]), 2)
-        + math.pow(111320 * (float(x.lng) - pos["lng"]), 2),
+        math.pow(M_PER_LAT * (float(x.lat) - pos["lat"]), 2)
+        + math.pow(M_PER_LONG * (float(x.lng) - pos["lng"]), 2),
         0.5,
     )
-
-    # Approximating lat/lng
-    # http://www.longitudestore.com/how-big-is-one-gps-degree.html
 
     # Assumption: position passes on the coordinates
     now = Timestamp.objects.latest("date_time")
@@ -247,7 +249,7 @@ def get_closest_roads(lat, lng, locs, tree):
         lat, lng: position of client
     @return: list of closest road segments to the coordinates using kdtree
     """
-    road_indexes = tree.query_ball_point((lat, lng), 500 / 110570)
+    road_indexes = tree.query_ball_point((lat, lng), radius / M_PER_LAT)
     return [locs[idx] for idx in road_indexes]
 
 
