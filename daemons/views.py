@@ -192,7 +192,8 @@ def get_best_road(lat, lng):
     @return: Location of the best road
     """
 
-    roads = get_closest_roads(lat, lng)
+    #Locs, tree referred to outside name space
+    roads = get_closest_roads(lat, lng, locs, tree)
 
     max_val = 0
     max_road = None
@@ -212,12 +213,11 @@ def get_count_at_road(road):
     return sum(map(lambda rec: rec.count, records))
 
 
-def get_closest_roads(lat, lng):
+def get_closest_roads(lat, lng, locs, tree):
     """Retrieves the closest road segments to the coordinates using kdtree
     Approximately 500m
     @param: position of client
     @return: list of Locations"""
-
     road_indexes = tree.query_ball_point((lat, lng), 500 / 110570)
     return [locs[idx] for idx in road_indexes]
 
