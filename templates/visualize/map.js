@@ -268,6 +268,9 @@ function drawChart() {
 }
 
 function decode(encoded){
+    if (encoded == null) {
+        return
+    }
     //Decoding the encoded path geometry
 
     var index = 0, len = encoded.length;
