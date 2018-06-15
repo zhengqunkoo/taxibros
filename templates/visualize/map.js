@@ -380,7 +380,7 @@ function createPacInput(length) {
   return input;
 }
 
-function createCalendar(length) {
+function createDatetimepicker(length) {
   var input = document.createElement('input');
   input.setAttribute('type', 'text');
   input.setAttribute('class', 'form-control');
@@ -388,14 +388,30 @@ function createCalendar(length) {
   return input;
 }
 
+function createDeleteRowButton() {
+  var input = document.createElement('input');
+  input.setAttribute('type', 'button');
+  input.setAttribute('class', 'deleteRow');
+  input.setAttribute('value', 'Delete');
+  return input;
+}
+
+function addRow() {
+  var length = itineraryTable.rows.length
+  var row = itineraryTable.insertRow(length);
+  var pacInputCell = row.insertCell(0);
+  var calendarCell = row.insertCell(1);
+  var deleteRowButtonCell = row.insertCell(2);
+  pacInputCell.appendChild(createPacInput(length));
+  calendarCell.appendChild(createDatetimepicker(length));
+  deleteRowButtonCell.appendChild(createDeleteRowButton());
+  $('#datetimepicker' + length).datetimepicker();
+}
+
 $(document).ready(function() {
-  $('#addRow').on('click', function() {
-    var length = searchedLocationsTable.rows.length
-    var row = searchedLocationsTable.insertRow(length);
-    var pacInputCell = row.insertCell(0);
-    var calendarCell = row.insertCell(1);
-    pacInputCell.appendChild(createPacInput(length));
-    calendarCell.appendChild(createCalendar(length));
-    $('#datetimepicker' + length).datetimepicker();
+  $('#addRow').on('click', addRow);
+  $('#itineraryTable').on('click', '.deleteRow', function(){
+    $(this).closest ('tr').remove();
   });
+  addRow();
 });

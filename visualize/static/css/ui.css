@@ -24,6 +24,11 @@
     display: none;
 }
 
-#searchedLocationsTable td {
+#itineraryTable td {
   position: relative;
+}
+
+.deleteRow {
+  width: 100%;
+  height: 100%;
 }
