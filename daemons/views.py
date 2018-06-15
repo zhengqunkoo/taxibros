@@ -192,7 +192,7 @@ def get_best_road(lat, lng):
     @return: Location of the best road
     """
 
-    #Locs, tree referred to outside name space
+    # Locs, tree referred to outside name space
     roads = get_closest_roads(lat, lng, locs, tree)
 
     max_val = 0
