@@ -17,12 +17,17 @@ from scipy.spatial import KDTree
 import sys
 
 sys.setrecursionlimit(30000)
-locs = [loc for loc in Location.objects.all()]
-locs = list(filter(lambda x: x.lat != 0, locs))
-if len(locs) > 0:  # Tests initialize kdtree with no values
-    tree = KDTree(
-        list(map(lambda x: (float(x.lat), float(x.lng)), locs)), leafsize=3000
-    )
+locs = None
+tree = None
+try:
+    locs = [loc for loc in Location.objects.all()]
+    locs = list(filter(lambda x: x.lat != 0, locs))
+    if len(locs) > 0:  # Tests initialize kdtree with no values
+        tree = KDTree(
+            list(map(lambda x: (float(x.lat), float(x.lng)), locs)), leafsize=3000
+        )
+except Exception as e:
+    print(str(e))
 
 
 def index(request):
@@ -178,7 +183,6 @@ def get_path_geom(start_lat, start_lng, end_lat, end_lng):
     json_val = r.json()
     if "error" in json_val:  # If route not found, only field is error
         return None
-    print(json_val)
     return json_val["route_geometry"]
 
 
