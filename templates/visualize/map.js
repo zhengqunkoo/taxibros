@@ -37,7 +37,6 @@ function initMap() {
   });
   walkpath.setMap(map);
 
-  initAutocomplete();
   drawChart();
 
 }
@@ -399,11 +398,15 @@ function createDeleteRowButton() {
 function addRow() {
   var length = itineraryTable.rows.length
   var row = itineraryTable.insertRow(length);
-  var pacInputCell = row.insertCell(0);
-  var calendarCell = row.insertCell(1);
-  var deleteRowButtonCell = row.insertCell(2);
-  pacInputCell.appendChild(createPacInput(length));
-  calendarCell.appendChild(createDatetimepicker(length));
+  var pickupLocationCell = row.insertCell(0);
+  var pickupTimeCell = row.insertCell(1);
+  var arrivalLocationCell = row.insertCell(2);
+  var arrivalTimeCell = row.insertCell(3);
+  var deleteRowButtonCell = row.insertCell(4);
+  pickupLocationCell.appendChild(createPacInput(length));
+  pickupTimeCell.appendChild(createDatetimepicker(length));
+  arrivalLocationCell.appendChild(createPacInput(length));
+  arrivalTimeCell.appendChild(createDatetimepicker(length));
   deleteRowButtonCell.appendChild(createDeleteRowButton());
   $('#datetimepicker' + length).datetimepicker();
 }
