@@ -68,6 +68,8 @@ def get_timestamp(request):
     minutes = request.GET.get("minutes")
     if minutes == None:
         minutes = 0
+    else:
+        minutes = int(minutes)
 
     # If true, minutes=0 means current time.
     # If false, minutes=0 means time of latest timestamp.
@@ -76,8 +78,8 @@ def get_timestamp(request):
     else:
         now = Timestamp.objects.latest("date_time").date_time
 
-    start_window = datetime.timedelta(minutes=int(minutes) + 1)
-    end_window = datetime.timedelta(minutes=int(minutes))
+    start_window = datetime.timedelta(minutes=minutes + 1)
+    end_window = datetime.timedelta(minutes=minutes)
     times = Timestamp.objects.filter(
         date_time__range=(now - start_window, now - end_window)
     )
