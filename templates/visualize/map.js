@@ -88,7 +88,8 @@ function genLoc(pos) {
   $.ajax({
     url: "{% url 'visualize:genLoc' %}",
     data: {
-      pos: JSON.stringify(pos)
+      lat: pos.lat
+      lng: pos.lng
     },
     dataType: 'json',
     success: function(data) {

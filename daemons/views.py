@@ -1,7 +1,6 @@
 import datetime
 import pytz
 import math
-import json
 import requests
 
 from .convert import ConvertHeatmap
@@ -110,7 +109,7 @@ def get_coordinates_time(request):
 def get_coordinates_location(request):
     """
     @param request: HTTP GET request containing other variables.
-        pos: position of client
+        lat, lng: position of client
     @return tuple of:
         Many taxi information:
             coords of taxis
@@ -121,11 +120,12 @@ def get_coordinates_location(request):
             coordinates of that road
             walking path towards that road
     """
-    pos = request.GET.get("pos")
-    pos = json.loads(pos)
+    lat = float(request.GET.get("lat"))
+    lng = float(request.GET.get("lng"))
+    radius = float(request.GET.get("radius"))
     distFunc = lambda x: math.pow(
-        math.pow(M_PER_LAT * (float(x.lat) - pos["lat"]), 2)
-        + math.pow(M_PER_LONG * (float(x.lng) - pos["lng"]), 2),
+        math.pow(M_PER_LAT * (float(x.lat) - lat), 2)
+        + math.pow(M_PER_LONG * (float(x.lng) - lng), 2),
         0.5,
     )
 
@@ -143,16 +143,16 @@ def get_coordinates_location(request):
             num += 1
             total_dist += dist
 
-    best_road = get_best_road(pos["lat"], pos["lng"])
-    lat = None
-    lng = None
+    best_road = get_best_road(lat, lng, radius)
+    best_lat = None
+    best_lng = None
     path_geom = None
     if best_road != None:
-        lat = float(best_road.lat)
-        lng = float(best_road.lng)
-        path_geom = get_path_geom(pos["lat"], pos["lng"], lat, lng)
+        best_lat = float(best_road.lat)
+        best_lng = float(best_road.lng)
+        path_geom = get_path_geom(lat, lng, best_lat, best_lng)
 
-    return result, total_dist, num, best_road.road_name, lat, lng, path_geom
+    return result, total_dist, num, best_road.road_name, best_lat, best_lng, path_geom
 
 
 def get_heatmap_time(request):
