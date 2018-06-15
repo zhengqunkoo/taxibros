@@ -10,6 +10,16 @@ from .models import Timestamp, Coordinate, Location, LocationRecord
 from django.shortcuts import render
 from django.conf import settings
 from scipy.sparse import coo_matrix
+from scipy.spatial import KDTree
+
+
+#Set up KDTree
+import sys
+sys.setrecursionlimit(30000)
+locs = [loc for loc in Location.objects.all()]
+locs = list(filter(lambda x:x.lat!=0, locs))
+tree = KDTree(list(map(lambda x: (float(x.lat), float(x.lng)), locs)), leafsize = 3000)
+
 
 
 def index(request):
@@ -102,43 +112,17 @@ def get_coordinates_location(request):
             num += 1
             total_dist += dist
 
-    best_road_id = get_best_road(result)
-    lat, lng, best_road = get_road_info_from_id(best_road_id)
+    best_road = get_best_road(pos["lat"], pos["lng"])
+    lat = None
+    lng = None
+    path_geom = None
+    if best_road != None:
+        lat = float(best_road.lat)
+        lng = float(best_road.lng)
+        path_geom = get_path_geom(pos["lat"], pos["lng"], lat, lng)
 
-    path_geom = get_path_geom(pos["lat"], pos["lng"], lat, lng)
+    return result, total_dist, num, best_road.road_name, lat, lng, path_geom
 
-    return result, total_dist, num, best_road, lat, lng, path_geom
-    # TODO: Refactor code to draw general graph time
-    """
-    # timezone.activate(pytz.timezone(settings.TIME_ZONE))
-    date_time_end = Timestamp.objects.latest("date_time").date_time
-    # TODO: Uncomment below. Currently this way cause not enough data
-    # date_time_end = timezone.localtime(date_time_end)
-    date_time_end = date_time_end.replace(hour=0, minute=0, second=0)
-    date_time_start = date_time_end - datetime.timedelta(days=1)
-
-    # Generating the coordinates in 10min intervals for yesterday's time
-    timestamps = Timestamp.objects.filter(
-        date_time__range=(date_time_start, date_time_end)
-    )
-
-    timestamps = filter(
-        lambda time: ((time.date_time.replace(second=0) - date_time_start).seconds)
-        % 300
-        == 0,
-        timestamps,
-    )
-
-    day_stats = []
-    for time in timestamps:
-        coords = time.coordinate_set.all()
-        num_at_time = 0
-        for coord in coords:
-            dist = distFunc(coord)
-            if dist < 500:
-                num_at_time += 1
-        day_stats.append(num_at_time)
-        """
 
 
 def get_heatmap_time(request):
@@ -192,15 +176,18 @@ def get_path_geom(start_lat, start_lng, end_lat, end_lng):
     json_val = r.json()
     if "error" in json_val:  # If route not found, only field is error
         return None
+    print(json_val)
     return json_val["route_geometry"]
 
 
-def get_best_road(coordinates):
-    """Returns the road with the largest number of taxis in db
-    @param: coordinates of taxis within 500m
+def get_best_road(lat, lng):
+    """Returns the road segment with the largest number of taxis in db
+    @param: current position of client in lat lng
+    @return: Location of the best road
     """
 
-    roads = get_closest_roads(coordinates)
+    roads = get_closest_roads(lat,lng)
+
     max_val = 0
     max_road = None
 
@@ -212,59 +199,22 @@ def get_best_road(coordinates):
     return max_road
 
 
-def get_road_info_from_id(roadID):
-    url = (
-        "https://maps.googleapis.com/maps/api/place/details/json?placeid="
-        + roadID
-        + "&key="
-        + settings.GOOGLEMAPS_SECRET_KEY
-    )
-    r = requests.get(url)
-    if r.status_code != 200:
-        raise Exception("Request failed")
-    json_val = r.json()
 
-    road_name = json_val["result"]["name"]
-
-    coordinates = json_val["result"]["geometry"]["location"]
-    lat = coordinates["lat"]
-    lng = coordinates["lng"]
-
-    return lat, lng, road_name
-
-
-def get_count_at_road(roadID):
-    # HACK:Right now, some locations are not stored so this just skips it over
-    loc = None
-    try:
-        loc = Location.objects.get(roadID=roadID)
-    except Exception as e:
-        print(str(e))
-    if loc == None:
-        print("MISSING: " + roadID)
+def get_count_at_road(road):
+    if road == None:
         return 0
-    records = loc.locationrecord_set.all()
+    records = road.locationrecord_set.all()
     return sum(map(lambda rec: rec.count, records))
 
 
-def get_closest_roads(coordinates):
-    """Retrieves the closest road segments to the coordinates
-    @param: coordinates of the taxis
-    @return: road segments of coordinates"""
+def get_closest_roads(lat,lng):
+    """Retrieves the closest road segments to the coordinates using kdtree
+    Approximately 500m
+    @param: position of client
+    @return: list of Locations"""
 
-    coords_params = "|".join(
-        [str(coordinate.lat) + "," + str(coordinate.lng) for coordinate in coordinates]
-    )
-    url = (
-        "https://roads.googleapis.com/v1/nearestRoads?points="
-        + coords_params
-        + "&key="
-        + settings.GOOGLEMAPS_SECRET_KEY
-    )
-    json_val = requests.get(url).json()
-    result = [point["placeId"] for point in json_val["snappedPoints"]]
-
-    return set(result)
+    road_indexes = tree.query_ball_point((lat, lng),500/110570)
+    return [locs[idx] for idx in road_indexes]
 
 
 def serialize_coordinates(coordinates):
