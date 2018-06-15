@@ -81,15 +81,16 @@ function getPoints() {
   ];
 }
 
-function genLoc(pos) {
+function genLoc(pos, radius) {
   map.setCenter(pos);
   map.setZoom(16);
 
   $.ajax({
     url: "{% url 'visualize:genLoc' %}",
     data: {
-      lat: pos.lat
-      lng: pos.lng
+      lat: pos.lat,
+      lng: pos.lng,
+      radius: radius,
     },
     dataType: 'json',
     success: function(data) {
@@ -122,7 +123,7 @@ function genLoc(pos) {
         fillOpacity: 0.05,
         map: map,
         center: pos,
-        radius: 500,
+        radius: radius,
       });
 
 
@@ -150,7 +151,7 @@ function showNearby() {
       infoWindow.setPosition(pos);
       infoWindow.setContent('Location found.');
       infoWindow.open(map);
-      genLoc(pos);
+      genLoc(pos, 500);
 
     }, function() {
       handleLocationError(true, infoWindow, map.getCenter());
@@ -365,7 +366,7 @@ function initAutocomplete(input) {
       // Create list element.
       var place = places[0];
       var location = place.geometry.location;
-      genLoc(location);
+      genLoc(location, 500);
     }
   });
 }

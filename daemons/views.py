@@ -110,6 +110,7 @@ def get_coordinates_location(request):
     """
     @param request: HTTP GET request containing other variables.
         lat, lng: position of client
+        radius: how far client is willing to walk to hail a taxi
     @return tuple of:
         Many taxi information:
             coords of taxis
@@ -138,7 +139,7 @@ def get_coordinates_location(request):
     num = 0
     for coord in coords:
         dist = distFunc(coord)
-        if dist < 500:
+        if dist < radius:
             result.append(coord)
             num += 1
             total_dist += dist
@@ -213,15 +214,16 @@ def get_path_geom(start_lat, start_lng, end_lat, end_lng):
     return json_val["route_geometry"]
 
 
-def get_best_road(lat, lng):
+def get_best_road(lat, lng, radius):
     """Returns the road segment with the largest number of taxis in db
     @param
         lat, lng: current position of client in lat lng
+        radius: how far client is willing to walk to hail a taxi
     @return: Location of the best road
     """
 
     # Locs, tree referred to outside name space
-    roads = get_closest_roads(lat, lng, locs, tree)
+    roads = get_closest_roads(lat, lng, locs, tree, radius)
 
     max_val = 0
     max_road = None
@@ -245,10 +247,11 @@ def get_count_at_road(road):
     return sum(map(lambda rec: rec.count, records))
 
 
-def get_closest_roads(lat, lng, locs, tree):
+def get_closest_roads(lat, lng, locs, tree, radius):
     """
     @param:
         lat, lng: position of client
+        radius: how far client is willing to walk to hail a taxi
     @return: list of closest road segments to the coordinates using kdtree
     """
     road_indexes = tree.query_ball_point((lat, lng), radius / M_PER_LAT)

@@ -71,6 +71,7 @@ class GenLocTest(TestCase):
         self._tree = KDTree(
             list(map(lambda x: (float(x.lat), float(x.lng)), self._locs)), leafsize=3000
         )
+        self._radius = 500
 
     @patch("requests.Response.json")
     @patch("requests.get")
@@ -109,7 +110,9 @@ class GenLocTest(TestCase):
         # TODO: create a new test initialize kdtree function
         self.assertEquals(self._locs, [self._loc1, self._loc2, self._loc3])
 
-        actual = get_closest_roads(1.345042, 103.759904, self._locs, self._tree)
+        actual = get_closest_roads(
+            1.345042, 103.759904, self._locs, self._tree, self._radius
+        )
         expected = [self._loc1, self._loc3]
 
         self.assertEquals(len(actual), len(expected))
@@ -119,8 +122,8 @@ class GenLocTest(TestCase):
     def test_get_best_road(self, mock_get_closest_roads):
         """Checks get_best_road returns road with largest count within 500m"""
         mock_get_closest_roads.return_value = get_closest_roads(
-            1.345042, 103.759904, self._locs, self._tree
+            1.345042, 103.759904, self._locs, self._tree, self._radius
         )
-        actual = get_best_road(1.345042, 103.759904)
+        actual = get_best_road(1.345042, 103.759904, self._radius)
         expected = self._loc1
         self.assertEquals(actual, expected)
