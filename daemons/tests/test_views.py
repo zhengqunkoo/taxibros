@@ -1,10 +1,14 @@
 import datetime
 from unittest.mock import patch
 from requests import Response
-from django.conf import settings
-from django.test import TestCase, override_settings
+from django.test import TestCase
 from django.utils import timezone
-from daemons.views import get_path_geom, get_count_at_road, get_closest_roads
+from daemons.views import (
+    get_path_geom,
+    get_count_at_road,
+    get_closest_roads,
+    get_best_road,
+)
 from daemons.models import Timestamp, Location, LocationRecord
 from scipy.spatial import KDTree
 
@@ -41,27 +45,32 @@ class GenLocTest(TestCase):
     def setUp(self):
         """Initialize the location coordinates as well as locationrecords
         """
-        loc1 = Location(roadID="1", lat=1.345042, lng=103.759904)  # Inside 500m
-        loc2 = Location(roadID="2", lat=1.338646, lng=103.741639)  # Outside 500m
-        loc3 = Location(roadID="3", lat=1.344474, lng=103.759668)  # Inside 500m
-        loc4 = Location(roadID="4")
+        self._loc1 = Location(roadID="1", lat=1.345042, lng=103.759904)  # Inside 500m
+        self._loc2 = Location(roadID="2", lat=1.338646, lng=103.741639)  # Outside 500m
+        self._loc3 = Location(roadID="3", lat=1.344474, lng=103.759668)  # Inside 500m
+        self._loc4 = Location(roadID="4")
         timestamp1 = Timestamp(date_time=datetime.datetime.now(), taxi_count=3)
         timestamp2 = Timestamp(
             date_time=datetime.datetime.now() - datetime.timedelta(minutes=1),
             taxi_count=1,
         )
 
-        loc1.save()
-        loc2.save()
-        loc3.save()
-        loc4.save()
+        self._loc1.save()
+        self._loc2.save()
+        self._loc3.save()
+        self._loc4.save()
         timestamp1.save()
         timestamp2.save()
 
-        LocationRecord(count=1, location=loc1, timestamp=timestamp1).save()
-        LocationRecord(count=2, location=loc2, timestamp=timestamp1).save()
+        LocationRecord(count=1, location=self._loc1, timestamp=timestamp1).save()
+        LocationRecord(count=2, location=self._loc2, timestamp=timestamp1).save()
+        LocationRecord(count=1, location=self._loc1, timestamp=timestamp2).save()
 
-        LocationRecord(count=1, location=loc1, timestamp=timestamp2).save()
+        self._locs = [loc for loc in Location.objects.all()]
+        self._locs = list(filter(lambda x: x.lat != 0, self._locs))
+        self._tree = KDTree(
+            list(map(lambda x: (float(x.lat), float(x.lng)), self._locs)), leafsize=3000
+        )
 
     @patch("requests.Response.json")
     @patch("requests.get")
@@ -83,16 +92,13 @@ class GenLocTest(TestCase):
 
     def test_get_count_at_road(self):
         """Tests that the right count is retrieved from road"""
-        loc1 = Location.objects.get(pk="1")
-        res = get_count_at_road(loc1)
+        res = get_count_at_road(self._loc1)
         self.assertEquals(res, 2)
 
-        loc2 = Location.objects.get(pk="2")
-        res = get_count_at_road(loc2)
+        res = get_count_at_road(self._loc2)
         self.assertEquals(res, 2)
 
-        loc3 = Location.objects.get(pk="3")
-        res = get_count_at_road(loc3)
+        res = get_count_at_road(self._loc3)
         self.assertEquals(res, 0)
 
         res = get_count_at_road(None)
@@ -100,23 +106,21 @@ class GenLocTest(TestCase):
 
     def test_get_closest_roads(self):
         """Checks kdtree, before ensuring the right roads are retrived"""
-        # To replace with a proper initialize kdtree function
-        locs = [loc for loc in Location.objects.all()]
-        locs = list(filter(lambda x: x.lat != 0, locs))
-        tree = KDTree(
-            list(map(lambda x: (float(x.lat), float(x.lng)), locs)), leafsize=3000
-        )
-        print("HERE")
-        print(tree)
+        # TODO: create a new test initialize kdtree function
+        self.assertEquals(self._locs, [self._loc1, self._loc2, self._loc3])
 
-        loc1 = Location.objects.get(pk="1")
-        loc2 = Location.objects.get(pk="2")
-        loc3 = Location.objects.get(pk="3")
-
-        self.assertEquals(locs, [loc1, loc2, loc3])
-
-        actual = get_closest_roads(1.345042, 103.759904, locs, tree)
-        expected = [loc1, loc3]
+        actual = get_closest_roads(1.345042, 103.759904, self._locs, self._tree)
+        expected = [self._loc1, self._loc3]
 
         self.assertEquals(len(actual), len(expected))
         self.assertEquals(set(actual), set(expected))
+
+    @patch("daemons.views.get_closest_roads")
+    def test_get_best_road(self, mock_get_closest_roads):
+        """Checks get_best_road returns road with largest count within 500m"""
+        mock_get_closest_roads.return_value = get_closest_roads(
+            1.345042, 103.759904, self._locs, self._tree
+        )
+        actual = get_best_road(1.345042, 103.759904)
+        expected = self._loc1
+        self.assertEquals(actual, expected)
