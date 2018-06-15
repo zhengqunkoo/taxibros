@@ -1,6 +1,7 @@
 /* Always set the map height explicitly to define the size of the div
  * element that contains the map. */
 #map {
+z-index = -1;
   height: 100%;
 }
 
@@ -11,9 +12,16 @@ html, body {
   padding: 0;
 }
 
+.sidewindow {
+    left: 10px;
+    top: 25%;
+    position: absolute;
+    background-color: white;
+}
+
 #floating-panel {
   position: absolute;
-  top: 10px;
+  bottom: 10px;
   left: 25%;
   z-index: 5;
   background-color: #fff;
