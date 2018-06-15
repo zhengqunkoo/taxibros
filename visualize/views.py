@@ -109,7 +109,7 @@ def get_chart_data_js(request):
 
     timestamps = filter(
         lambda time: ((time.date_time.replace(second=0) - date_time_start).seconds)
-        % 300
+        % 1200
         == 0,
         timestamps,
     )
