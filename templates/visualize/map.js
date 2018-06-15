@@ -301,11 +301,9 @@ function decode(encoded){
   }
 }
 
-function initAutocomplete() {
+function initAutocomplete(input) {
   // Create the search box and link it to the UI element.
-  var input = document.getElementById('pac-input');
   var searchBox = new google.maps.places.SearchBox(input);
-  map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
 
   // Bias the SearchBox results towards current map's viewport.
   map.addListener('bounds_changed', function() {
@@ -368,16 +366,36 @@ function initAutocomplete() {
       var place = places[0];
       var location = place.geometry.location;
       genLoc(location);
-      appendUnorderedList("location-list", place.name);
     }
   });
 }
 
-function appendUnorderedList(ulName, liText) {
-  var ul = document.getElementById(ulName);
-  var li = document.createElement("li");
-  var ulLength = ul.children.length + 1;
-  li.appendChild(document.createTextNode(liText));
-  li.setAttribute("id", "element" + ulLength);
-  ul.appendChild(li);
+function createPacInput(length) {
+  var input = document.createElement('input');
+  input.setAttribute('id', 'pac-input' + length);
+  input.setAttribute('class', 'controls');
+  input.setAttribute('type', 'text');
+  input.setAttribute('placeholder', 'Search Google Maps');
+  initAutocomplete(input);
+  return input;
 }
+
+function createCalendar(length) {
+  var input = document.createElement('input');
+  input.setAttribute('type', 'text');
+  input.setAttribute('class', 'form-control');
+  input.setAttribute('id', 'datetimepicker' + length);
+  return input;
+}
+
+$(document).ready(function() {
+  $('#addRow').on('click', function() {
+    var length = searchedLocationsTable.rows.length
+    var row = searchedLocationsTable.insertRow(length);
+    var pacInputCell = row.insertCell(0);
+    var calendarCell = row.insertCell(1);
+    pacInputCell.appendChild(createPacInput(length));
+    calendarCell.appendChild(createCalendar(length));
+    $('#datetimepicker' + length).datetimepicker();
+  });
+});

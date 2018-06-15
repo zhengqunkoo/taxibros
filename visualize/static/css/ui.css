@@ -23,3 +23,7 @@
 .axis--x path {
     display: none;
 }
+
+#searchedLocationsTable td {
+  position: relative;
+}
