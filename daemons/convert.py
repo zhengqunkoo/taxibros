@@ -1,5 +1,6 @@
 import datetime
 import numpy as np
+import requests
 from scipy.sparse import coo_matrix
 
 from .models import Heatmap, Heattile, Location, LocationRecord
