@@ -13,13 +13,16 @@ from scipy.sparse import coo_matrix
 from scipy.spatial import KDTree
 
 
-#Set up KDTree
+# Set up KDTree
 import sys
+
 sys.setrecursionlimit(30000)
 locs = [loc for loc in Location.objects.all()]
-locs = list(filter(lambda x:x.lat!=0, locs))
-tree = KDTree(list(map(lambda x: (float(x.lat), float(x.lng)), locs)), leafsize = 3000)
-
+locs = list(filter(lambda x: x.lat != 0, locs))
+if len(locs) > 0:  # Tests initialize kdtree with no values
+    tree = KDTree(
+        list(map(lambda x: (float(x.lat), float(x.lng)), locs)), leafsize=3000
+    )
 
 
 def index(request):
@@ -124,7 +127,6 @@ def get_coordinates_location(request):
     return result, total_dist, num, best_road.road_name, lat, lng, path_geom
 
 
-
 def get_heatmap_time(request):
     """Filter range one minute long, ensures at least one date_time returned.
     If two date_times returned, select most recent one.
@@ -186,7 +188,7 @@ def get_best_road(lat, lng):
     @return: Location of the best road
     """
 
-    roads = get_closest_roads(lat,lng)
+    roads = get_closest_roads(lat, lng)
 
     max_val = 0
     max_road = None
@@ -199,7 +201,6 @@ def get_best_road(lat, lng):
     return max_road
 
 
-
 def get_count_at_road(road):
     if road == None:
         return 0
@@ -207,13 +208,13 @@ def get_count_at_road(road):
     return sum(map(lambda rec: rec.count, records))
 
 
-def get_closest_roads(lat,lng):
+def get_closest_roads(lat, lng):
     """Retrieves the closest road segments to the coordinates using kdtree
     Approximately 500m
     @param: position of client
     @return: list of Locations"""
 
-    road_indexes = tree.query_ball_point((lat, lng),500/110570)
+    road_indexes = tree.query_ball_point((lat, lng), 500 / 110570)
     return [locs[idx] for idx in road_indexes]
 
 
