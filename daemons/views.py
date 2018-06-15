@@ -14,7 +14,7 @@ from scipy.sparse import coo_matrix
 from scipy.spatial import KDTree
 
 
-# Set up KDTree
+# Set up KDTree once on server start.
 import sys
 
 sys.setrecursionlimit(30000)
@@ -101,7 +101,19 @@ def get_coordinates_time(request):
 
 
 def get_coordinates_location(request):
-    """@return coords, average_dist away of cars within 500m radius, num cars within 500m radius"""
+    """
+    @param request: HTTP GET request containing other variables.
+        pos: position of client
+    @return tuple of:
+        Many taxi information:
+            coords of taxis
+            total dist away of cars within radius
+            num cars within radius
+        Recommended taxi to hail information:
+            road name of road that taxi is on
+            coordinates of that road
+            walking path towards that road
+    """
     pos = request.GET.get("pos")
     pos = json.loads(pos)
     distFunc = lambda x: math.pow(
@@ -177,6 +189,10 @@ def get_heatmap_time(request):
 
 
 def get_path_geom(start_lat, start_lng, end_lat, end_lng):
+    """
+    @param start and end coordinates. lat, lng: position in coordinates.
+    @return route_geometry: walking path from start to end.
+    """
     url = "https://developers.onemap.sg/privateapi/routingsvc/route"
     params = {
         "start": "{},{}".format(start_lat, start_lng),
@@ -195,7 +211,8 @@ def get_path_geom(start_lat, start_lng, end_lat, end_lng):
 
 def get_best_road(lat, lng):
     """Returns the road segment with the largest number of taxis in db
-    @param: current position of client in lat lng
+    @param
+        lat, lng: current position of client in lat lng
     @return: Location of the best road
     """
 
@@ -214,6 +231,10 @@ def get_best_road(lat, lng):
 
 
 def get_count_at_road(road):
+    """
+    @param road: roadID from Location model.
+    @return sum of taxi counts at roadID for all time.
+    """
     if road == None:
         return 0
     records = road.locationrecord_set.all()
@@ -221,10 +242,11 @@ def get_count_at_road(road):
 
 
 def get_closest_roads(lat, lng, locs, tree):
-    """Retrieves the closest road segments to the coordinates using kdtree
-    Approximately 500m
-    @param: position of client
-    @return: list of Locations"""
+    """
+    @param:
+        lat, lng: position of client
+    @return: list of closest road segments to the coordinates using kdtree
+    """
     road_indexes = tree.query_ball_point((lat, lng), 500 / 110570)
     return [locs[idx] for idx in road_indexes]
 
