@@ -100,9 +100,7 @@ function genLoc(pos) {
       var best_road = data.best_road;
       var best_road_coords = data.best_road_coords;
       var path_geom = data.path_geom
-      //TODO: Eventually remove below
-      //var day_stats = data.day_stats;
-      //Filling up map
+
       var length = coordinates.length;
       var coord;
       for (var i=0; i<length; i++) {
@@ -127,9 +125,7 @@ function genLoc(pos) {
         radius: 500,
       });
 
-      //Draw chart
-      //TODO: to remove
-      //drawChart(day_stats);
+
 
       infoWindow.setPosition(best_road_coords);
       infoWindow.setContent('Better location');
