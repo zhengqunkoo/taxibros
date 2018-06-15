@@ -37,7 +37,6 @@ function initMap() {
   });
   walkpath.setMap(map);
 
-  initAutocomplete();
   drawChart();
 
 }
