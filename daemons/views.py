@@ -17,12 +17,17 @@ from scipy.spatial import KDTree
 import sys
 
 sys.setrecursionlimit(30000)
-locs = [loc for loc in Location.objects.all()]
-locs = list(filter(lambda x: x.lat != 0, locs))
-if len(locs) > 0:  # Tests initialize kdtree with no values
-    tree = KDTree(
-        list(map(lambda x: (float(x.lat), float(x.lng)), locs)), leafsize=3000
-    )
+locs = None
+tree = None
+try:
+    locs = [loc for loc in Location.objects.all()]
+    locs = list(filter(lambda x: x.lat != 0, locs))
+    if len(locs) > 0:  # Tests initialize kdtree with no values
+        tree = KDTree(
+            list(map(lambda x: (float(x.lat), float(x.lng)), locs)), leafsize=3000
+        )
+except Exception as e:
+    print(str(e))
 
 
 def index(request):
@@ -178,7 +183,6 @@ def get_path_geom(start_lat, start_lng, end_lat, end_lng):
     json_val = r.json()
     if "error" in json_val:  # If route not found, only field is error
         return None
-    print(json_val)
     return json_val["route_geometry"]
 
 
@@ -188,7 +192,8 @@ def get_best_road(lat, lng):
     @return: Location of the best road
     """
 
-    roads = get_closest_roads(lat, lng)
+    # Locs, tree referred to outside name space
+    roads = get_closest_roads(lat, lng, locs, tree)
 
     max_val = 0
     max_road = None
@@ -208,12 +213,11 @@ def get_count_at_road(road):
     return sum(map(lambda rec: rec.count, records))
 
 
-def get_closest_roads(lat, lng):
+def get_closest_roads(lat, lng, locs, tree):
     """Retrieves the closest road segments to the coordinates using kdtree
     Approximately 500m
     @param: position of client
     @return: list of Locations"""
-
     road_indexes = tree.query_ball_point((lat, lng), 500 / 110570)
     return [locs[idx] for idx in road_indexes]
 
