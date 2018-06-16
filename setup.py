@@ -11,7 +11,7 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     install_requires=[
-        "black",
+        "black==18.6b2",
         "coverage",
         "coverage-badge",
         "django",
