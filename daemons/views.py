@@ -111,6 +111,9 @@ def get_coordinates_location(request):
     @param request: HTTP GET request containing other variables.
         lat, lng: position of client
         radius: how far client is willing to walk to hail a taxi
+        minutes:
+            predict taxi locations at this amount of time into the future.
+            default: 0 (meaning now).
     @return tuple of:
         Many taxi information:
             coords of taxis
@@ -130,28 +133,29 @@ def get_coordinates_location(request):
         0.5,
     )
 
-    # Assumption: position passes on the coordinates
-    now = Timestamp.objects.latest("date_time")
-    coords = now.coordinate_set.all()
+    time = get_timestamp(request)
 
     result = []
     total_dist = 0
     num = 0
-    for coord in coords:
-        dist = distFunc(coord)
-        if dist < radius:
-            result.append(coord)
-            num += 1
-            total_dist += dist
-
     best_road = get_best_road(lat, lng, radius)
     best_lat = None
     best_lng = None
     path_geom = None
-    if best_road != None:
-        best_lat = float(best_road.lat)
-        best_lng = float(best_road.lng)
-        path_geom = get_path_geom(lat, lng, best_lat, best_lng)
+
+    if time != None:
+        coords = time.coordinate_set.all()
+        for coord in coords:
+            dist = distFunc(coord)
+            if dist < radius:
+                result.append(coord)
+                num += 1
+                total_dist += dist
+
+        if best_road != None:
+            best_lat = float(best_road.lat)
+            best_lng = float(best_road.lng)
+            path_geom = get_path_geom(lat, lng, best_lat, best_lng)
 
     return result, total_dist, num, best_road.road_name, best_lat, best_lng, path_geom
 
