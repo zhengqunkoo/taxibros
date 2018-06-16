@@ -102,12 +102,9 @@ function genLoc(pos, radius) {
       var best_road_coords = data.best_road_coords;
       var path_geom = data.path_geom
 
-      var length = coordinates.length;
-      var coord;
-      for (var i=0; i<length; i++) {
-        coord = coordinates[i];
+      coordinates.forEach(function(coord) {
         pointArray.push(new google.maps.LatLng(coord[0], coord[1]));
-      }
+      });
       //Load stats
       if (number != 0) { //Gets around zero division error
         document.getElementById('average_dist').innerHTML = total_dist/number;
