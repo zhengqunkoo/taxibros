@@ -17,8 +17,8 @@
     height:20%;
     width:20%;
     position: absolute;
-    bottom: 0px;
-    right: 0px;
+    bottom: 5%;
+    left: 5%;
 }
 #map-all {
     position:fixed;
