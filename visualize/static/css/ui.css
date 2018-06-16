@@ -7,16 +7,39 @@
     position:absolute;
     top: 0px;
     left: 25%;
+    background-color: white;
 }
-#map {
-  height: 100%;
+#sidewindow {
+    left: 10px;
+    top: 25%;
+    position: absolute;
+    background-color: white;
+    width: 55%;
 }
 
+#slider {
+  float:left;
+  display:inline;
+  width:10%;
+  height:30px;
+}
+#itineraryTable {
+  float: left;
+  display: inline;
+}
+#addRow {
+  position: relative;
+  display: block;
+}
+#itineraryTable td {
+  position: relative;
+}
 .chart rect {
   fill: steelblue;
 }
 
-.axis { font: 14px sans-serif;
+.axis {
+    font: 14px sans-serif;
     fill: black;
     font: 10px sans-serif;
     text-anchor: end;}
@@ -29,9 +52,7 @@
     display: none;
 }
 
-#itineraryTable td {
-  position: relative;
-}
+
 
 .deleteRow {
 
