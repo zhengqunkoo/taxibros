@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Timestamp, Coordinate, Heatmap, Heattile
+from .models import Timestamp, Coordinate, Location, LocationRecord, Heatmap, Heattile
 
 
 def delete_selected(modeladmin, request, queryset):
@@ -16,6 +16,16 @@ class TimestampAdmin(admin.ModelAdmin):
 @admin.register(Coordinate)
 class CoordinateAdmin(admin.ModelAdmin):
     list_display = ("lat", "lng", "timestamp")
+
+
+@admin.register(Location)
+class LocationAdmin(admin.ModelAdmin):
+    list_display = ("roadID", "road_name", "lat", "lng")
+
+
+@admin.register(LocationRecord)
+class LocationRecordAdmin(admin.ModelAdmin):
+    list_display = ("count", "location", "timestamp")
 
 
 @admin.register(Heatmap)
