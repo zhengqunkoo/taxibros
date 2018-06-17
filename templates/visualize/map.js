@@ -14,6 +14,10 @@ function initMap() {
     zoom: 12,
     center: new google.maps.LatLng(1.3521, 103.8198),
     mapTypeId: 'roadmap',
+    mapTypeControl:false,
+    fullscreenControl: false,
+    streetViewControl:false,
+    zoomControl: false,
     styles: [
     {
         "featureType": "landscape",
