@@ -8,6 +8,7 @@ var map, heatmap, infoWindow;
 var pointArray, intensityArray;
 var polylineArray;
 var walkpath;
+var pacInputCount = 0, datetimepickerCount = 0;
 
 function initMap() {
   map = new google.maps.Map(document.getElementById('map'), {
@@ -369,21 +370,23 @@ function initAutocomplete(input) {
   });
 }
 
-function createPacInput(length) {
+function createPacInput() {
   var input = document.createElement('input');
-  input.setAttribute('id', 'pac-input' + length);
+  input.setAttribute('id', 'pac-input' + pacInputCount);
   input.setAttribute('class', 'controls');
   input.setAttribute('type', 'text');
   input.setAttribute('placeholder', 'Search Google Maps');
   initAutocomplete(input);
+  pacInputCount++;
   return input;
 }
 
-function createDatetimepicker(length) {
+function createDatetimepicker() {
   var input = document.createElement('input');
   input.setAttribute('type', 'text');
   input.setAttribute('class', 'form-control');
-  input.setAttribute('id', 'datetimepicker' + length);
+  input.setAttribute('id', 'datetimepicker' + datetimepickerCount);
+  datetimepickerCount++;
   return input;
 }
 
@@ -403,12 +406,13 @@ function addRow() {
   var arrivalLocationCell = row.insertCell(2);
   var arrivalTimeCell = row.insertCell(3);
   var deleteRowButtonCell = row.insertCell(4);
-  pickupLocationCell.appendChild(createPacInput(length));
-  pickupTimeCell.appendChild(createDatetimepicker(length));
-  arrivalLocationCell.appendChild(createPacInput(length));
-  arrivalTimeCell.appendChild(createDatetimepicker(length));
+  pickupLocationCell.appendChild(createPacInput());
+  pickupTimeCell.appendChild(createDatetimepicker());
+  arrivalLocationCell.appendChild(createPacInput());
+  arrivalTimeCell.appendChild(createDatetimepicker());
+  $('#datetimepicker' + (datetimepickerCount-1)).datetimepicker();
+  $('#datetimepicker' + (datetimepickerCount-2)).datetimepicker();
   deleteRowButtonCell.appendChild(createDeleteRowButton());
-  $('#datetimepicker' + length).datetimepicker();
 }
 
 $(document).ready(function() {
