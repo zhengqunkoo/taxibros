@@ -75,6 +75,10 @@ function changeOpacity() {
   heatmap.set('opacity', heatmap.get('opacity') ? null : 0.2);
 }
 
+function resetLocation() {
+  locationEnabled = false;
+}
+
 function getPoints() {
   return [
     {% for coord in coordinates %}
