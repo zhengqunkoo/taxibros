@@ -13,12 +13,13 @@
 
 }
 #container-chart {
-    padding:10px;
-    height:20%;
-    width:20%;
     position: absolute;
     bottom: 10%;
-    left: 5%;
+    left: 0%;
+}
+#chart-title{
+    text-align:center;
+    font-weight: bold;
 }
 #map-all {
     position:fixed;

@@ -115,7 +115,12 @@ def get_chart_data_js(request):
     )
 
     day_stats = [timestamp.taxi_count for timestamp in timestamps]
-    return JsonResponse({"day_stats": day_stats})
+    return JsonResponse(
+        {
+            "day_stats": day_stats,
+            "chart_title": "Distribution of available taxis across 24h",
+        }
+    )
 
 
 def serialize_coordinates(coordinates):
