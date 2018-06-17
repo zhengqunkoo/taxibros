@@ -4,12 +4,14 @@
 }
 
 #container-slider {
+    z-index:1;
     display: inline;
     position:absolute;
     top: 5%;
     left: 75%;
-    background-color: white;
     width:20%;
+    overflow: hidden;
+    padding: 10px;
 
 }
 #container-chart {
@@ -55,12 +57,12 @@
     z-index:1;
   position: absolute;
   right: -50%;
-  top: 25%;
+  top: 40%;
   color:black;
   overflow:hidden;
   padding:20px;
 }
-#container-stats-bg {
+.container-bg {
     z-index:-1;
   position: absolute;
   -webkit-filter: blur(10px); /* Chrome, Opera, etc. */
