@@ -244,8 +244,8 @@ function genLoc(pos, radius, minutes) {
           $('#b').remove();
           $('#c').remove();
       } else {
-          $('#path-time').html(path_time);
-          $('#path-dist').html(path_dist);
+          $('#path-time').html(path_time + "s");
+          $('#path-dist').html(path_dist + "m");
       }
 
       //Draw circle
