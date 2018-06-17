@@ -139,6 +139,7 @@ def get_coordinates_location(request):
     total_dist = 0
     num = 0
     best_road = get_best_road(lat, lng, radius)
+    road_name = None
     best_lat = None
     best_lng = None
     path_geom = None
@@ -156,8 +157,9 @@ def get_coordinates_location(request):
             best_lat = float(best_road.lat)
             best_lng = float(best_road.lng)
             path_geom = get_path_geom(lat, lng, best_lat, best_lng)
+            road_name = best_road.road_name
 
-    return result, total_dist, num, best_road.road_name, best_lat, best_lng, path_geom
+    return result, total_dist, num, road_name, best_lat, best_lng, path_geom
 
 
 def get_heatmap_time(request):
