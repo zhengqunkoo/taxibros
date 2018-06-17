@@ -9,6 +9,7 @@ var pointArray, intensityArray;
 var polylineArray;
 var walkpath;
 var pacInputCount = 0, datetimepickerCount = 0;
+var locationEnabled = false, curLocation;
 
 function initMap() {
   map = new google.maps.Map(document.getElementById('map'), {
@@ -83,6 +84,11 @@ function getPoints() {
 }
 
 function genLoc(pos, radius, minutes) {
+
+  // Set global location variables.
+  locationEnabled = true;
+  curLocation = pos;
+
   map.setCenter(pos);
   map.setZoom(16);
 
@@ -169,13 +175,13 @@ function handleLocationError(browserHasGeolocation, infoWindow, pos) {
   infoWindow.open(map);
 }
 
-function genSliderCallback(value, url, successCallback) {
+function genSliderCallback(minutes, url, successCallback) {
 
   // Asynchronously update maps.
   $.ajax({
     url: url,
     data: {
-        minutes: value,
+        minutes: minutes,
     },
     dataType: 'json',
     success: successCallback,
@@ -185,17 +191,21 @@ function genSliderCallback(value, url, successCallback) {
   });
 }
 
-function genTimeSliderChange(e) {
-  genSliderCallback(e, "{% url 'visualize:genTime' %}", function(data) {
-    pointArray.clear();
-    data.coordinates.forEach(function(coord) {
-      pointArray.push(new google.maps.LatLng(coord[0], coord[1]));
+function genTimeSliderChange(minutes) {
+  if (locationEnabled) {
+    genLoc(curLocation, 500, minutes);
+  } else {
+    genSliderCallback(minutes, "{% url 'visualize:genTime' %}", function(data) {
+      pointArray.clear();
+      data.coordinates.forEach(function(coord) {
+        pointArray.push(new google.maps.LatLng(coord[0], coord[1]));
+      });
     });
-  });
+  }
 }
 
-function genHeatmapSliderChange(e) {
-  genSliderCallback(e, "{% url 'visualize:genHeatmap' %}", function(data) {
+function genHeatmapSliderChange(minutes) {
+  genSliderCallback(minutes, "{% url 'visualize:genHeatmap' %}", function(data) {
     pointArray.clear();
     while (intensityArray.length) { intensityArray.pop(); }
     data.heattiles.forEach(function(d) {
@@ -364,8 +374,7 @@ function initAutocomplete(input) {
       // Else if only one place, perform genLoc.
       // Create list element.
       var place = places[0];
-      var location = place.geometry.location;
-      genLoc(location, 500, 0); // genLoc in 500 meters, current time
+      genLoc(place.geometry.location, 500, 0); // genLoc in 500 meters, current time
     }
   });
 }
