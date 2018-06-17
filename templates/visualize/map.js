@@ -150,7 +150,7 @@ function showNearby() {
       infoWindow.setPosition(pos);
       infoWindow.setContent('Location found.');
       infoWindow.open(map);
-      genLoc(pos, 500, null); // genLoc in 500 meters, current time
+      genLoc(pos, 500, 0); // genLoc in 500 meters, current time
 
     }, function() {
       handleLocationError(true, infoWindow, map.getCenter());
@@ -365,7 +365,7 @@ function initAutocomplete(input) {
       // Create list element.
       var place = places[0];
       var location = place.geometry.location;
-      genLoc(location, 500, null); // genLoc in 500 meters, current time
+      genLoc(location, 500, 0); // genLoc in 500 meters, current time
     }
   });
 }
