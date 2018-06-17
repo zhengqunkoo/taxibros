@@ -54,7 +54,7 @@
 #container-stats {
     z-index:1;
   position: absolute;
-  right: 10%;
+  right: -50%;
   top: 25%;
   color:black;
   overflow:hidden;
@@ -78,6 +78,12 @@ background: rgba(155,155,155,0.3);
 }
 #container-error {
   position: fixed;
+}
+#remove-stats {
+    font-size: 0.5em;
+    height:1em;
+    width:1em;
+    text-align: center;
 }
 .chart rect {
   fill: steelblue;

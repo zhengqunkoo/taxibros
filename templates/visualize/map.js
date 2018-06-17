@@ -260,6 +260,7 @@ function showNearby() {
       infoWindow.setContent('Location found.');
       infoWindow.open(map);
       genLoc(pos, 500);
+      appearStats();
 
     }, function() {
       handleLocationError(true, infoWindow, map.getCenter());
@@ -544,6 +545,16 @@ function addRow() {
   $('#datetimepicker' + length).datetimepicker();
 }
 
+function removeStats() {
+    //Function for container stats to disappear to the side
+  $('#container-stats').stop().animate({right: "-50%"},1200);
+}
+function appearStats() {
+  $('#container-stats').stop().animate({right: "0%"},400);
+
+}
+
+
 $(document).ready(function() {
   $('#addRow').on('click', addRow);
   $('#itineraryTable').on('click', '.deleteRow', function(){
@@ -556,6 +567,7 @@ $(document).ready(function() {
       if (leftVal == '10px'){
           $('#container-itinerary').stop().animate({left:"-50%"}, 500);
           $('#slider').prop("value",">>");
+
       } else {
           $('#container-itinerary').stop().animate({left:"10px"},500);
           $('#slider').prop("value","<<");
