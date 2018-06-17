@@ -97,6 +97,14 @@ Tests are executed using the django manager.
    black .
    ```
 
+## Cache framework
+1. Install `memcached` and dev tools.
+   ```
+   sudo apt install -y memcached libmemcached-dev
+   ```
+2. Follow guide on [django cache docs].
+
 [travis badge]: https://travis-ci.com/zhengqunkoo/taxibros.svg?token=zQpqs1cgYrwMmHCBfnPg&branch=master "From travis-ci."
 [coverage badge]: https://github.com/zhengqunkoo/taxibros/raw/master/coverage.svg?sanitize=True "Generated using coverage-badge."
 [install PROJ.4 datum shifting files]: https://docs.djangoproject.com/en/2.0/ref/contrib/gis/install/geolibs/#proj4
+[django cache docs]: https://docs.djangoproject.com/en/2.0/topics/cache/

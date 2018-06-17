@@ -8,6 +8,8 @@ var map, heatmap, infoWindow;
 var pointArray, intensityArray;
 var polylineArray;
 var walkpath;
+var pacInputCount = 0, datetimepickerCount = 0;
+var locationEnabled = false, curLocation;
 
 function initMap() {
   map = new google.maps.Map(document.getElementById('map'), {
@@ -181,6 +183,10 @@ function changeOpacity() {
   heatmap.set('opacity', heatmap.get('opacity') ? null : 0.2);
 }
 
+function resetLocation() {
+  locationEnabled = false;
+}
+
 function getPoints() {
   return [
     {% for coord in coordinates %}
@@ -189,7 +195,12 @@ function getPoints() {
   ];
 }
 
-function genLoc(pos, radius) {
+function genLoc(pos, radius, minutes) {
+
+  // Set global location variables.
+  locationEnabled = true;
+  curLocation = pos;
+
   map.setCenter(pos);
   map.setZoom(16);
 
@@ -199,6 +210,7 @@ function genLoc(pos, radius) {
       lat: pos.lat,
       lng: pos.lng,
       radius: radius,
+      minutes: minutes
     },
     dataType: 'json',
     success: function(data) {
@@ -210,12 +222,9 @@ function genLoc(pos, radius) {
       var best_road_coords = data.best_road_coords;
       var path_geom = data.path_geom
 
-      var length = coordinates.length;
-      var coord;
-      for (var i=0; i<length; i++) {
-        coord = coordinates[i];
+      coordinates.forEach(function(coord) {
         pointArray.push(new google.maps.LatLng(coord[0], coord[1]));
-      }
+      });
       //Load stats
       if (number != 0) { //Gets around zero division error
         document.getElementById('average_dist').innerHTML = Math.trunc(total_dist/number) + "m";
@@ -259,9 +268,8 @@ function showNearby() {
       infoWindow.setPosition(pos);
       infoWindow.setContent('Location found.');
       infoWindow.open(map);
-      genLoc(pos, 500);
+      genLoc(pos, 500, 0); // genLoc in 500 meters, current time
       appearStats();
-
     }, function() {
       handleLocationError(true, infoWindow, map.getCenter());
     });
@@ -279,13 +287,13 @@ function handleLocationError(browserHasGeolocation, infoWindow, pos) {
   infoWindow.open(map);
 }
 
-function genSliderCallback(value, url, successCallback) {
+function genSliderCallback(minutes, url, successCallback) {
 
   // Asynchronously update maps.
   $.ajax({
     url: url,
     data: {
-        minutes: value,
+        minutes: minutes,
     },
     dataType: 'json',
     success: successCallback,
@@ -295,17 +303,21 @@ function genSliderCallback(value, url, successCallback) {
   });
 }
 
-function genTimeSliderChange(e) {
-  genSliderCallback(e, "{% url 'visualize:genTime' %}", function(data) {
-    pointArray.clear();
-    data.coordinates.forEach(function(coord) {
-      pointArray.push(new google.maps.LatLng(coord[0], coord[1]));
+function genTimeSliderChange(minutes) {
+  if (locationEnabled) {
+    genLoc(curLocation, 500, minutes);
+  } else {
+    genSliderCallback(minutes, "{% url 'visualize:genTime' %}", function(data) {
+      pointArray.clear();
+      data.coordinates.forEach(function(coord) {
+        pointArray.push(new google.maps.LatLng(coord[0], coord[1]));
+      });
     });
-  });
+  }
 }
 
-function genHeatmapSliderChange(e) {
-  genSliderCallback(e, "{% url 'visualize:genHeatmap' %}", function(data) {
+function genHeatmapSliderChange(minutes) {
+  genSliderCallback(minutes, "{% url 'visualize:genHeatmap' %}", function(data) {
     pointArray.clear();
     while (intensityArray.length) { intensityArray.pop(); }
     data.heattiles.forEach(function(d) {
@@ -497,27 +509,28 @@ function initAutocomplete(input) {
       // Else if only one place, perform genLoc.
       // Create list element.
       var place = places[0];
-      var location = place.geometry.location;
-      genLoc(location, 500);
+      genLoc(place.geometry.location, 500, 0); // genLoc in 500 meters, current time
     }
   });
 }
 
-function createPacInput(length) {
+function createPacInput() {
   var input = document.createElement('input');
-  input.setAttribute('id', 'pac-input' + length);
+  input.setAttribute('id', 'pac-input' + pacInputCount);
   input.setAttribute('class', 'controls');
   input.setAttribute('type', 'text');
   input.setAttribute('placeholder', 'Search Google Maps');
   initAutocomplete(input);
+  pacInputCount++;
   return input;
 }
 
-function createDatetimepicker(length) {
+function createDatetimepicker() {
   var input = document.createElement('input');
   input.setAttribute('type', 'text');
   input.setAttribute('class', 'form-control');
-  input.setAttribute('id', 'datetimepicker' + length);
+  input.setAttribute('id', 'datetimepicker' + datetimepickerCount);
+  datetimepickerCount++;
   return input;
 }
 
@@ -537,12 +550,13 @@ function addRow() {
   var arrivalLocationCell = row.insertCell(2);
   var arrivalTimeCell = row.insertCell(3);
   var deleteRowButtonCell = row.insertCell(4);
-  pickupLocationCell.appendChild(createPacInput(length));
-  pickupTimeCell.appendChild(createDatetimepicker(length));
-  arrivalLocationCell.appendChild(createPacInput(length));
-  arrivalTimeCell.appendChild(createDatetimepicker(length));
+  pickupLocationCell.appendChild(createPacInput());
+  pickupTimeCell.appendChild(createDatetimepicker());
+  arrivalLocationCell.appendChild(createPacInput());
+  arrivalTimeCell.appendChild(createDatetimepicker());
+  $('#datetimepicker' + (datetimepickerCount-1)).datetimepicker();
+  $('#datetimepicker' + (datetimepickerCount-2)).datetimepicker();
   deleteRowButtonCell.appendChild(createDeleteRowButton());
-  $('#datetimepicker' + length).datetimepicker();
 }
 
 function removeStats() {

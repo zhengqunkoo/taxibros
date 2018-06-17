@@ -19,6 +19,7 @@ setup(
         "django-dotenv",
         "matplotlib",
         "psutil",
+        "pylibmc",
         "requests",
         "scipy",
     ],
