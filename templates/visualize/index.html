@@ -21,7 +21,7 @@
     <!-- Google maps. -->
     <div id="map"></div>
     <!-- Stats -->
-    <div id="floating-panel">
+    <div id="container-controls">
         <table>
             <tr>
                 <button onclick="toggleHeatmap()">Toggle Heatmap</button>
@@ -43,7 +43,7 @@
         </table>
     </div>
     <script defer type="text/javascript" src="{% url 'visualize:slider' %}" ></script>
-    <!--Sliders-->
+    <!--Sliders (top right)-->
     <div id="container-slider">
         <input type="range" id="genTime" data-slider-id="genTimeSlider" type="text" data-slider-min="0" data-slider-max="60" data-slider-step="1" data-slider-value="0" data-slider-reversed="true"><br>
         <input type="range" id="genHeatmap" data-slider-id="genHeatmapSlider" type="text" data-slider-min="0" data-slider-max="60" data-slider-step="1" data-slider-value="0" data-slider-reversed="true"><br>
@@ -55,8 +55,8 @@
             </span>
         </div>
     </div>
-    <!-- UI -->
-    <div id = "sidewindow">
+    <!-- Itinerary table (top left)-->
+    <div id = "container-itinerary">
         <table id="itineraryTable">
             <input type="button" id="addRow" value="Add new row">
             <thead>

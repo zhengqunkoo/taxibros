@@ -26,11 +26,10 @@
     height: 100%;
     width: 100%;
 }
-#sidewindow {
+#container-itinerary {
     left: 10px;
-    top: 5%;
+    top: 0;
     position: absolute;
-    background-color: white;
     width: 55%;
 }
 

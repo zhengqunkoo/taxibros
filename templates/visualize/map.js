@@ -552,12 +552,12 @@ $(document).ready(function() {
   addRow();
 
   $('#slider').click(function() {
-      var leftVal = $("#sidewindow").css("left");
+      var leftVal = $("#container-itinerary").css("left");
       if (leftVal == '10px'){
-          $('#sidewindow').stop().animate({left:"-50%"}, 500);
+          $('#container-itinerary').stop().animate({left:"-50%"}, 500);
           $('#slider').prop("value",">>");
       } else {
-          $('#sidewindow').stop().animate({left:"10px"},500);
+          $('#container-itinerary').stop().animate({left:"10px"},500);
           $('#slider').prop("value","<<");
       }
   });

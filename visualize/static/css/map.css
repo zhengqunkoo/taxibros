@@ -15,7 +15,7 @@ html, body {
 
 
 
-#floating-panel {
+#container-controls {
   position: absolute;
   bottom: 10px;
   left: 25%;
