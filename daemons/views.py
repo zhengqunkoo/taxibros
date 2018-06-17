@@ -152,14 +152,27 @@ def get_coordinates_location(request):
                 result.append(coord)
                 num += 1
                 total_dist += dist
-
+        path_time = None
+        path_dist = None
         if best_road != None:
             best_lat = float(best_road.lat)
             best_lng = float(best_road.lng)
-            path_geom = get_path_geom(lat, lng, best_lat, best_lng)
+            path_geom, path_time, path_dist = get_path_data(
+                lat, lng, best_lat, best_lng
+            )
             road_name = best_road.road_name
 
-    return result, total_dist, num, road_name, best_lat, best_lng, path_geom
+    return (
+        result,
+        total_dist,
+        num,
+        road_name,
+        best_lat,
+        best_lng,
+        path_geom,
+        path_time,
+        path_dist,
+    )
 
 
 def get_heatmap_time(request):
@@ -199,7 +212,7 @@ def get_heatmap_time(request):
         return [], None
 
 
-def get_path_geom(start_lat, start_lng, end_lat, end_lng):
+def get_path_data(start_lat, start_lng, end_lat, end_lng):
     """
     @param start and end coordinates. lat, lng: position in coordinates.
     @return route_geometry: walking path from start to end.
@@ -213,11 +226,16 @@ def get_path_geom(start_lat, start_lng, end_lat, end_lng):
     }
     r = requests.get(url, params=params)
     if r.status_code != 200:
-        return None
+        return None, None, None
     json_val = r.json()
     if "error" in json_val:  # If route not found, only field is error
-        return None
-    return json_val["route_geometry"]
+        return None, None, None
+
+    return (
+        json_val["route_geometry"],
+        json_val["route_summary"]["total_time"],
+        json_val["route_summary"]["total_distance"],
+    )
 
 
 def get_best_road(lat, lng, radius):

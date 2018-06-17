@@ -4,7 +4,7 @@ from requests import Response
 from django.test import TestCase
 from django.utils import timezone
 from daemons.views import (
-    get_path_geom,
+    get_path_data,
     get_count_at_road,
     get_closest_roads,
     get_best_road,
@@ -75,20 +75,22 @@ class GenLocTest(TestCase):
 
     @patch("requests.Response.json")
     @patch("requests.get")
-    def test_get_path_geom(self, mock_requests_get, mock_response_json):
+    def test_get_path_data(self, mock_requests_get, mock_response_json):
         """Tests that the right value extracted from json for path_geom, or the None returned on error
         """
         mock_requests_get.return_value = self._path_geom
         mock_response_json.return_value = self._path_geom_ok_val
-        result = get_path_geom(1, 2, 3, 4)
+        result, time, dist = get_path_data(1, 2, 3, 4)
         self.assertEquals(result, "mock_route_geom")
+        self.assertEquals(time, 523)
+        self.assertEquals(dist, 725)
 
         mock_response_json.return_value = self._path_geom_error_val
-        result = get_path_geom(1, 2, 3, 4)
+        result, a, b = get_path_data(1, 2, 3, 4)
         self.assertEquals(result, None)
 
         mock_requests_get.return_value = self._path_geom_error
-        result = get_path_geom(1, 2, 3, 4)
+        result, a, b = get_path_data(1, 2, 3, 4)
         self.assertEquals(result, None)
 
     def test_get_count_at_road(self):

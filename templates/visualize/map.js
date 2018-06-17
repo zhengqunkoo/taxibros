@@ -220,7 +220,9 @@ function genLoc(pos, radius, minutes) {
       var number = data.number;
       var best_road = data.best_road;
       var best_road_coords = data.best_road_coords;
-      var path_geom = data.path_geom
+      var path_geom = data.path_geom;
+      var path_time = data.path_time;
+      var path_dist = data.path_dist;
 
       coordinates.forEach(function(coord) {
         pointArray.push(new google.maps.LatLng(coord[0], coord[1]));
@@ -230,6 +232,21 @@ function genLoc(pos, radius, minutes) {
         document.getElementById('average_dist').innerHTML = Math.trunc(total_dist/number) + "m";
       }
       document.getElementById('num').innerHTML = number;
+
+      //Add, modify, or delete data depending on condition
+      if ($('#a').length == 0) {
+          $('#stats-table tr:last').after('<tr id = "a"><th>Better Waiting Location</th></tr>');
+          $('#stats-table tr:last').after('<tr id = "b"><td>Time to travel</td><td id = "path-time">"-"</td></tr>');
+          $('#stats-table tr:last').after('<tr id = "c"><td>Distance of travel</td><td id = "path-dist">"-"</td></tr>');
+      }
+      if (path_time==null) {
+          $('#a').remove();
+          $('#b').remove();
+          $('#c').remove();
+      } else {
+          $('#path-time').html(path_time);
+          $('#path-dist').html(path_dist);
+      }
 
       //Draw circle
       var circle = new google.maps.Circle({
