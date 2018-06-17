@@ -50,6 +50,35 @@
 #itineraryTable td {
   position: relative;
 }
+
+#container-stats {
+    z-index:1;
+  position: absolute;
+  right: 10%;
+  top: 25%;
+  color:black;
+  overflow:hidden;
+  padding:20px;
+}
+#container-stats-bg {
+    z-index:-1;
+  position: absolute;
+  -webkit-filter: blur(10px); /* Chrome, Opera, etc. */
+  filter: url('blur.svg#blur'); /* Older FF and others - http://jordanhollinger.com/media/blur.svg */
+  filter: blur(10px); /* Firefox 35+, eventually all */
+  height:120%;
+  width: 120%;
+  background: rgb(34,34,34); /* for IE */
+background: rgba(155,155,155,0.3);
+  top:0;
+  padding:-10px;
+  left:-25px;
+  top:-25px;
+
+}
+#container-error {
+  position: fixed;
+}
 .chart rect {
   fill: steelblue;
 }

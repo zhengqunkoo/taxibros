@@ -17,10 +17,16 @@
     src="https://maps.googleapis.com/maps/api/js?key={{ GOOGLEMAPS_SECRET_KEY }}&libraries=visualization,places&callback=initMap&region=SG"></script>
 {% endblock %}
 {% block content %}
+<!--Error Message-->
+<div id="container-error">
+{% if error_message %}
+<p><strong>{{ error_message }}</strong></p>
+{% endif %}
+</div>
 <div id= "map-all">
     <!-- Google maps. -->
     <div id="map"></div>
-    <!-- Stats -->
+    <!-- Controls (Bottom) -->
     <div id="container-controls">
         <table>
             <tr>
@@ -29,16 +35,6 @@
                 <button onclick="changeRadius()">Change radius</button>
                 <button onclick="changeOpacity()">Change opacity</button>
                 <button onclick="showNearby()">Show near-by taxis</button>
-            </tr>
-            <tr>
-                <th>
-                    <div>Average distance away of taxis within 500m:</div>
-                    <div id="average_dist">"-"</div>
-                </th>
-                <th>
-                    <div>Number of taxis within 500m:</div>
-                    <div id="num">"-"</div>
-                </th>
             </tr>
         </table>
     </div>
@@ -55,6 +51,9 @@
             </span>
         </div>
     </div>
+
+
+
     <!-- Itinerary table (top left)-->
     <div id = "container-itinerary">
         <table id="itineraryTable">
@@ -77,11 +76,30 @@
         <svg class="chart"></svg>
         <div id="chart-title">Title</div>
     </div>
-    <!--Error Message-->
-    {% if error_message %}
-    <p><strong>{{ error_message }}</strong></p>
-    {% endif %}
+    <
+
+    <!--Local statistics(Right)-->
+    <div id = "container-stats">
+        <table>
+            <tr>
+                <div> Statistics of taxis within 500m:</div>
+            <tr>
+                <th>
+                    <div>Average distance:</div>
+                    <div id="average_dist">"-"</div>
+                </th>
+                <th>
+                    <div>Number of taxis:</div>
+                    <div id="num">"-"</div>
+                </th>
+            </tr>
+        <table>
+        <div id = "container-stats-bg"></div>
+
+    </div>
+
 </div>
+
 <script src="https://d3js.org/d3.v4.min.js"></script>
 
 {% endblock %}

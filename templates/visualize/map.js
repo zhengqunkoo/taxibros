@@ -218,7 +218,7 @@ function genLoc(pos, radius) {
       }
       //Load stats
       if (number != 0) { //Gets around zero division error
-        document.getElementById('average_dist').innerHTML = total_dist/number;
+        document.getElementById('average_dist').innerHTML = Math.trunc(total_dist/number) + "m";
       }
       document.getElementById('num').innerHTML = number;
 
