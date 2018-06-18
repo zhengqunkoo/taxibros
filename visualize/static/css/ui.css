@@ -43,7 +43,12 @@
 }
 #itineraryTable {
   float: left;
-  display: inline;
+  width: 90%;
+  display:inline-block;
+  table-layout: fixed;
+}
+#button {
+  width: 10%;
 }
 #addRow {
   position: relative;
@@ -51,6 +56,8 @@
 }
 #itineraryTable td {
   position: relative;
+  width: 25%;
+  white-space:nowrap;
 }
 
 #container-stats {
