@@ -47,9 +47,7 @@
   display:inline-block;
   table-layout: fixed;
 }
-#button {
-  width: 10%;
-}
+
 #addRow {
   position: relative;
   display: block;
