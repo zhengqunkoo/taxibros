@@ -620,10 +620,11 @@ $(document).ready(function() {
   });
 
   $('#itineraryTable').tablesorter({
-    })
-    .tablesorterPager({
+    widthFixed: true,
+    widgets: ['zebra'],
+  }).tablesorterPager({
       container: $("#pager"),
-    });
+  });
 
   $('#slider').click(function() {
       var leftVal = $("#container-itinerary").css("left");
