@@ -543,7 +543,7 @@ function initAutocomplete(input, cell) {
 function createPacInput(cell) {
   var input = document.createElement('input');
   input.setAttribute('id', 'pac-input' + pacInputCount);
-  input.setAttribute('class', 'controls');
+  input.setAttribute('class', 'controls td-height');
   input.setAttribute('type', 'text');
   input.setAttribute('placeholder', 'Search Google Maps');
   initAutocomplete(input, cell);
@@ -554,7 +554,7 @@ function createPacInput(cell) {
 function createDatetimepicker() {
   var input = document.createElement('input');
   input.setAttribute('type', 'text');
-  input.setAttribute('class', 'form-control');
+  input.setAttribute('class', 'form-control td-height');
   input.setAttribute('id', 'datetimepicker' + datetimepickerCount);
   datetimepickerCount++;
   return input;
@@ -570,7 +570,7 @@ function createHiddenText(id) {
 function createDeleteRowButton() {
   var input = document.createElement('input');
   input.setAttribute('type', 'button');
-  input.setAttribute('class', 'deleteRow');
+  input.setAttribute('class', 'deleteRow td-height');
   input.setAttribute('value', 'Delete');
   return input;
 }
