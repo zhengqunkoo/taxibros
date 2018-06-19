@@ -10,6 +10,10 @@ var polylineArray;
 var walkpath;
 var pacInputCount = 0, datetimepickerCount = 0;
 var locationEnabled = false, curLocation;
+/**
+ * Testing if dynamic adding text works.
+ */
+var one=100, two=200, three=300, four=400, five=500;
 
 function initMap() {
   map = new google.maps.Map(document.getElementById('map'), {
@@ -585,13 +589,41 @@ function appearStats() {
 
 }
 
+function addRowContent() {
+  /**
+   * Debugging function to add text to table.
+   * Testing if dynamic adding text works.
+   */
+  var length = itineraryTable.rows.length
+  var row = itineraryTable.insertRow(length);
+  var pickupLocationCell = row.insertCell(0);
+  var pickupTimeCell = row.insertCell(1);
+  var arrivalLocationCell = row.insertCell(2);
+  var arrivalTimeCell = row.insertCell(3);
+  var deleteRowButtonCell = row.insertCell(4);
+  pickupLocationCell.innerText = one;
+  pickupTimeCell.innerText = two;
+  arrivalLocationCell.innerText = three;
+  arrivalTimeCell.innerText = four;
+  deleteRowButtonCell.appendChild(createDeleteRowButton());
+  one++; two++; three++; four++;
+}
 
 $(document).ready(function() {
-  $('#addRow').on('click', addRow);
+  $('#addRow').on('click', addRowContent);
+  addRowContent();
+  addRowContent();
+
   $('#itineraryTable').on('click', '.deleteRow', function(){
     $(this).closest ('tr').remove();
   });
   addRow();
+
+  $('#itineraryTable').tablesorter({
+    })
+    .tablesorterPager({
+      container: $("#pager"),
+    });
 
   $('#slider').click(function() {
       var leftVal = $("#container-itinerary").css("left");
