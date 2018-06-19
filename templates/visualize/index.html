@@ -6,6 +6,8 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/9.9.0/bootstrap-slider.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.2/moment.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.30.6/js/jquery.tablesorter.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.30.6/js/extras/jquery.tablesorter.pager.min.js"></script>
 <link rel="stylesheet" href="{% static 'css/ui.css' %}">
 <link rel="stylesheet" href="{% static 'css/map.css' %}">
 
@@ -63,27 +65,43 @@
 
     <!-- Itinerary table (top left)-->
     <div id = "container-itinerary">
-        <table id="itineraryTable">
-            <input type="button" id="addRow" value="Add new row">
-            <thead>
-                <tr>
-                    <th>Pickup Location</th>
-                    <th>Pickup Time</th>
-                    <th>Arrival Location</th>
-                    <th>Arrival Time</th>
-                    <th>Delete</th>
-                </tr>
-            </thead>
-            <tbody></tbody>
+      <div>
+        <input type="button" id="addRow" value="Add new row">
+        <table id="itineraryTable" class="tablesorter" cellspacing="1">
+          <thead>
+            <tr>
+              <th>Pickup Location</th>
+              <th>Pickup Time</th>
+              <th>Arrival Location</th>
+              <th>Arrival Time</th>
+              <th>Delete</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
         </table>
-        <input type="button" id="slider" value="<<">
+      </div>
+      <div id="pager" class="pager">
+        <form>
+          <img src="http://tablesorter.com/addons/pager/icons/first.png" class="first"/>
+          <img src="http://tablesorter.com/addons/pager/icons/prev.png" class="prev"/>
+          <input type="text" class="pagedisplay"/>
+          <img src="http://tablesorter.com/addons/pager/icons/next.png" class="next"/>
+          <img src="http://tablesorter.com/addons/pager/icons/last.png" class="last"/>
+          <select class="pagesize">
+            <option selected="selected" value="5">5</option>
+            <option value="10">10</option>
+            <option value="10">15</option>
+            <option value="20">20</option>
+          </select>
+        </form>
+      </div>
+      <input type="button" id="slider" value="<<">
     </div>
     <!--SVG for charts -->
     <div id="container-chart" >
         <svg class="chart"></svg>
         <div id="chart-title">Title</div>
     </div>
-    <
 
     <!--Local statistics(Right)-->
     <div id = "container-stats">

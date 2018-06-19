@@ -10,9 +10,13 @@ var polylineArray;
 var walkpath;
 var pacInputCount = 0, datetimepickerCount = 0;
 var locationEnabled = false, curLocation;
+<<<<<<< HEAD
 var directionService;
 var directionsDisplay;
 
+=======
+var locationCircle = null; // google maps Circle
+>>>>>>> 4821612d2b1e65d1c0681cdaf300e6b400d38630
 
 function initMap() {
     directionsService = new google.maps.DirectionsService();
@@ -254,8 +258,14 @@ function genLoc(pos, radius, minutes) {
           $('#path-dist').html(path_dist + "m");
       }
 
-      //Draw circle
-      var circle = new google.maps.Circle({
+      // Delete locationCircle if not null
+      if (locationCircle) {
+        locationCircle.setMap(null);
+        locationCircle = null;
+      }
+
+      // Draw locationCircle
+      locationCircle = new google.maps.Circle({
         strokeColor: '#FF7F50',
         strokeOpacity: 0.2,
         strokeWeight: 2,
@@ -469,7 +479,7 @@ function decode(encoded){
   }
 }
 
-function initAutocomplete(input) {
+function initAutocomplete(input, cell) {
   // Create the search box and link it to the UI element.
   var searchBox = new google.maps.places.SearchBox(input);
 
@@ -533,53 +543,65 @@ function initAutocomplete(input) {
       // Create list element.
       var place = places[0];
       genLoc(place.geometry.location, 500, 0); // genLoc in 500 meters, current time
+      cell.children[0].innerText = place.name;
+      resort();
     }
   });
 }
 
-function createPacInput() {
+function createPacInput(cell) {
   var input = document.createElement('input');
   input.setAttribute('id', 'pac-input' + pacInputCount);
-  input.setAttribute('class', 'controls');
+  input.setAttribute('class', 'controls td-height');
   input.setAttribute('type', 'text');
   input.setAttribute('placeholder', 'Search Google Maps');
-  initAutocomplete(input);
+  initAutocomplete(input, cell);
+  cell.appendChild(input);
   pacInputCount++;
-  return input;
 }
 
-function createDatetimepicker() {
+function createDatetimepicker(cell) {
   var input = document.createElement('input');
   input.setAttribute('type', 'text');
-  input.setAttribute('class', 'form-control');
+  input.setAttribute('class', 'form-control td-height');
   input.setAttribute('id', 'datetimepicker' + datetimepickerCount);
+  input.setAttribute('placeholder', 'Pick a date');
+  cell.appendChild(input);
+  $('#datetimepicker' + datetimepickerCount).datetimepicker(
+  ).on('dp.hide', function(e) {
+    cell.children[0].innerText = dateToMinutes(e.date);
+    resort();
+  });
   datetimepickerCount++;
-  return input;
 }
 
-function createDeleteRowButton() {
+function createDeleteRowButton(cell) {
   var input = document.createElement('input');
   input.setAttribute('type', 'button');
-  input.setAttribute('class', 'deleteRow');
+  input.setAttribute('class', 'deleteRow td-height');
   input.setAttribute('value', 'Delete');
-  return input;
+  cell.appendChild(input);
 }
 
 function addRow() {
-  var length = itineraryTable.rows.length
-  var row = itineraryTable.insertRow(length);
+  var row = itineraryTable.getElementsByTagName('tbody')[0].insertRow(-1);
   var pickupLocationCell = row.insertCell(0);
   var pickupTimeCell = row.insertCell(1);
   var arrivalLocationCell = row.insertCell(2);
   var arrivalTimeCell = row.insertCell(3);
   var deleteRowButtonCell = row.insertCell(4);
-  pickupLocationCell.appendChild(createPacInput());
-  pickupTimeCell.appendChild(createDatetimepicker());
-  arrivalLocationCell.appendChild(createPacInput());
-  arrivalTimeCell.appendChild(createDatetimepicker());
-  $('#datetimepicker' + (datetimepickerCount-1)).datetimepicker();
-  $('#datetimepicker' + (datetimepickerCount-2)).datetimepicker();
-  deleteRowButtonCell.appendChild(createDeleteRowButton());
+
+  createPacInput(pickupLocationCell);
+  createDatetimepicker(pickupTimeCell);
+  createPacInput(arrivalLocationCell);
+  createDatetimepicker(arrivalTimeCell);
+  createDeleteRowButton(deleteRowButtonCell);
+  resort();
+}
+
+function deleteRow(){
+  $(this).closest('tr').remove();
+  resort();
 }
 
 function removeStats() {
@@ -589,6 +611,7 @@ function removeStats() {
 function appearStats() {
     //Function for container stats to appear on RHS of screen
   $('#container-stats').stop().animate({right: "0%"},400);
+<<<<<<< HEAD
 }
 
 function calcRoute(start_lat, start_lng, end_lat, end_lng) {
@@ -626,16 +649,28 @@ function calcRoute(start_lat, start_lng, end_lat, end_lng) {
 
 function computeTime(duration, display_duration) {
 
+=======
+>>>>>>> 4821612d2b1e65d1c0681cdaf300e6b400d38630
 }
 
+function resort() {
+  $('#itineraryTable').trigger('update');
+}
 
 
 $(document).ready(function() {
   $('#addRow').on('click', addRow);
-  $('#itineraryTable').on('click', '.deleteRow', function(){
-    $(this).closest ('tr').remove();
-  });
+  $('#itineraryTable').on('click', '.deleteRow', deleteRow);
   addRow();
+
+  $('#itineraryTable').tablesorter({
+    widthFixed: true,
+    widgets: [
+      'zebra',
+    ],
+  }).tablesorterPager({
+      container: $("#pager"),
+  });
 
   $('#slider').click(function() {
       var leftVal = $("#container-itinerary").css("left");
