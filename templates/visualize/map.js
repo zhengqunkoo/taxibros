@@ -569,8 +569,7 @@ function createDeleteRowButton() {
 }
 
 function addRow() {
-  var length = itineraryTable.rows.length
-  var row = itineraryTable.insertRow(length);
+  var row = itineraryTable.getElementsByTagName('tbody')[0].insertRow(-1);
   var pickupLocationCell = row.insertCell(0);
   var pickupTimeCell = row.insertCell(1);
   var arrivalLocationCell = row.insertCell(2);
@@ -602,7 +601,7 @@ function addRow() {
 }
 
 function deleteRow(){
-  $(this).closest ('tr').remove();
+  $(this).closest('tr').remove();
   resort();
 }
 
@@ -624,7 +623,9 @@ $(document).ready(function() {
 
   $('#itineraryTable').tablesorter({
     widthFixed: true,
-    widgets: ['zebra'],
+    widgets: [
+      'zebra',
+    ],
   }).tablesorterPager({
       container: $("#pager"),
   });
