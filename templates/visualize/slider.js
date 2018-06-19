@@ -9,7 +9,9 @@ $('#genHeatmapIntensity').slider({
   formatter: function(value) {
     return value;
   }
-}).on('{{ SLIDE_EVENT }}', genHeatmapIntensitySliderChange);
+}).on('{{ SLIDE_EVENT }}', function(e) {
+  genHeatmapIntensitySliderChange(genSliderValue(e))
+});
 
 $('#datetimepicker').datetimepicker({
   date: date
@@ -64,8 +66,9 @@ function dateToMinutes(d) {
 }
 
 function genSliderValue(e) {
-
-  // Extract value from slider event.
+  /**
+   * Extract value from slider event.
+   */
   var value = e.value;
   if (value.hasOwnProperty('newValue')) {
     value = value.newValue;
