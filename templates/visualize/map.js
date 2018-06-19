@@ -534,7 +534,7 @@ function initAutocomplete(input, cell) {
       // Create list element.
       var place = places[0];
       genLoc(place.geometry.location, 500, 0); // genLoc in 500 meters, current time
-      cell.children[1].innerText = place.name;
+      cell.children[0].innerText = place.name;
       resort();
     }
   });
@@ -547,32 +547,31 @@ function createPacInput(cell) {
   input.setAttribute('type', 'text');
   input.setAttribute('placeholder', 'Search Google Maps');
   initAutocomplete(input, cell);
+  cell.appendChild(input);
   pacInputCount++;
-  return input;
 }
 
-function createDatetimepicker() {
+function createDatetimepicker(cell) {
   var input = document.createElement('input');
   input.setAttribute('type', 'text');
   input.setAttribute('class', 'form-control td-height');
   input.setAttribute('id', 'datetimepicker' + datetimepickerCount);
+  input.setAttribute('placeholder', 'Pick a date');
+  cell.appendChild(input);
+  $('#datetimepicker' + datetimepickerCount).datetimepicker(
+  ).on('dp.hide', function(e) {
+    cell.children[0].innerText = dateToMinutes(e.date);
+    resort();
+  });
   datetimepickerCount++;
-  return input;
 }
 
-function createHiddenText(id) {
-  var span = document.createElement('span');
-  span.setAttribute('class', 'hide');
-  span.setAttribute('id', id);
-  return span;
-}
-
-function createDeleteRowButton() {
+function createDeleteRowButton(cell) {
   var input = document.createElement('input');
   input.setAttribute('type', 'button');
   input.setAttribute('class', 'deleteRow td-height');
   input.setAttribute('value', 'Delete');
-  return input;
+  cell.appendChild(input);
 }
 
 function addRow() {
@@ -582,28 +581,12 @@ function addRow() {
   var arrivalLocationCell = row.insertCell(2);
   var arrivalTimeCell = row.insertCell(3);
   var deleteRowButtonCell = row.insertCell(4);
-  pickupLocationCell.appendChild(createPacInput(pickupLocationCell));
-  pickupTimeCell.appendChild(createDatetimepicker());
-  pickupLocationCell.appendChild(createHiddenText(pacInputCount-1));
-  pickupTimeCell.appendChild(createHiddenText(datetimepickerCount-1));
 
-  $('#datetimepicker' + (datetimepickerCount-1)).datetimepicker(
-  ).on('dp.hide', function(e) {
-    pickupTimeCell.children[1].innerText = e.date;
-    resort();
-  });
-
-  arrivalLocationCell.appendChild(createPacInput(arrivalLocationCell));
-  arrivalTimeCell.appendChild(createDatetimepicker());
-  arrivalLocationCell.appendChild(createHiddenText(pacInputCount-1));
-  arrivalTimeCell.appendChild(createHiddenText(datetimepickerCount-1));
-
-  $('#datetimepicker' + (datetimepickerCount-1)).datetimepicker(
-  ).on('dp.hide', function(e) {
-    arrivalTimeCell.children[1].innerText = e.date;
-    resort();
-  });
-  deleteRowButtonCell.appendChild(createDeleteRowButton());
+  createPacInput(pickupLocationCell);
+  createDatetimepicker(pickupTimeCell);
+  createPacInput(arrivalLocationCell);
+  createDatetimepicker(arrivalTimeCell);
+  createDeleteRowButton(deleteRowButtonCell);
   resort();
 }
 
@@ -627,6 +610,7 @@ function resort() {
 $(document).ready(function() {
   $('#addRow').on('click', addRow);
   $('#itineraryTable').on('click', '.deleteRow', deleteRow);
+  addRow();
 
   $('#itineraryTable').tablesorter({
     widthFixed: true,
