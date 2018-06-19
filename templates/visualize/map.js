@@ -598,6 +598,12 @@ function addRow() {
     resort();
   });
   deleteRowButtonCell.appendChild(createDeleteRowButton());
+  resort();
+}
+
+function deleteRow(){
+  $(this).closest ('tr').remove();
+  resort();
 }
 
 function removeStats() {
@@ -609,15 +615,12 @@ function appearStats() {
 }
 
 function resort() {
-  $('#itineraryTable').trigger('update', true);
+  $('#itineraryTable').trigger('update');
 }
 
 $(document).ready(function() {
   $('#addRow').on('click', addRow);
-
-  $('#itineraryTable').on('click', '.deleteRow', function(){
-    $(this).closest ('tr').remove();
-  });
+  $('#itineraryTable').on('click', '.deleteRow', deleteRow);
 
   $('#itineraryTable').tablesorter({
     widthFixed: true,

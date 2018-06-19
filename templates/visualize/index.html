@@ -64,8 +64,8 @@
 
     <!-- Itinerary table (top left)-->
     <div id = "container-itinerary">
+        <input type="button" id="addRow" value="Add new row">
         <table id="itineraryTable" class="tablesorter">
-            <input type="button" id="addRow" value="Add new row">
             <thead>
                 <tr>
                     <th>Pickup Location</th>
@@ -86,16 +86,16 @@
         </table>
         <div id="pager" class="pager">
           <form>
-            <img src="../addons/pager/icons/first.png" class="first"/>
-            <img src="../addons/pager/icons/prev.png" class="prev"/>
+            <img src="http://tablesorter.com/addons/pager/icons/first.png" class="first"/>
+            <img src="http://tablesorter.com/addons/pager/icons/prev.png" class="prev"/>
             <input type="text" class="pagedisplay"/>
-            <img src="../addons/pager/icons/next.png" class="next"/>
-            <img src="../addons/pager/icons/last.png" class="last"/>
+            <img src="http://tablesorter.com/addons/pager/icons/next.png" class="next"/>
+            <img src="http://tablesorter.com/addons/pager/icons/last.png" class="last"/>
             <select class="pagesize">
-              <option selected="selected"  value="10">10</option>
+              <option selected="selected" value="5">5</option>
+              <option value="10">10</option>
+              <option value="10">15</option>
               <option value="20">20</option>
-              <option value="30">30</option>
-              <option  value="40">40</option>
             </select>
           </form>
         </div>
