@@ -10,6 +10,7 @@ var polylineArray;
 var walkpath;
 var pacInputCount = 0, datetimepickerCount = 0;
 var locationEnabled = false, curLocation;
+var locationCircle = null; // google maps Circle
 
 function initMap() {
   map = new google.maps.Map(document.getElementById('map'), {
@@ -248,8 +249,14 @@ function genLoc(pos, radius, minutes) {
           $('#path-dist').html(path_dist + "m");
       }
 
-      //Draw circle
-      var circle = new google.maps.Circle({
+      // Delete locationCircle if not null
+      if (locationCircle) {
+        locationCircle.setMap(null);
+        locationCircle = null;
+      }
+
+      // Draw locationCircle
+      locationCircle = new google.maps.Circle({
         strokeColor: '#FF7F50',
         strokeOpacity: 0.2,
         strokeWeight: 2,
