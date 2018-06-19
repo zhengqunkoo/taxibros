@@ -10,10 +10,6 @@ var polylineArray;
 var walkpath;
 var pacInputCount = 0, datetimepickerCount = 0;
 var locationEnabled = false, curLocation;
-/**
- * Testing if dynamic adding text works.
- */
-var one=100, two=200, three=300, four=400, five=500;
 
 function initMap() {
   map = new google.maps.Map(document.getElementById('map'), {
@@ -467,7 +463,7 @@ function decode(encoded){
   }
 }
 
-function initAutocomplete(input) {
+function initAutocomplete(input, cell) {
   // Create the search box and link it to the UI element.
   var searchBox = new google.maps.places.SearchBox(input);
 
@@ -531,17 +527,19 @@ function initAutocomplete(input) {
       // Create list element.
       var place = places[0];
       genLoc(place.geometry.location, 500, 0); // genLoc in 500 meters, current time
+      cell.children[1].innerText = place.name;
+      resort();
     }
   });
 }
 
-function createPacInput() {
+function createPacInput(cell) {
   var input = document.createElement('input');
   input.setAttribute('id', 'pac-input' + pacInputCount);
   input.setAttribute('class', 'controls');
   input.setAttribute('type', 'text');
   input.setAttribute('placeholder', 'Search Google Maps');
-  initAutocomplete(input);
+  initAutocomplete(input, cell);
   pacInputCount++;
   return input;
 }
@@ -553,6 +551,13 @@ function createDatetimepicker() {
   input.setAttribute('id', 'datetimepicker' + datetimepickerCount);
   datetimepickerCount++;
   return input;
+}
+
+function createHiddenText(id) {
+  var span = document.createElement('span');
+  span.setAttribute('class', 'hide');
+  span.setAttribute('id', id);
+  return span;
 }
 
 function createDeleteRowButton() {
@@ -571,20 +576,25 @@ function addRow() {
   var arrivalLocationCell = row.insertCell(2);
   var arrivalTimeCell = row.insertCell(3);
   var deleteRowButtonCell = row.insertCell(4);
-  pickupLocationCell.appendChild(createPacInput());
+  pickupLocationCell.appendChild(createPacInput(pickupLocationCell));
   pickupTimeCell.appendChild(createDatetimepicker());
-  arrivalLocationCell.appendChild(createPacInput());
-  arrivalTimeCell.appendChild(createDatetimepicker());
-  $('#datetimepicker' + (datetimepickerCount-2)).datetimepicker(
-  ).on('dp.hide', function(e) {
-    console.log(e.date);
-    pickupTimeCell.innerText = e.date;
-    resort();
-  });
+  pickupLocationCell.appendChild(createHiddenText(pacInputCount-1));
+  pickupTimeCell.appendChild(createHiddenText(datetimepickerCount-1));
+
   $('#datetimepicker' + (datetimepickerCount-1)).datetimepicker(
   ).on('dp.hide', function(e) {
-    console.log(e.date);
-    arrivalTimeCell.innerText = e.date;
+    pickupTimeCell.children[1].innerText = e.date;
+    resort();
+  });
+
+  arrivalLocationCell.appendChild(createPacInput(arrivalLocationCell));
+  arrivalTimeCell.appendChild(createDatetimepicker());
+  arrivalLocationCell.appendChild(createHiddenText(pacInputCount-1));
+  arrivalTimeCell.appendChild(createHiddenText(datetimepickerCount-1));
+
+  $('#datetimepicker' + (datetimepickerCount-1)).datetimepicker(
+  ).on('dp.hide', function(e) {
+    arrivalTimeCell.children[1].innerText = e.date;
     resort();
   });
   deleteRowButtonCell.appendChild(createDeleteRowButton());
@@ -596,44 +606,18 @@ function removeStats() {
 }
 function appearStats() {
   $('#container-stats').stop().animate({right: "0%"},400);
-
-}
-
-function addRowContent() {
-  /**
-   * Debugging function to add text to table.
-   * Testing if dynamic adding text works.
-   */
-  var length = itineraryTable.rows.length
-  var row = itineraryTable.insertRow(length);
-  var pickupLocationCell = row.insertCell(0);
-  var pickupTimeCell = row.insertCell(1);
-  var arrivalLocationCell = row.insertCell(2);
-  var arrivalTimeCell = row.insertCell(3);
-  var deleteRowButtonCell = row.insertCell(4);
-  pickupLocationCell.innerText = one;
-  pickupTimeCell.innerText = two;
-  arrivalLocationCell.innerText = three;
-  arrivalTimeCell.innerText = four;
-  deleteRowButtonCell.appendChild(createDeleteRowButton());
-  resort();
-  one++; two++; three++; four++;
 }
 
 function resort() {
-  var callback = function(table) { alert('new sort'); };
-  $('#itineraryTable').trigger('update', [true, callback]);
+  $('#itineraryTable').trigger('update', true);
 }
 
 $(document).ready(function() {
   $('#addRow').on('click', addRow);
-  addRowContent();
-  addRowContent();
 
   $('#itineraryTable').on('click', '.deleteRow', function(){
     $(this).closest ('tr').remove();
   });
-  addRow();
 
   $('#itineraryTable').tablesorter({
     })
