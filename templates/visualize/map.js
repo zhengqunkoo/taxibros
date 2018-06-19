@@ -606,6 +606,8 @@ function addRowContent() {
   arrivalLocationCell.innerText = three;
   arrivalTimeCell.innerText = four;
   deleteRowButtonCell.appendChild(createDeleteRowButton());
+  var callback = function(table) { alert('new sort'); };
+  $('#itineraryTable').trigger('update', [true, callback]);
   one++; two++; three++; four++;
 }
 
