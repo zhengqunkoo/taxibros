@@ -575,8 +575,18 @@ function addRow() {
   pickupTimeCell.appendChild(createDatetimepicker());
   arrivalLocationCell.appendChild(createPacInput());
   arrivalTimeCell.appendChild(createDatetimepicker());
-  $('#datetimepicker' + (datetimepickerCount-1)).datetimepicker();
-  $('#datetimepicker' + (datetimepickerCount-2)).datetimepicker();
+  $('#datetimepicker' + (datetimepickerCount-2)).datetimepicker(
+  ).on('dp.hide', function(e) {
+    console.log(e.date);
+    pickupTimeCell.innerText = e.date;
+    resort();
+  });
+  $('#datetimepicker' + (datetimepickerCount-1)).datetimepicker(
+  ).on('dp.hide', function(e) {
+    console.log(e.date);
+    arrivalTimeCell.innerText = e.date;
+    resort();
+  });
   deleteRowButtonCell.appendChild(createDeleteRowButton());
 }
 
@@ -606,13 +616,17 @@ function addRowContent() {
   arrivalLocationCell.innerText = three;
   arrivalTimeCell.innerText = four;
   deleteRowButtonCell.appendChild(createDeleteRowButton());
-  var callback = function(table) { alert('new sort'); };
-  $('#itineraryTable').trigger('update', [true, callback]);
+  resort();
   one++; two++; three++; four++;
 }
 
+function resort() {
+  var callback = function(table) { alert('new sort'); };
+  $('#itineraryTable').trigger('update', [true, callback]);
+}
+
 $(document).ready(function() {
-  $('#addRow').on('click', addRowContent);
+  $('#addRow').on('click', addRow);
   addRowContent();
   addRowContent();
 
