@@ -533,6 +533,7 @@ function initAutocomplete(input, cell) {
       var place = places[0];
       genLoc(place.geometry.location, 500, 0); // genLoc in 500 meters, current time
       cell.children[0].innerText = place.name;
+      input.value = place.name;
       resort();
     }
   });
@@ -597,6 +598,7 @@ function removeStats() {
     //Function for container stats to disappear to the side
   $('#container-stats').stop().animate({right: "-50%"},1200);
 }
+
 function appearStats() {
   $('#container-stats').stop().animate({right: "0%"},400);
 }
