@@ -10,9 +10,14 @@ var polylineArray;
 var walkpath;
 var pacInputCount = 0, datetimepickerCount = 0;
 var locationEnabled = false, curLocation;
+var directionService;
+var directionsDisplay;
+
 
 function initMap() {
-  map = new google.maps.Map(document.getElementById('map'), {
+    directionsService = new google.maps.DirectionsService();
+    directionsDisplay = new google.maps.DirectionsRenderer();
+    map = new google.maps.Map(document.getElementById('map'), {
     zoom: 12,
     center: new google.maps.LatLng(1.3521, 103.8198),
     mapTypeId: 'roadmap',
@@ -146,6 +151,7 @@ function initMap() {
       strokeWeight:2
   });
   walkpath.setMap(map);
+  directionsDisplay.setMap(map);
 
   drawChart();
 
@@ -581,9 +587,47 @@ function removeStats() {
   $('#container-stats').stop().animate({right: "-50%"},1200);
 }
 function appearStats() {
+    //Function for container stats to appear on RHS of screen
   $('#container-stats').stop().animate({right: "0%"},400);
+}
+
+function calcRoute(start_lat, start_lng, end_lat, end_lng) {
+    var request = {
+        origin: new google.maps.LatLng(start_lat,start_lng),
+        destination: new google.maps.LatLng(end_lat,end_lng),
+        travelMode: 'DRIVING',
+        drivingOptions: {
+            departureTime: new Date(Date.now()),  // for the time N milliseconds from now.
+            trafficModel: 'bestguess'
+        }
+    };
+    directionsService.route(request, function(result, status) {
+    if (status == 'OK') {
+        debugger;
+        var display_duration = null;
+        var duration = null;
+        directionsDisplay.setDirections(result);
+        if (result.routes[0].legs[0].hasOwnProperty("duration_in_traffic")) {
+            display_duration = result.routes[0].legs[0].duration_in_traffic["text"]
+            duration = result.routes[0].legs[0].duration_in_traffic["value"];
+            var raw_duration = result.routes[0].legs[0].duration["value"];
+            var waiting_duration = duration - raw_duration;
+            computeTime(duration, display_duration);
+            calcCost(waiting_duration);
+        } else {
+            display_duration = result.routes[0].legs[0].duration["text"]
+            duration = result.routes[0].legs[0].duration["value"];
+            computeTime(duration, display_duration);
+            calcCost(0);
+        }
+    }
+  });
+}
+
+function computeTime(duration, display_duration) {
 
 }
+
 
 
 $(document).ready(function() {
