@@ -267,8 +267,7 @@ function genLoc(pos, radius, minutes) {
         radius: radius,
       });
 
-
-
+      appearStats();
       infoWindow.setPosition(best_road_coords);
       infoWindow.setContent('Better location');
 
@@ -293,7 +292,6 @@ function showNearby() {
       infoWindow.setContent('Location found.');
       infoWindow.open(map);
       genLoc(pos, 500, 0); // genLoc in 500 meters, current time
-      appearStats();
     }, function() {
       handleLocationError(true, infoWindow, map.getCenter());
     });
