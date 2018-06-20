@@ -466,7 +466,7 @@ function decode(encoded){
   }
 }
 
-function initAutocomplete(input, cell) {
+function initAutocomplete(input) {
   // Create the search box and link it to the UI element.
   var searchBox = new google.maps.places.SearchBox(input);
 
@@ -587,7 +587,7 @@ function createDeleteRowButton(cell) {
   cell.appendChild(input);
 }
 
-function addRow() {
+function addRow(pickupLocationInnerText, pickupTimeInnerText, arrivalLocationInnerText, arrivalTimeInnerText) {
   var row = itineraryTable.getElementsByTagName('tbody')[0].insertRow(-1);
   var pickupLocationCell = row.insertCell(0);
   var pickupTimeCell = row.insertCell(1);
@@ -595,10 +595,10 @@ function addRow() {
   var arrivalTimeCell = row.insertCell(3);
   var deleteRowButtonCell = row.insertCell(4);
 
-  createPacInput(pickupLocationCell);
-  createDatetimepicker(pickupTimeCell);
-  createPacInput(arrivalLocationCell);
-  createDatetimepicker(arrivalTimeCell);
+  createPacInput(pickupLocationCell, pickupLocationInnerText);
+  createDatetimepicker(pickupTimeCell, pickupTimeInnerText);
+  createPacInput(arrivalLocationCell, arrivalLocationInnerText);
+  createDatetimepicker(arrivalTimeCell, arrivalTimeInnerText);
   createDeleteRowButton(deleteRowButtonCell);
   updateTable();
 }
@@ -622,7 +622,7 @@ function updateTable() {
   $('#itineraryTable').tableExport().update({
     headings: true,
     footers: true,
-    formats: ['xls', 'csv', 'txt'],
+    formats: ['csv'],
     filename: 'taxibros',
     bootstrap: true,
     position: "bottom",
