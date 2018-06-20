@@ -694,14 +694,6 @@ $(document).ready(function() {
     widgets: [
       'zebra',
     ],
-    headers: {
-      1: {
-        sorter: 'digit',
-      },
-      3: {
-        sorter: 'digit',
-      },
-    },
   }).tablesorterPager({
       container: $("#pager"),
   });
