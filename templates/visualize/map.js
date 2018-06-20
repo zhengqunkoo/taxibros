@@ -463,12 +463,7 @@ function decode(encoded, walkpathId){
    polylineArray.push(new google.maps.LatLng(( lat / 1E5),( lng / 1E5)));
   }
 
-  // If walkpathId exists, unset path.
-  if (walkpathId in walkpaths) {
-    var walkpathOld = walkpaths[walkpathId];
-    walkpathOld.setMap(null);
-    walkpathOld = null;
-  }
+  unsetWalkpath(walkpathId);
 
   var walkpath = new google.maps.Polyline({
     path: polylineArray,
@@ -483,7 +478,7 @@ function decode(encoded, walkpathId){
   console.log(walkpaths);
 }
 
-function initAutocomplete(input) {
+function initAutocomplete(input, deleteCell) {
   // Create the search box and link it to the UI element.
   var searchBox = new google.maps.places.SearchBox(input);
 
@@ -547,6 +542,7 @@ function initAutocomplete(input) {
       // Create list element.
       var place = places[0];
       genLoc(place.geometry.location, 500, 0, input.getAttribute('id')); // genLoc in 500 meters, current time
+      deleteCell.getElementsByTagName('span')[0].innerText = input.getAttribute('id');
       input.innerText = place.name;
       input.value = place.name;
       updateTable();
@@ -554,7 +550,7 @@ function initAutocomplete(input) {
   });
 }
 
-function createPacInput(cell, innerText) {
+function createPacInput(cell, deleteCell, innerText) {
   var input = document.createElement('input');
   input.setAttribute('id', 'pac-input' + pacInputCount);
   input.setAttribute('class', 'controls td-height');
@@ -565,7 +561,7 @@ function createPacInput(cell, innerText) {
     input.value = innerText;
     input.innerText = innerText;
   }
-  initAutocomplete(input);
+  initAutocomplete(input, deleteCell);
   pacInputCount++;
 }
 
@@ -596,12 +592,19 @@ function createDatetimepicker(cell, innerText) {
   datetimepickerCount++;
 }
 
+function createHiddenText() {
+  var span = document.createElement('span');
+  span.setAttribute('class', 'hide');
+  return span;
+}
+
 function createDeleteRowButton(cell) {
   var input = document.createElement('input');
   input.setAttribute('type', 'button');
   input.setAttribute('class', 'deleteRow td-height');
   input.setAttribute('value', 'Delete');
   cell.appendChild(input);
+  cell.appendChild(createHiddenText());
 }
 
 function addRow(pickupLocationInnerText, pickupTimeInnerText, arrivalLocationInnerText, arrivalTimeInnerText) {
@@ -612,16 +615,18 @@ function addRow(pickupLocationInnerText, pickupTimeInnerText, arrivalLocationInn
   var arrivalTimeCell = row.insertCell(3);
   var deleteRowButtonCell = row.insertCell(4);
 
-  createPacInput(pickupLocationCell, pickupLocationInnerText);
-  createDatetimepicker(pickupTimeCell, pickupTimeInnerText);
-  createPacInput(arrivalLocationCell, arrivalLocationInnerText);
-  createDatetimepicker(arrivalTimeCell, arrivalTimeInnerText);
   createDeleteRowButton(deleteRowButtonCell);
+  createPacInput(pickupLocationCell, deleteRowButtonCell, pickupLocationInnerText);
+  createDatetimepicker(pickupTimeCell, pickupTimeInnerText);
+  createPacInput(arrivalLocationCell, deleteRowButtonCell, arrivalLocationInnerText);
+  createDatetimepicker(arrivalTimeCell, arrivalTimeInnerText);
   updateTable();
 }
 
 function deleteRow(){
-  $(this).closest('tr').remove();
+  var tr = $(this).closest('tr');
+  unsetWalkpath(tr.find('.hide')[0].innerText);
+  tr.remove();
   updateTable();
 }
 
@@ -665,6 +670,15 @@ function importToItineraryTable(data) {
     addRow.apply(null, row)
   );
   updateTable();
+}
+
+function unsetWalkpath(walkpathId) {
+  // If walkpathId exists, unset path.
+  if (walkpathId in walkpaths) {
+    var walkpathOld = walkpaths[walkpathId];
+    walkpathOld.setMap(null);
+    walkpathOld = null;
+  }
 }
 
 $(document).ready(function() {

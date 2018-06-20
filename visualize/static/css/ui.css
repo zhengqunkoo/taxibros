@@ -132,3 +132,8 @@ background: rgba(155,155,155,0.3);
 input[type="file"] {
   display: none;
 }
+
+.hide {
+  visibility: hidden;
+  display: none;
+}
