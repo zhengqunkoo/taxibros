@@ -6,9 +6,10 @@
 // locate you.
 var map, heatmap, infoWindow;
 var pointArray, intensityArray;
-var pickups = {};
+var pickups = {}, pickupIdLatest = 0;
 var pacInputCount = 0, datetimepickerCount = 0;
-var locationEnabled = false, walkpathIdLatest, curLocation;
+var locationEnabled = false, curLocation; // curLocation is defined when locationEnabled.
+var locationRadius = 500, locationMinutes = 0;
 
 function initMap() {
   map = new google.maps.Map(document.getElementById('map'), {
@@ -185,7 +186,7 @@ function genLoc(pos, radius, minutes, pickupId) {
 
   // Set global location variables.
   locationEnabled = true;
-  walkpathIdLatest = pickupId
+  pickupIdLatest = pickupId
   curLocation = pos;
 
   map.setCenter(pos);
@@ -263,20 +264,12 @@ function genLoc(pos, radius, minutes, pickupId) {
 
       // Push rest of points from associative array.
       for (var key in pickups) {
-        if (key == pickupId) {
-          console.log('new', key);
+        if (key != pickupId) {
           pickups[key][2].forEach(latlng => {
-            console.log('new', latlng.lat(), latlng.lng());
-          });
-        } else {
-          console.log('old', key);
-          pickups[key][2].forEach(latlng => {
-            console.log('old', latlng.lat(), latlng.lng());
             pointArray.push(latlng);
           });
         }
       }
-      console.log(pickups);
     },
     error: function(rs, e) {
       console.log("Failed to reach {% url 'visualize:genLoc' %}.");
@@ -296,7 +289,7 @@ function showNearby() {
       infoWindow.setPosition(pos);
       infoWindow.setContent('Location found.');
       infoWindow.open(map);
-      genLoc(pos, 500, 0, 'showNearby'); // genLoc in 500 meters, current time
+      genLoc(pos, locationRadius, locationMinutes, 'showNearby');
     }, function() {
       handleLocationError(true, infoWindow, map.getCenter());
     });
@@ -331,13 +324,14 @@ function genSliderCallback(minutes, url, successCallback) {
 }
 
 function genTimeSliderChange(minutes) {
+  locationMinutes = minutes;
   if (locationEnabled) {
     // genTimeSliderChange should not have own pickupId.
     // If locationEnabled, then genLoc was called outside genTimeSliderChange.
     // genTimeSliderChange then changes time in context of this location.
     // So, path of location should change as well.
     // Replace old path with path at new time.
-    genLoc(curLocation, 500, minutes, walkpathIdLatest);
+    genLoc(curLocation, locationRadius, locationMinutes, pickupIdLatest);
   } else {
     genSliderCallback(minutes, "{% url 'visualize:genTime' %}", function(data) {
       pointArray.clear();
@@ -345,6 +339,13 @@ function genTimeSliderChange(minutes) {
         pointArray.push(new google.maps.LatLng(coord[0], coord[1]));
       });
     });
+  }
+}
+
+function genLocationRadiusSliderChange(radius) {
+  locationRadius = radius;
+  if (locationEnabled) {
+    genLoc(curLocation, locationRadius, locationMinutes, pickupIdLatest);
   }
 }
 
@@ -558,7 +559,7 @@ function initAutocomplete(input, isCallGenLoc) {
       // Create list element.
       var place = places[0];
       if (isCallGenLoc) {
-        genLoc(place.geometry.location, 500, 0, input.getAttribute('id')); // genLoc in 500 meters, current time
+        genLoc(place.geometry.location, locationRadius, locationMinutes, input.getAttribute('id'));
       }
       input.innerText = place.name;
       input.value = place.name;

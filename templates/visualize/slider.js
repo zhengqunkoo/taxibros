@@ -13,6 +13,14 @@ $('#genHeatmapIntensity').slider({
   genHeatmapIntensitySliderChange(genSliderValue(e))
 });
 
+$('#genLocationRadius').slider({
+  formatter: function(value) {
+    return value;
+  }
+}).on('{{ SLIDE_EVENT }}', function(e) {
+  genLocationRadiusSliderChange(genSliderValue(e))
+});
+
 $('#datetimepicker').datetimepicker({
   format: 'YYYY/MM/DD HH:mm:ss',
   date: date
