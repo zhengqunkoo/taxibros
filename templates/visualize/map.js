@@ -240,6 +240,8 @@ function genLoc(pos, radius, minutes, pickupId) {
 
       $('#walkpathGeom' + pickupId).html(path_geom);
       $('#walkpathInstructions' + pickupId).html(path_instructions);
+      $('#pickupLatLng' + pickupId).html(pos.lat() + ';' + pos.lng());
+      $('#pickupTaxiCoords' + pickupId).html(coordinates);
       var walkpath = decode(path_geom, pickupId);
 
       // Draw locationCircle
@@ -629,7 +631,7 @@ function createDeleteRowButton(cell, innerText) {
   cell.appendChild(createHiddenText('', innerText));
 }
 
-function addRow(pickupLocationInnerText, pickupTimeInnerText, arrivalLocationInnerText, arrivalTimeInnerText, walkpathGeomInnerText, walkpathInstructionsInnerText) {
+function addRow(pickupLocationInnerText, pickupTimeInnerText, arrivalLocationInnerText, arrivalTimeInnerText, walkpathGeomInnerText, walkpathInstructionsInnerText, pickupLatLngInnerText, pickupTaxiCoordsInnerText) {
   var row = itineraryTable.getElementsByTagName('tbody')[0].insertRow(-1);
   var pickupLocationCell = row.insertCell(0);
   var pickupTimeCell = row.insertCell(1);
@@ -638,10 +640,14 @@ function addRow(pickupLocationInnerText, pickupTimeInnerText, arrivalLocationInn
   var deleteRowButtonCell = row.insertCell(4);
   var walkpathGeomCell = row.insertCell(5);
   var walkpathInstructionsCell = row.insertCell(6);
+  var pickupLatLngCell = row.insertCell(7);
+  var pickupTaxiCoordsCell = row.insertCell(8);
 
   createDeleteRowButton(deleteRowButtonCell, '#pac-input' + pacInputCount);
   walkpathGeomCell.appendChild(createHiddenText('walkpathGeompac-input' + pacInputCount, walkpathGeomInnerText));
   walkpathInstructionsCell.appendChild(createHiddenText('walkpathInstructionspac-input' + pacInputCount, walkpathInstructionsInnerText));
+  pickupLatLngCell.appendChild(createHiddenText('pickupLatLngpac-input' + pacInputCount, pickupLatLngInnerText));
+  pickupTaxiCoordsCell.appendChild(createHiddenText('pickupTaxiCoordspac-input' + pacInputCount, pickupTaxiCoordsInnerText));
 
   createPacInput(pickupLocationCell, true, pickupLocationInnerText);
   createDatetimepicker(pickupTimeCell, pickupTimeInnerText);
