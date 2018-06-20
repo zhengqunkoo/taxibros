@@ -128,3 +128,7 @@ background: rgba(155,155,155,0.3);
 .td-height {
   height: 20px;
 }
+
+input[type="file"] {
+  display: none;
+}

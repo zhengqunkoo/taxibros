@@ -631,8 +631,28 @@ function updateTable() {
   });
 }
 
+function importFromCsvChange(e) {
+  Papa.parse(e.target.files[0], {
+    error: function(err, file, inputElem, reason) {
+      alert('Papaparse ' + err + reason);
+    },
+    complete: function(e) {
+      importToItineraryTable(e.data);
+    }
+  });
+}
+
+function importToItineraryTable(data) {
+  $("#itineraryTable > tbody").empty();
+  data.slice(1).forEach(row =>
+    addRow.apply(null, row)
+  );
+  updateTable();
+}
+
 $(document).ready(function() {
   $('#addRow').on('click', addRow);
+  $('#importFromCsv').on('change', importFromCsvChange);
   $('#itineraryTable').on('click', '.deleteRow', deleteRow);
   addRow();
 

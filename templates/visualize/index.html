@@ -13,6 +13,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.13.0/xlsx.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/1.3.8/FileSaver.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/TableExport/5.0.2/js/tableexport.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/4.5.0/papaparse.min.js"></script>
 <link rel="stylesheet" href="{% static 'css/ui.css' %}">
 <link rel="stylesheet" href="{% static 'css/map.css' %}">
 <script>
@@ -84,6 +85,8 @@
           <tbody></tbody>
         </table>
       </div>
+      <label for="importFromCsv" class="btn btn-default csv">Import from csv</label>
+      <input id="importFromCsv" type="file"/>
       <div id="pager" class="pager">
         <form>
           <img src="http://tablesorter.com/addons/pager/icons/first.png" class="first"/>
