@@ -17,8 +17,10 @@ $('#genLocationRadius').slider({
   formatter: function(value) {
     return value;
   }
-}).on('{{ SLIDE_EVENT }}', function(e) {
+}).on('change', function(e) {
   genLocationRadiusSliderChange(genSliderValue(e))
+}).on('slideStop', function(e) {
+  genLocationRadiusSliderStop(genSliderValue(e))
 });
 
 $('#datetimepicker').datetimepicker({

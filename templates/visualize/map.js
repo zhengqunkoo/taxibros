@@ -8,7 +8,7 @@ var map, heatmap, infoWindow;
 var pointArray, intensityArray;
 var pickups = {}, pickupIdLatest = 0;
 var pacInputCount = 0, datetimepickerCount = 0;
-var locationEnabled = false, curLocation; // curLocation is defined when locationEnabled.
+var locationEnabled = false, curLocation, curLocationCircle; // curLocation is defined when locationEnabled.
 var locationRadius = 500, locationMinutes = 0;
 
 function initMap() {
@@ -243,20 +243,7 @@ function genLoc(pos, radius, minutes, pickupId) {
       $('#pickupTaxiCoords' + pickupId).html(coordinates);
       var walkpath = decode(path_geom, pickupId);
 
-      // Draw locationCircle
-      var locationCircle = new google.maps.Circle({
-        strokeColor: '#FF7F50',
-        strokeOpacity: 0.2,
-        strokeWeight: 2,
-        fillColor: '#FF7F50',
-        fillOpacity: 0.05,
-        map: map,
-        center: pos,
-        radius: radius,
-      });
-
-      // Show entire locationCircle.
-      map.fitBounds(locationCircle.getBounds());
+      var locationCircle = updateLocationCircle(pos, radius, true);
 
       // Push into pointArray and save in associative array.
       var pickupPointArray = new google.maps.MVCArray();
@@ -265,6 +252,10 @@ function genLoc(pos, radius, minutes, pickupId) {
         pointArray.push(new google.maps.LatLng(coord[0], coord[1]));
       });
       pickups[pickupId] = [walkpath, locationCircle, pickupPointArray];
+
+      // TODO this is costly when many old pickups.
+      // maybe invert? one global pointArray bound to hashmap: key latlng, value pickupId.
+      // on change / delete pickupId, remove from hashmap and thus from pointArray.
 
       // Push rest of points from associative array.
       for (var key in pickups) {
@@ -279,6 +270,41 @@ function genLoc(pos, radius, minutes, pickupId) {
       console.log("Failed to reach {% url 'visualize:genLoc' %}.");
     }
   });
+}
+
+function updateLocationCircle(pos, radius, isReturn) {
+  if (curLocationCircle === undefined || curLocationCircle.getCenter() != pos) {
+    // If undefined or position changed.
+    curLocationCircle = new google.maps.Circle({
+      strokeColor: '#FF7F50',
+      strokeOpacity: 0.2,
+      strokeWeight: 2,
+      fillColor: '#FF7F50',
+      fillOpacity: 0.05,
+      map: map,
+      center: pos,
+      radius: radius,
+    });
+  } else {
+    curLocationCircle.setRadius(radius);
+  }
+
+  // Show entire locationCircle.
+  map.fitBounds(curLocationCircle.getBounds());
+
+  if (isReturn) {
+    locationCircle = new google.maps.Circle({
+      strokeColor: '#FF7F50',
+      strokeOpacity: 0.2,
+      strokeWeight: 2,
+      fillColor: '#FF7F50',
+      fillOpacity: 0.05,
+      map: map,
+      center: pos,
+      radius: radius,
+    });
+    return locationCircle;
+  }
 }
 
 function showNearby() {
@@ -349,9 +375,17 @@ function genTimeSliderChange(minutes) {
 function genLocationRadiusSliderChange(radius) {
   locationRadius = radius;
   if (locationEnabled) {
+    updateLocationCircle(curLocation, locationRadius, false);
+  }
+}
+
+function genLocationRadiusSliderStop(radius) {
+  locationRadius = radius;
+  if (locationEnabled) {
     genLoc(curLocation, locationRadius, locationMinutes, pickupIdLatest);
   }
 }
+
 
 function genHeatmapSliderChange(minutes) {
   genSliderCallback(minutes, "{% url 'visualize:genHeatmap' %}", function(data) {
@@ -714,12 +748,15 @@ function unsetPickup(pickupId) {
     var walkpath = pickup[0];
     var locationCircle = pickup[1];
     var pointArray = pickup[2];
-    walkpath.setMap(null);
-    walkpath = null;
-    locationCircle.setMap(null);
-    locationCircle = null;
+    unsetMapObj(walkpath);
+    unsetMapObj(locationCircle);
     pointArray.clear();
   }
+}
+
+function unsetMapObj(obj) {
+  obj.setMap(null);
+  obj = null;
 }
 
 $(document).ready(function() {
