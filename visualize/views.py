@@ -101,6 +101,11 @@ def table_js(request):
     return render(request, "visualize/table.js")
 
 
+def chart_js(request):
+    """Render Javascript file."""
+    return render(request, "visualize/chart.js")
+
+
 def get_chart_data_js(request):
     timezone.activate(pytz.timezone(settings.TIME_ZONE))
     date_time_end = Timestamp.objects.latest("date_time").date_time

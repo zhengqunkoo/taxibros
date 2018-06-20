@@ -20,6 +20,7 @@
     //Declared global variable here so that it may be referred to by other scripts
       function initMap (){};
 </script>
+<script type="text/javascript" src="{% url 'visualize:chart' %}" ></script>
 <script type="text/javascript" src="{% url 'visualize:map' %}" ></script>
 <script defer
     src="https://maps.googleapis.com/maps/api/js?key={{ GOOGLEMAPS_SECRET_KEY }}&libraries=visualization,places&callback=initMap&region=SG"></script>
