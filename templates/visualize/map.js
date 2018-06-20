@@ -6,9 +6,9 @@
 // locate you.
 var map, heatmap, infoWindow;
 var pointArray, intensityArray;
-var polylineArrays;
+var walkpaths = {};
 var pacInputCount = 0, datetimepickerCount = 0;
-var locationEnabled = false, curLocation;
+var locationEnabled = false, walkpathIdLatest, curLocation;
 var locationCircle = null; // google maps Circle
 
 function initMap() {
@@ -137,9 +137,7 @@ function initMap() {
   infoWindow = new google.maps.InfoWindow;
   secondInfoWindow = new google.maps.InfoWindow;
 
-  polylineArrays = new google.maps.MVCArray();
   drawChart();
-
 }
 
 function toggleHeatmap() {
@@ -184,10 +182,11 @@ function getPoints() {
   ];
 }
 
-function genLoc(pos, radius, minutes) {
+function genLoc(pos, radius, minutes, walkpathId) {
 
   // Set global location variables.
   locationEnabled = true;
+  walkpathIdLatest = walkpathId
   curLocation = pos;
 
   map.setCenter(pos);
@@ -261,7 +260,7 @@ function genLoc(pos, radius, minutes) {
       infoWindow.setContent('Better location');
 
       console.log(path_instructions);
-      decode(path_geom);
+      decode(path_geom, walkpathId);
     },
     error: function(rs, e) {
       console.log("Failed to reach {% url 'visualize:genLoc' %}.");
@@ -281,7 +280,7 @@ function showNearby() {
       infoWindow.setPosition(pos);
       infoWindow.setContent('Location found.');
       infoWindow.open(map);
-      genLoc(pos, 500, 0); // genLoc in 500 meters, current time
+      genLoc(pos, 500, 0, 'showNearby'); // genLoc in 500 meters, current time
     }, function() {
       handleLocationError(true, infoWindow, map.getCenter());
     });
@@ -317,7 +316,13 @@ function genSliderCallback(minutes, url, successCallback) {
 
 function genTimeSliderChange(minutes) {
   if (locationEnabled) {
-    genLoc(curLocation, 500, minutes);
+    // genTimeSliderChange should not have own walkpathId.
+    // If locationEnabled, then genLoc was called outside genTimeSliderChange.
+    // genTimeSliderChange then changes time in context of this location.
+    // So, path of location should change as well.
+    // Replace old path with path at new time.
+    console.log(walkpathIdLatest);
+    genLoc(curLocation, 500, minutes, walkpathIdLatest);
   } else {
     genSliderCallback(minutes, "{% url 'visualize:genTime' %}", function(data) {
       pointArray.clear();
@@ -424,7 +429,7 @@ function drawChart() {
 
 }
 
-function decode(encoded){
+function decode(encoded, walkpathId){
     if (encoded == null) {
         return
     }
@@ -458,6 +463,13 @@ function decode(encoded){
    polylineArray.push(new google.maps.LatLng(( lat / 1E5),( lng / 1E5)));
   }
 
+  // If walkpathId exists, unset path.
+  if (walkpathId in walkpaths) {
+    var walkpathOld = walkpaths[walkpathId];
+    walkpathOld.setMap(null);
+    walkpathOld = null;
+  }
+
   var walkpath = new google.maps.Polyline({
     path: polylineArray,
     geodesic: true,
@@ -466,8 +478,9 @@ function decode(encoded){
     strokeWeight:2
   })
   walkpath.setMap(map);
-  polylineArrays.push(polylineArray);
-  console.log(polylineArrays);
+
+  walkpaths[walkpathId] = walkpath;
+  console.log(walkpaths);
 }
 
 function initAutocomplete(input) {
@@ -533,7 +546,7 @@ function initAutocomplete(input) {
       // Else if only one place, perform genLoc.
       // Create list element.
       var place = places[0];
-      genLoc(place.geometry.location, 500, 0); // genLoc in 500 meters, current time
+      genLoc(place.geometry.location, 500, 0, input.getAttribute('id')); // genLoc in 500 meters, current time
       input.innerText = place.name;
       input.value = place.name;
       updateTable();
