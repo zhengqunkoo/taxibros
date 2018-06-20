@@ -682,7 +682,9 @@ function unsetWalkpath(walkpathId) {
 }
 
 $(document).ready(function() {
-  $('#addRow').on('click', addRow);
+  $('#addRow').on('click', function() {
+    addRow();
+  });
   $('#itineraryTable').on('click', '.deleteRow', deleteRow);
   $('#importFromCsv').on('change', importFromCsvChange);
   TableExport.prototype.formatConfig.csv.buttonContent = 'Export';
