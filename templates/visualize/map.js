@@ -190,7 +190,6 @@ function genLoc(pos, radius, minutes, pickupId) {
   curLocation = pos;
 
   map.setCenter(pos);
-  map.setZoom(16);
 
   $.ajax({
     url: "{% url 'visualize:genLoc' %}",
@@ -255,6 +254,9 @@ function genLoc(pos, radius, minutes, pickupId) {
         center: pos,
         radius: radius,
       });
+
+      // Show entire locationCircle.
+      map.fitBounds(locationCircle.getBounds());
 
       // Push into pointArray and save in associative array.
       var pickupPointArray = new google.maps.MVCArray();
