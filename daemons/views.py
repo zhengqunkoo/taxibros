@@ -146,6 +146,7 @@ def get_coordinates_location(request):
     best_lat = None
     best_lng = None
     path_geom = None
+    path_instructions = None
 
     if time != None:
         coords = time.coordinate_set.all()

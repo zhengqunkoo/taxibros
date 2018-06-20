@@ -259,7 +259,8 @@ function genLoc(pos, radius, minutes, walkpathId) {
       infoWindow.setPosition(best_road_coords);
       infoWindow.setContent('Better location');
 
-      console.log(path_instructions);
+      $('#walkpathGeom' + walkpathId).html(path_geom);
+      $('#walkpathInstructions' + walkpathId).html(path_instructions);
       decode(path_geom, walkpathId);
     },
     error: function(rs, e) {
@@ -478,7 +479,7 @@ function decode(encoded, walkpathId){
   console.log(walkpaths);
 }
 
-function initAutocomplete(input, deleteCell) {
+function initAutocomplete(input) {
   // Create the search box and link it to the UI element.
   var searchBox = new google.maps.places.SearchBox(input);
 
@@ -542,7 +543,6 @@ function initAutocomplete(input, deleteCell) {
       // Create list element.
       var place = places[0];
       genLoc(place.geometry.location, 500, 0, input.getAttribute('id')); // genLoc in 500 meters, current time
-      deleteCell.getElementsByTagName('span')[0].innerText = input.getAttribute('id');
       input.innerText = place.name;
       input.value = place.name;
       updateTable();
@@ -550,7 +550,7 @@ function initAutocomplete(input, deleteCell) {
   });
 }
 
-function createPacInput(cell, deleteCell, innerText) {
+function createPacInput(cell, innerText) {
   var input = document.createElement('input');
   input.setAttribute('id', 'pac-input' + pacInputCount);
   input.setAttribute('class', 'controls td-height');
@@ -561,7 +561,7 @@ function createPacInput(cell, deleteCell, innerText) {
     input.value = innerText;
     input.innerText = innerText;
   }
-  initAutocomplete(input, deleteCell);
+  initAutocomplete(input);
   pacInputCount++;
 }
 
@@ -592,33 +592,42 @@ function createDatetimepicker(cell, innerText) {
   datetimepickerCount++;
 }
 
-function createHiddenText() {
+function createHiddenText(id, innerText) {
   var span = document.createElement('span');
   span.setAttribute('class', 'hide');
+  span.setAttribute('id', id);
+  if (innerText !== undefined) {
+    span.innerText = innerText;
+  }
   return span;
 }
 
-function createDeleteRowButton(cell) {
+function createDeleteRowButton(cell, innerText) {
   var input = document.createElement('input');
   input.setAttribute('type', 'button');
   input.setAttribute('class', 'deleteRow td-height');
   input.setAttribute('value', 'Delete');
   cell.appendChild(input);
-  cell.appendChild(createHiddenText());
+  cell.appendChild(createHiddenText('', innerText));
 }
 
-function addRow(pickupLocationInnerText, pickupTimeInnerText, arrivalLocationInnerText, arrivalTimeInnerText) {
+function addRow(pickupLocationInnerText, pickupTimeInnerText, arrivalLocationInnerText, arrivalTimeInnerText, walkpathGeomInnerText, walkpathInstructionsInnerText) {
   var row = itineraryTable.getElementsByTagName('tbody')[0].insertRow(-1);
   var pickupLocationCell = row.insertCell(0);
   var pickupTimeCell = row.insertCell(1);
   var arrivalLocationCell = row.insertCell(2);
   var arrivalTimeCell = row.insertCell(3);
   var deleteRowButtonCell = row.insertCell(4);
+  var walkpathGeomCell = row.insertCell(5);
+  var walkpathInstructionsCell = row.insertCell(6);
 
-  createDeleteRowButton(deleteRowButtonCell);
-  createPacInput(pickupLocationCell, deleteRowButtonCell, pickupLocationInnerText);
+  createDeleteRowButton(deleteRowButtonCell, '#pac-input' + pacInputCount);
+  walkpathGeomCell.appendChild(createHiddenText('walkpathGeompac-input' + pacInputCount, walkpathGeomInnerText));
+  walkpathInstructionsCell.appendChild(createHiddenText('walkpathInstructionspac-input' + pacInputCount, walkpathInstructionsInnerText));
+
+  createPacInput(pickupLocationCell, pickupLocationInnerText);
   createDatetimepicker(pickupTimeCell, pickupTimeInnerText);
-  createPacInput(arrivalLocationCell, deleteRowButtonCell, arrivalLocationInnerText);
+  createPacInput(arrivalLocationCell, arrivalLocationInnerText);
   createDatetimepicker(arrivalTimeCell, arrivalTimeInnerText);
   updateTable();
 }
