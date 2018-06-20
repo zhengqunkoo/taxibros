@@ -11,4 +11,5 @@ urlpatterns = [
     path("map.js", views.map_js, name="map"),
     path("slider.js", views.slider_js, name="slider"),
     path("genChart.js", views.get_chart_data_js, name="chart"),
+    path("genCost.js", views.get_cost_data_js, name="cost"),
 ]
