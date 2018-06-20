@@ -479,7 +479,7 @@ function decode(encoded, walkpathId){
   console.log(walkpaths);
 }
 
-function initAutocomplete(input) {
+function initAutocomplete(input, isCallGenLoc) {
   // Create the search box and link it to the UI element.
   var searchBox = new google.maps.places.SearchBox(input);
 
@@ -542,7 +542,9 @@ function initAutocomplete(input) {
       // Else if only one place, perform genLoc.
       // Create list element.
       var place = places[0];
-      genLoc(place.geometry.location, 500, 0, input.getAttribute('id')); // genLoc in 500 meters, current time
+      if (isCallGenLoc) {
+        genLoc(place.geometry.location, 500, 0, input.getAttribute('id')); // genLoc in 500 meters, current time
+      }
       input.innerText = place.name;
       input.value = place.name;
       updateTable();
@@ -550,7 +552,7 @@ function initAutocomplete(input) {
   });
 }
 
-function createPacInput(cell, innerText) {
+function createPacInput(cell, isCallGenLoc, innerText) {
   var input = document.createElement('input');
   input.setAttribute('id', 'pac-input' + pacInputCount);
   input.setAttribute('class', 'controls td-height');
@@ -561,7 +563,7 @@ function createPacInput(cell, innerText) {
     input.value = innerText;
     input.innerText = innerText;
   }
-  initAutocomplete(input);
+  initAutocomplete(input, isCallGenLoc);
   pacInputCount++;
 }
 
@@ -625,9 +627,9 @@ function addRow(pickupLocationInnerText, pickupTimeInnerText, arrivalLocationInn
   walkpathGeomCell.appendChild(createHiddenText('walkpathGeompac-input' + pacInputCount, walkpathGeomInnerText));
   walkpathInstructionsCell.appendChild(createHiddenText('walkpathInstructionspac-input' + pacInputCount, walkpathInstructionsInnerText));
 
-  createPacInput(pickupLocationCell, pickupLocationInnerText);
+  createPacInput(pickupLocationCell, true, pickupLocationInnerText);
   createDatetimepicker(pickupTimeCell, pickupTimeInnerText);
-  createPacInput(arrivalLocationCell, arrivalLocationInnerText);
+  createPacInput(arrivalLocationCell, false, arrivalLocationInnerText);
   createDatetimepicker(arrivalTimeCell, arrivalTimeInnerText);
   updateTable();
 }
