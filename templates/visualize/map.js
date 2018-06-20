@@ -6,15 +6,10 @@
 // locate you.
 var map, heatmap, infoWindow;
 var pointArray, intensityArray;
-var polylineArray;
-var walkpath;
+var walkpaths = {};
 var pacInputCount = 0, datetimepickerCount = 0;
-var locationEnabled = false, curLocation;
-<<<<<<< HEAD
-var directionService;
-var directionsDisplay;
-
 =======
+var locationEnabled = false, walkpathIdLatest, curLocation;
 var locationCircle = null; // google maps Circle
 >>>>>>> 4821612d2b1e65d1c0681cdaf300e6b400d38630
 
@@ -146,19 +141,7 @@ function initMap() {
   infoWindow = new google.maps.InfoWindow;
   secondInfoWindow = new google.maps.InfoWindow;
 
-  polylineArray = new google.maps.MVCArray();
-  walkpath = new google.maps.Polyline({
-      path: polylineArray,
-      geodesic: true,
-      strokeColor: "FF000",
-      strokeOpacity: 1.0,
-      strokeWeight:2
-  });
-  walkpath.setMap(map);
-  directionsDisplay.setMap(map);
-
   drawChart();
-
 }
 
 function toggleHeatmap() {
@@ -199,16 +182,15 @@ function resetLocation() {
 
 function getPoints() {
   return [
-    {% for coord in coordinates %}
-      new google.maps.LatLng({{ coord.lat }}, {{ coord.lng }}),
-    {% endfor %}
+    {% for coord in coordinates %}new google.maps.LatLng({{ coord.lat }},{{ coord.lng }}),{% endfor %}
   ];
 }
 
-function genLoc(pos, radius, minutes) {
+function genLoc(pos, radius, minutes, walkpathId) {
 
   // Set global location variables.
   locationEnabled = true;
+  walkpathIdLatest = walkpathId
   curLocation = pos;
 
   map.setCenter(pos);
@@ -231,6 +213,7 @@ function genLoc(pos, radius, minutes) {
       var best_road = data.best_road;
       var best_road_coords = data.best_road_coords;
       var path_geom = data.path_geom;
+      var path_instructions = data.path_instructions;
       var path_time = data.path_time;
       var path_dist = data.path_dist;
 
@@ -276,12 +259,13 @@ function genLoc(pos, radius, minutes) {
         radius: radius,
       });
 
-
-
+      appearStats();
       infoWindow.setPosition(best_road_coords);
       infoWindow.setContent('Better location');
 
-      decode(path_geom);
+      $('#walkpathGeom' + walkpathId).html(path_geom);
+      $('#walkpathInstructions' + walkpathId).html(path_instructions);
+      decode(path_geom, walkpathId);
     },
     error: function(rs, e) {
       console.log("Failed to reach {% url 'visualize:genLoc' %}.");
@@ -301,8 +285,7 @@ function showNearby() {
       infoWindow.setPosition(pos);
       infoWindow.setContent('Location found.');
       infoWindow.open(map);
-      genLoc(pos, 500, 0); // genLoc in 500 meters, current time
-      appearStats();
+      genLoc(pos, 500, 0, 'showNearby'); // genLoc in 500 meters, current time
     }, function() {
       handleLocationError(true, infoWindow, map.getCenter());
     });
@@ -338,7 +321,13 @@ function genSliderCallback(minutes, url, successCallback) {
 
 function genTimeSliderChange(minutes) {
   if (locationEnabled) {
-    genLoc(curLocation, 500, minutes);
+    // genTimeSliderChange should not have own walkpathId.
+    // If locationEnabled, then genLoc was called outside genTimeSliderChange.
+    // genTimeSliderChange then changes time in context of this location.
+    // So, path of location should change as well.
+    // Replace old path with path at new time.
+    console.log(walkpathIdLatest);
+    genLoc(curLocation, 500, minutes, walkpathIdLatest);
   } else {
     genSliderCallback(minutes, "{% url 'visualize:genTime' %}", function(data) {
       pointArray.clear();
@@ -445,7 +434,7 @@ function drawChart() {
 
 }
 
-function decode(encoded){
+function decode(encoded, walkpathId){
     if (encoded == null) {
         return
     }
@@ -453,6 +442,7 @@ function decode(encoded){
 
     var index = 0, len = encoded.length;
     var lat = 0, lng = 0;
+    var polylineArray = new google.maps.MVCArray();
     while (index < len) {
         var b, shift = 0, result = 0;
         do {
@@ -477,9 +467,23 @@ function decode(encoded){
 
    polylineArray.push(new google.maps.LatLng(( lat / 1E5),( lng / 1E5)));
   }
+
+  unsetWalkpath(walkpathId);
+
+  var walkpath = new google.maps.Polyline({
+    path: polylineArray,
+    geodesic: true,
+    strokeColor: "FF000",
+    strokeOpacity: 1.0,
+    strokeWeight:2
+  })
+  walkpath.setMap(map);
+
+  walkpaths[walkpathId] = walkpath;
+  console.log(walkpaths);
 }
 
-function initAutocomplete(input, cell) {
+function initAutocomplete(input, isCallGenLoc) {
   // Create the search box and link it to the UI element.
   var searchBox = new google.maps.places.SearchBox(input);
 
@@ -542,76 +546,113 @@ function initAutocomplete(input, cell) {
       // Else if only one place, perform genLoc.
       // Create list element.
       var place = places[0];
-      genLoc(place.geometry.location, 500, 0); // genLoc in 500 meters, current time
-      cell.children[0].innerText = place.name;
-      resort();
+      if (isCallGenLoc) {
+        genLoc(place.geometry.location, 500, 0, input.getAttribute('id')); // genLoc in 500 meters, current time
+      }
+      input.innerText = place.name;
+      input.value = place.name;
+      updateTable();
     }
   });
 }
 
-function createPacInput(cell) {
+function createPacInput(cell, isCallGenLoc, innerText) {
   var input = document.createElement('input');
   input.setAttribute('id', 'pac-input' + pacInputCount);
   input.setAttribute('class', 'controls td-height');
   input.setAttribute('type', 'text');
   input.setAttribute('placeholder', 'Search Google Maps');
-  initAutocomplete(input, cell);
   cell.appendChild(input);
+  if (innerText !== undefined) {
+    input.value = innerText;
+    input.innerText = innerText;
+  }
+  initAutocomplete(input, isCallGenLoc);
   pacInputCount++;
 }
 
-function createDatetimepicker(cell) {
+function createDatetimepicker(cell, innerText) {
   var input = document.createElement('input');
   input.setAttribute('type', 'text');
   input.setAttribute('class', 'form-control td-height');
   input.setAttribute('id', 'datetimepicker' + datetimepickerCount);
   input.setAttribute('placeholder', 'Pick a date');
   cell.appendChild(input);
-  $('#datetimepicker' + datetimepickerCount).datetimepicker(
-  ).on('dp.hide', function(e) {
-    cell.children[0].innerText = dateToMinutes(e.date);
-    resort();
-  });
+  if (innerText !== undefined) {
+    $('#datetimepicker' + datetimepickerCount).datetimepicker({
+      format: 'YYYY/MM/DD HH:mm:ss',
+      date: innerText
+    }).on('dp.hide', function(e) {
+      input.innerText = moment(e.date).format('YYYY/MM/DD HH:mm:ss');
+      updateTable();
+    });
+    input.innerText = innerText;
+  } else {
+    $('#datetimepicker' + datetimepickerCount).datetimepicker({
+      format: 'YYYY/MM/DD HH:mm:ss'
+    }).on('dp.hide', function(e) {
+      input.innerText = moment(e.date).format('YYYY/MM/DD HH:mm:ss');
+      updateTable();
+    });
+  }
   datetimepickerCount++;
 }
 
-function createDeleteRowButton(cell) {
+function createHiddenText(id, innerText) {
+  var span = document.createElement('span');
+  span.setAttribute('class', 'hide');
+  span.setAttribute('id', id);
+  if (innerText !== undefined) {
+    span.innerText = innerText;
+  }
+  return span;
+}
+
+function createDeleteRowButton(cell, innerText) {
   var input = document.createElement('input');
   input.setAttribute('type', 'button');
   input.setAttribute('class', 'deleteRow td-height');
   input.setAttribute('value', 'Delete');
   cell.appendChild(input);
+  cell.appendChild(createHiddenText('', innerText));
 }
 
-function addRow() {
+function addRow(pickupLocationInnerText, pickupTimeInnerText, arrivalLocationInnerText, arrivalTimeInnerText, walkpathGeomInnerText, walkpathInstructionsInnerText) {
   var row = itineraryTable.getElementsByTagName('tbody')[0].insertRow(-1);
   var pickupLocationCell = row.insertCell(0);
   var pickupTimeCell = row.insertCell(1);
   var arrivalLocationCell = row.insertCell(2);
   var arrivalTimeCell = row.insertCell(3);
   var deleteRowButtonCell = row.insertCell(4);
+  var walkpathGeomCell = row.insertCell(5);
+  var walkpathInstructionsCell = row.insertCell(6);
 
-  createPacInput(pickupLocationCell);
-  createDatetimepicker(pickupTimeCell);
-  createPacInput(arrivalLocationCell);
-  createDatetimepicker(arrivalTimeCell);
-  createDeleteRowButton(deleteRowButtonCell);
-  resort();
+  createDeleteRowButton(deleteRowButtonCell, '#pac-input' + pacInputCount);
+  walkpathGeomCell.appendChild(createHiddenText('walkpathGeompac-input' + pacInputCount, walkpathGeomInnerText));
+  walkpathInstructionsCell.appendChild(createHiddenText('walkpathInstructionspac-input' + pacInputCount, walkpathInstructionsInnerText));
+
+  createPacInput(pickupLocationCell, true, pickupLocationInnerText);
+  createDatetimepicker(pickupTimeCell, pickupTimeInnerText);
+  createPacInput(arrivalLocationCell, false, arrivalLocationInnerText);
+  createDatetimepicker(arrivalTimeCell, arrivalTimeInnerText);
+  updateTable();
 }
 
 function deleteRow(){
-  $(this).closest('tr').remove();
-  resort();
+  var tr = $(this).closest('tr');
+  unsetWalkpath(tr.find('.hide')[0].innerText);
+  tr.remove();
+  updateTable();
 }
 
 function removeStats() {
     //Function for container stats to disappear to the side
   $('#container-stats').stop().animate({right: "-50%"},1200);
 }
+
 function appearStats() {
     //Function for container stats to appear on RHS of screen
   $('#container-stats').stop().animate({right: "0%"},400);
-<<<<<<< HEAD
 }
 
 function calcRoute(start_lat, start_lng, end_lat, end_lng) {
@@ -649,19 +690,58 @@ function calcRoute(start_lat, start_lng, end_lat, end_lng) {
 
 function computeTime(duration, display_duration) {
 
-=======
->>>>>>> 4821612d2b1e65d1c0681cdaf300e6b400d38630
 }
 
-function resort() {
-  $('#itineraryTable').trigger('update');
+function updateTable() {
+  $('#itineraryTable').trigger('update')
+  $('#itineraryTable').tableExport().update({
+    headings: true,
+    footers: true,
+    formats: ['csv'],
+    filename: 'taxibros',
+    bootstrap: true,
+    position: "bottom",
+    ignoreCols: 4,
+    trimWhitespace: false
+  });
+}
+
+function importFromCsvChange(e) {
+  Papa.parse(e.target.files[0], {
+    error: function(err, file, inputElem, reason) {
+      alert('Papaparse ' + err + reason);
+    },
+    complete: function(e) {
+      importToItineraryTable(e.data);
+    }
+  });
+}
+
+function importToItineraryTable(data) {
+  $("#itineraryTable > tbody").empty();
+  data.slice(1).forEach(row =>
+    addRow.apply(null, row)
+  );
+  updateTable();
+}
+
+function unsetWalkpath(walkpathId) {
+  // If walkpathId exists, unset path.
+  if (walkpathId in walkpaths) {
+    var walkpathOld = walkpaths[walkpathId];
+    walkpathOld.setMap(null);
+    walkpathOld = null;
+  }
 }
 
 
 $(document).ready(function() {
-  $('#addRow').on('click', addRow);
+  $('#addRow').on('click', function() {
+    addRow();
+  });
   $('#itineraryTable').on('click', '.deleteRow', deleteRow);
-  addRow();
+  $('#importFromCsv').on('change', importFromCsvChange);
+  TableExport.prototype.formatConfig.csv.buttonContent = 'Export';
 
   $('#itineraryTable').tablesorter({
     widthFixed: true,
@@ -683,4 +763,6 @@ $(document).ready(function() {
           $('#slider').prop("value","<<");
       }
   });
+
+  addRow();
 });
