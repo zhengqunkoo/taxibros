@@ -28,7 +28,32 @@ class GenLocTest(TestCase):
             "status_message": "Found route between points",
             "route_geometry": "mock_route_geom",
             "status": 0,
-            "route_instructions": [],
+            "route_instructions": [
+                [
+                    "Head",
+                    "",
+                    8,
+                    "1.330668,103.912984",
+                    6,
+                    "8m",
+                    "North West",
+                    "North",
+                    "walking",
+                    "Head Northwest",
+                ],
+                [
+                    "Right",
+                    "",
+                    6,
+                    "1.330727,103.912956",
+                    5,
+                    "6m",
+                    "North East",
+                    "North West",
+                    "walking",
+                    "Turn Right",
+                ],
+            ],
             "route_name": [""],
             "route_summary": {
                 "start_point": "",
@@ -80,8 +105,37 @@ class GenLocTest(TestCase):
         """
         mock_requests_get.return_value = self._path_geom
         mock_response_json.return_value = self._path_geom_ok_val
-        result, time, dist = get_path_data(1, 2, 3, 4)
-        self.assertEquals(result, "mock_route_geom")
+        geom, instructions, time, dist = get_path_data(1, 2, 3, 4)
+        self.assertEquals(geom, "mock_route_geom")
+        self.assertEquals(
+            instructions,
+            [
+                [
+                    "Head",
+                    "",
+                    8,
+                    "1.330668,103.912984",
+                    6,
+                    "8m",
+                    "North West",
+                    "North",
+                    "walking",
+                    "Head Northwest",
+                ],
+                [
+                    "Right",
+                    "",
+                    6,
+                    "1.330727,103.912956",
+                    5,
+                    "6m",
+                    "North East",
+                    "North West",
+                    "walking",
+                    "Turn Right",
+                ],
+            ],
+        )
         self.assertEquals(time, 523)
         self.assertEquals(dist, 725)
 

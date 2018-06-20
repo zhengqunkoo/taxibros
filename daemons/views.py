@@ -123,6 +123,9 @@ def get_coordinates_location(request):
             road name of road that taxi is on
             coordinates of that road
             walking path towards that road
+            walking instructions towards that road
+            total time of walking
+            total distance of walking
     """
     lat = float(request.GET.get("lat"))
     lng = float(request.GET.get("lng"))
@@ -157,7 +160,7 @@ def get_coordinates_location(request):
         if best_road != None:
             best_lat = float(best_road.lat)
             best_lng = float(best_road.lng)
-            path_geom, path_time, path_dist = get_path_data(
+            path_geom, path_instructions, path_time, path_dist = get_path_data(
                 lat, lng, best_lat, best_lng
             )
             road_name = best_road.road_name
@@ -170,6 +173,7 @@ def get_coordinates_location(request):
         best_lat,
         best_lng,
         path_geom,
+        path_instructions,
         path_time,
         path_dist,
     )
@@ -215,7 +219,11 @@ def get_heatmap_time(request):
 def get_path_data(start_lat, start_lng, end_lat, end_lng):
     """
     @param start and end coordinates. lat, lng: position in coordinates.
-    @return route_geometry: walking path from start to end.
+    @return
+        route_geometry: walking path from start to end.
+        route_instructions: walking instructions from start to end.
+        total time of walking.
+        total distance of walking.
     """
     url = "https://developers.onemap.sg/privateapi/routingsvc/route"
     params = {
@@ -233,6 +241,7 @@ def get_path_data(start_lat, start_lng, end_lat, end_lng):
 
     return (
         json_val["route_geometry"],
+        json_val["route_instructions"],
         json_val["route_summary"]["total_time"],
         json_val["route_summary"]["total_distance"],
     )

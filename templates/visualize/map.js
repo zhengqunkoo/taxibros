@@ -220,6 +220,7 @@ function genLoc(pos, radius, minutes) {
       var best_road = data.best_road;
       var best_road_coords = data.best_road_coords;
       var path_geom = data.path_geom;
+      var path_instructions = data.path_instructions;
       var path_time = data.path_time;
       var path_dist = data.path_dist;
 
@@ -269,6 +270,7 @@ function genLoc(pos, radius, minutes) {
       infoWindow.setPosition(best_road_coords);
       infoWindow.setContent('Better location');
 
+      console.log(path_instructions);
       decode(path_geom);
     },
     error: function(rs, e) {
@@ -652,9 +654,9 @@ function importToItineraryTable(data) {
 
 $(document).ready(function() {
   $('#addRow').on('click', addRow);
-  $('#importFromCsv').on('change', importFromCsvChange);
   $('#itineraryTable').on('click', '.deleteRow', deleteRow);
-  addRow();
+  $('#importFromCsv').on('change', importFromCsvChange);
+  TableExport.prototype.formatConfig.csv.buttonContent = 'Export';
 
   $('#itineraryTable').tablesorter({
     widthFixed: true,
@@ -684,4 +686,6 @@ $(document).ready(function() {
           $('#slider').prop("value","<<");
       }
   });
+
+  addRow();
 });
