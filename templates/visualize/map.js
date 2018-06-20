@@ -532,7 +532,7 @@ function initAutocomplete(input, cell) {
       genLoc(place.geometry.location, 500, 0); // genLoc in 500 meters, current time
       cell.children[0].innerText = place.name;
       input.value = place.name;
-      resort();
+      updateTable();
     }
   });
 }
@@ -558,7 +558,7 @@ function createDatetimepicker(cell) {
   $('#datetimepicker' + datetimepickerCount).datetimepicker(
   ).on('dp.hide', function(e) {
     cell.children[0].innerText = dateToMinutes(e.date);
-    resort();
+    updateTable();
   });
   datetimepickerCount++;
 }
@@ -584,12 +584,12 @@ function addRow() {
   createPacInput(arrivalLocationCell);
   createDatetimepicker(arrivalTimeCell);
   createDeleteRowButton(deleteRowButtonCell);
-  resort();
+  updateTable();
 }
 
 function deleteRow(){
   $(this).closest('tr').remove();
-  resort();
+  updateTable();
 }
 
 function removeStats() {
@@ -601,8 +601,18 @@ function appearStats() {
   $('#container-stats').stop().animate({right: "0%"},400);
 }
 
-function resort() {
-  $('#itineraryTable').trigger('update');
+function updateTable() {
+  $('#itineraryTable').trigger('update')
+  $('#itineraryTable').tableExport().update({
+    headings: true,
+    footers: true,
+    formats: ['xls', 'csv', 'txt'],
+    filename: 'taxibros',
+    bootstrap: true,
+    position: "bottom",
+    ignoreCols: 4,
+    trimWhitespace: false
+  });
 }
 
 $(document).ready(function() {
