@@ -530,36 +530,52 @@ function initAutocomplete(input, cell) {
       // Create list element.
       var place = places[0];
       genLoc(place.geometry.location, 500, 0); // genLoc in 500 meters, current time
-      cell.children[0].innerText = place.name;
+      input.innerText = place.name;
       input.value = place.name;
       updateTable();
     }
   });
 }
 
-function createPacInput(cell) {
+function createPacInput(cell, innerText) {
   var input = document.createElement('input');
   input.setAttribute('id', 'pac-input' + pacInputCount);
   input.setAttribute('class', 'controls td-height');
   input.setAttribute('type', 'text');
   input.setAttribute('placeholder', 'Search Google Maps');
-  initAutocomplete(input, cell);
   cell.appendChild(input);
+  if (innerText !== undefined) {
+    input.value = innerText;
+    input.innerText = innerText;
+  }
+  initAutocomplete(input);
   pacInputCount++;
 }
 
-function createDatetimepicker(cell) {
+function createDatetimepicker(cell, innerText) {
   var input = document.createElement('input');
   input.setAttribute('type', 'text');
   input.setAttribute('class', 'form-control td-height');
   input.setAttribute('id', 'datetimepicker' + datetimepickerCount);
   input.setAttribute('placeholder', 'Pick a date');
   cell.appendChild(input);
-  $('#datetimepicker' + datetimepickerCount).datetimepicker(
-  ).on('dp.hide', function(e) {
-    cell.children[0].innerText = dateToMinutes(e.date);
-    updateTable();
-  });
+  if (innerText !== undefined) {
+    $('#datetimepicker' + datetimepickerCount).datetimepicker({
+      format: 'YYYY/MM/DD HH:mm:ss',
+      date: innerText
+    }).on('dp.hide', function(e) {
+      input.innerText = moment(e.date).format('YYYY/MM/DD HH:mm:ss');
+      updateTable();
+    });
+    input.innerText = innerText;
+  } else {
+    $('#datetimepicker' + datetimepickerCount).datetimepicker({
+      format: 'YYYY/MM/DD HH:mm:ss'
+    }).on('dp.hide', function(e) {
+      input.innerText = moment(e.date).format('YYYY/MM/DD HH:mm:ss');
+      updateTable();
+    });
+  }
   datetimepickerCount++;
 }
 

@@ -14,6 +14,7 @@ $('#genHeatmapIntensity').slider({
 });
 
 $('#datetimepicker').datetimepicker({
+  format: 'YYYY/MM/DD HH:mm:ss',
   date: date
 }).on('dp.hide', pickDate);
 
