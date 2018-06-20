@@ -8,10 +8,10 @@ var map, heatmap, infoWindow;
 var pointArray, intensityArray;
 var walkpaths = {};
 var pacInputCount = 0, datetimepickerCount = 0;
-=======
 var locationEnabled = false, walkpathIdLatest, curLocation;
 var locationCircle = null; // google maps Circle
->>>>>>> 4821612d2b1e65d1c0681cdaf300e6b400d38630
+var directionsService;
+var directionsDisplay;
 
 function initMap() {
     directionsService = new google.maps.DirectionsService();
@@ -645,7 +645,7 @@ function deleteRow(){
   updateTable();
 }
 
-function removeStats() {
+function disappearStats() {
     //Function for container stats to disappear to the side
   $('#container-stats').stop().animate({right: "-50%"},1200);
 }
@@ -667,30 +667,75 @@ function calcRoute(start_lat, start_lng, end_lat, end_lng) {
     };
     directionsService.route(request, function(result, status) {
     if (status == 'OK') {
-        debugger;
         var display_duration = null;
         var duration = null;
+        var waiting_duration = 0;
+        var display_distance;
+        var distance;
         directionsDisplay.setDirections(result);
         if (result.routes[0].legs[0].hasOwnProperty("duration_in_traffic")) {
+            //Duration in traffic is only displayed when there is enough traffic
             display_duration = result.routes[0].legs[0].duration_in_traffic["text"]
             duration = result.routes[0].legs[0].duration_in_traffic["value"];
             var raw_duration = result.routes[0].legs[0].duration["value"];
             var waiting_duration = duration - raw_duration;
-            computeTime(duration, display_duration);
-            calcCost(waiting_duration);
         } else {
             display_duration = result.routes[0].legs[0].duration["text"]
             duration = result.routes[0].legs[0].duration["value"];
-            computeTime(duration, display_duration);
-            calcCost(0);
         }
+        display_distance = result.routes[0].legs[0].distance["text"];
+        distance = result.routes[0].legs[0].distance["value"]
+
+        var cost = calcCost(waiting_duration, distance);
+        displayTaxiStats(duration, display_duration, display_distance,cost);
+        appearStats();
+
     }
+
+
   });
 }
 
-function computeTime(duration, display_duration) {
-
+function calcCost(waiting_time, distance) {
+    $.ajax({
+      url: "{% url 'visualize:cost' %}",
+      data: {
+        time: waiting_time,
+        distance: distance,
+      },
+      dataType: 'json',
+      success: function(data) {
+            var cost = data.cost;
+            return cost
+        },
+        error: function(rs, e) {
+          console.log("Failed to reach {% url 'visualize:cost' %}.");
+        }
+    });
 }
+function displayTaxiStats(duration, display_duration, display_distance, cost) {
+    //Add, modify, or delete data depending on condition
+    if ($('#d').length == 0) {
+        $('#stats-table tr:last').after('<tr id = "d"><th>Taxi Route Information</th></tr>');
+        $('#stats-table tr:last').after('<tr id = "e"><td>Time of travel</td><td id = "taxi-time">"-"</td></tr>');
+        $('#stats-table tr:last').after('<tr id = "f"><td>Distance of travel</td><td id = "taxi-dist">"-"</td></tr>');
+        $('#stats-table tr:last').after('<tr id = "g"><td>Cost of travel</td><td id = "taxi-cost">"-"</td></tr>');
+    }
+    if (display_duration==null) {
+        $('#d').remove();
+        $('#e').remove();
+        $('#f').remove();
+        $('#g').remove();
+    } else {
+        $('#taxi-time').html(display_duration);
+        $('#taxi-dist').html(display_distance);
+        $('#taxi-cost').html("$" + cost);
+
+    }
+}
+
+
+
 
 function updateTable() {
   $('#itineraryTable').trigger('update')
