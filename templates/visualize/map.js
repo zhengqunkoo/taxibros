@@ -6,8 +6,7 @@
 // locate you.
 var map, heatmap, infoWindow;
 var pointArray, intensityArray;
-var polylineArray;
-var walkpath;
+var polylineArrays;
 var pacInputCount = 0, datetimepickerCount = 0;
 var locationEnabled = false, curLocation;
 var locationCircle = null; // google maps Circle
@@ -138,16 +137,7 @@ function initMap() {
   infoWindow = new google.maps.InfoWindow;
   secondInfoWindow = new google.maps.InfoWindow;
 
-  polylineArray = new google.maps.MVCArray();
-  walkpath = new google.maps.Polyline({
-      path: polylineArray,
-      geodesic: true,
-      strokeColor: "FF000",
-      strokeOpacity: 1.0,
-      strokeWeight:2
-  });
-  walkpath.setMap(map);
-
+  polylineArrays = new google.maps.MVCArray();
   drawChart();
 
 }
@@ -442,6 +432,7 @@ function decode(encoded){
 
     var index = 0, len = encoded.length;
     var lat = 0, lng = 0;
+    var polylineArray = new google.maps.MVCArray();
     while (index < len) {
         var b, shift = 0, result = 0;
         do {
@@ -466,6 +457,17 @@ function decode(encoded){
 
    polylineArray.push(new google.maps.LatLng(( lat / 1E5),( lng / 1E5)));
   }
+
+  var walkpath = new google.maps.Polyline({
+    path: polylineArray,
+    geodesic: true,
+    strokeColor: "FF000",
+    strokeOpacity: 1.0,
+    strokeWeight:2
+  })
+  walkpath.setMap(map);
+  polylineArrays.push(polylineArray);
+  console.log(polylineArrays);
 }
 
 function initAutocomplete(input) {
