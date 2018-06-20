@@ -6,10 +6,9 @@
 // locate you.
 var map, heatmap, infoWindow;
 var pointArray, intensityArray;
-var walkpaths = {};
+var pickups = {};
 var pacInputCount = 0, datetimepickerCount = 0;
 var locationEnabled = false, walkpathIdLatest, curLocation;
-var locationCircle = null; // google maps Circle
 
 function initMap() {
   map = new google.maps.Map(document.getElementById('map'), {
@@ -182,11 +181,11 @@ function getPoints() {
   ];
 }
 
-function genLoc(pos, radius, minutes, walkpathId) {
+function genLoc(pos, radius, minutes, pickupId) {
 
   // Set global location variables.
   locationEnabled = true;
-  walkpathIdLatest = walkpathId
+  walkpathIdLatest = pickupId
   curLocation = pos;
 
   map.setCenter(pos);
@@ -213,9 +212,6 @@ function genLoc(pos, radius, minutes, walkpathId) {
       var path_time = data.path_time;
       var path_dist = data.path_dist;
 
-      coordinates.forEach(function(coord) {
-        pointArray.push(new google.maps.LatLng(coord[0], coord[1]));
-      });
       //Load stats
       if (number != 0) { //Gets around zero division error
         document.getElementById('average_dist').innerHTML = Math.trunc(total_dist/number) + "m";
@@ -237,14 +233,16 @@ function genLoc(pos, radius, minutes, walkpathId) {
           $('#path-dist').html(path_dist + "m");
       }
 
-      // Delete locationCircle if not null
-      if (locationCircle) {
-        locationCircle.setMap(null);
-        locationCircle = null;
-      }
+      appearStats();
+      infoWindow.setPosition(best_road_coords);
+      infoWindow.setContent('Better location');
+
+      $('#walkpathGeom' + pickupId).html(path_geom);
+      $('#walkpathInstructions' + pickupId).html(path_instructions);
+      var walkpath = decode(path_geom, pickupId);
 
       // Draw locationCircle
-      locationCircle = new google.maps.Circle({
+      var locationCircle = new google.maps.Circle({
         strokeColor: '#FF7F50',
         strokeOpacity: 0.2,
         strokeWeight: 2,
@@ -255,13 +253,30 @@ function genLoc(pos, radius, minutes, walkpathId) {
         radius: radius,
       });
 
-      appearStats();
-      infoWindow.setPosition(best_road_coords);
-      infoWindow.setContent('Better location');
+      // Push into pointArray and save in associative array.
+      var pickupPointArray = new google.maps.MVCArray();
+      coordinates.forEach(coord => {
+        pickupPointArray.push(new google.maps.LatLng(coord[0], coord[1]));
+        pointArray.push(new google.maps.LatLng(coord[0], coord[1]));
+      });
+      pickups[pickupId] = [walkpath, locationCircle, pickupPointArray];
 
-      $('#walkpathGeom' + walkpathId).html(path_geom);
-      $('#walkpathInstructions' + walkpathId).html(path_instructions);
-      decode(path_geom, walkpathId);
+      // Push rest of points from associative array.
+      for (var key in pickups) {
+        if (key == pickupId) {
+          console.log('new', key);
+          pickups[key][2].forEach(latlng => {
+            console.log('new', latlng.lat(), latlng.lng());
+          });
+        } else {
+          console.log('old', key);
+          pickups[key][2].forEach(latlng => {
+            console.log('old', latlng.lat(), latlng.lng());
+            pointArray.push(latlng);
+          });
+        }
+      }
+      console.log(pickups);
     },
     error: function(rs, e) {
       console.log("Failed to reach {% url 'visualize:genLoc' %}.");
@@ -317,12 +332,11 @@ function genSliderCallback(minutes, url, successCallback) {
 
 function genTimeSliderChange(minutes) {
   if (locationEnabled) {
-    // genTimeSliderChange should not have own walkpathId.
+    // genTimeSliderChange should not have own pickupId.
     // If locationEnabled, then genLoc was called outside genTimeSliderChange.
     // genTimeSliderChange then changes time in context of this location.
     // So, path of location should change as well.
     // Replace old path with path at new time.
-    console.log(walkpathIdLatest);
     genLoc(curLocation, 500, minutes, walkpathIdLatest);
   } else {
     genSliderCallback(minutes, "{% url 'visualize:genTime' %}", function(data) {
@@ -430,7 +444,10 @@ function drawChart() {
 
 }
 
-function decode(encoded, walkpathId){
+function decode(encoded, pickupId){
+  /**
+   * return walkpath: google Polyline object.
+   */
     if (encoded == null) {
         return
     }
@@ -464,7 +481,7 @@ function decode(encoded, walkpathId){
    polylineArray.push(new google.maps.LatLng(( lat / 1E5),( lng / 1E5)));
   }
 
-  unsetWalkpath(walkpathId);
+  unsetPickup(pickupId);
 
   var walkpath = new google.maps.Polyline({
     path: polylineArray,
@@ -474,9 +491,7 @@ function decode(encoded, walkpathId){
     strokeWeight:2
   })
   walkpath.setMap(map);
-
-  walkpaths[walkpathId] = walkpath;
-  console.log(walkpaths);
+  return walkpath;
 }
 
 function initAutocomplete(input, isCallGenLoc) {
@@ -636,7 +651,7 @@ function addRow(pickupLocationInnerText, pickupTimeInnerText, arrivalLocationInn
 
 function deleteRow(){
   var tr = $(this).closest('tr');
-  unsetWalkpath(tr.find('.hide')[0].innerText);
+  unsetPickup(tr.find('.hide')[0].innerText);
   tr.remove();
   updateTable();
 }
@@ -683,12 +698,18 @@ function importToItineraryTable(data) {
   updateTable();
 }
 
-function unsetWalkpath(walkpathId) {
-  // If walkpathId exists, unset path.
-  if (walkpathId in walkpaths) {
-    var walkpathOld = walkpaths[walkpathId];
-    walkpathOld.setMap(null);
-    walkpathOld = null;
+function unsetPickup(pickupId) {
+  // If pickupId exists, unset path, circle, and taxi coords.
+  if (pickupId in pickups) {
+    var pickup = pickups[pickupId];
+    var walkpath = pickup[0];
+    var locationCircle = pickup[1];
+    var pointArray = pickup[2];
+    walkpath.setMap(null);
+    walkpath = null;
+    locationCircle.setMap(null);
+    locationCircle = null;
+    pointArray.clear();
   }
 }
 
