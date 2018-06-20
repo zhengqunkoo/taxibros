@@ -1,6 +1,7 @@
 // Update global date on all callbacks.
 var date = new Date();
 var MS_PER_MINUTE = 60000;
+var locationRadius = 500, locationMinutes = 0;
 
 dateSlider('#genTime', genTimeSliderChange);
 dateSlider('#genHeatmap', genHeatmapSliderChange);
@@ -101,4 +102,78 @@ function dateSlider(sliderName, sliderChangeCallback) {
     sliderChangeCallback(genSliderValue(e));
     $('#datetimepicker').datetimepicker('date', minutesToDate(e.value.newValue));
   });
+}
+
+function genSliderCallback(minutes, url, successCallback) {
+
+  // Asynchronously update maps.
+  $.ajax({
+    url: url,
+    data: {
+        minutes: minutes,
+    },
+    dataType: 'json',
+    success: successCallback,
+    error: function(rs, e) {
+        console.log("Failed to reach " + url + ".");
+    }
+  });
+}
+
+function genTimeSliderChange(minutes) {
+  locationMinutes = minutes;
+  if (locationEnabled) {
+    // genTimeSliderChange should not have own pickupId.
+    // If locationEnabled, then genLoc was called outside genTimeSliderChange.
+    // genTimeSliderChange then changes time in context of this location.
+    // So, path of location should change as well.
+    // Replace old path with path at new time.
+    genLoc(curLocation, locationRadius, locationMinutes, pickupIdLatest);
+  } else {
+    genSliderCallback(minutes, "{% url 'visualize:genTime' %}", function(data) {
+      pointArray.clear();
+      data.coordinates.forEach(function(coord) {
+        pointArray.push(new google.maps.LatLng(coord[0], coord[1]));
+      });
+    });
+  }
+}
+
+function genLocationRadiusSliderChange(radius) {
+  locationRadius = radius;
+  if (locationEnabled) {
+    updateLocationCircle(curLocation, locationRadius, false);
+  }
+}
+
+function genLocationRadiusSliderStop(radius) {
+  locationRadius = radius;
+  if (locationEnabled) {
+    genLoc(curLocation, locationRadius, locationMinutes, pickupIdLatest);
+  }
+}
+
+
+function genHeatmapSliderChange(minutes) {
+  genSliderCallback(minutes, "{% url 'visualize:genHeatmap' %}", function(data) {
+    pointArray.clear();
+    while (intensityArray.length) { intensityArray.pop(); }
+    data.heattiles.forEach(function(d) {
+      pointArray.push(new google.maps.LatLng(d[1], d[2]));
+      intensityArray.push(d);
+    });
+  });
+}
+
+function genHeatmapIntensitySliderChange(value) {
+
+  // Filters on intensityArray. Assume intensityArray defined.
+  // Only change pointArray if intensityArray has elements.
+  if (intensityArray.length != 0) {
+    var intensities = intensityArray.filter(d => d[0] >= value);
+    pointArray.clear();
+    intensities.forEach(function(d) {
+      pointArray.push(new google.maps.LatLng(d[1], d[2]));
+    });
+  }
 }
