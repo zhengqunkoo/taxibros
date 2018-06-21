@@ -272,6 +272,65 @@ function genLoc(pos, radius, minutes, pickupId) {
   });
 }
 
+function decode(encoded, pickupId){
+  /**
+   * return walkpath: google Polyline object.
+   */
+    if (encoded == null) {
+        return
+    }
+    //Decoding the encoded path geometry
+
+    var index = 0, len = encoded.length;
+    var lat = 0, lng = 0;
+    var polylineArray = new google.maps.MVCArray();
+    while (index < len) {
+        var b, shift = 0, result = 0;
+        do {
+
+    b = encoded.charAt(index++).charCodeAt(0) - 63;//finds ascii                                                                                    //and substract it by 63
+              result |= (b & 0x1f) << shift;
+              shift += 5;
+             } while (b >= 0x20);
+
+
+       var dlat = ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
+       lat += dlat;
+      shift = 0;
+      result = 0;
+     do {
+        b = encoded.charAt(index++).charCodeAt(0) - 63;
+        result |= (b & 0x1f) << shift;
+       shift += 5;
+         } while (b >= 0x20);
+     var dlng = ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
+     lng += dlng;
+
+   polylineArray.push(new google.maps.LatLng(( lat / 1E5),( lng / 1E5)));
+  }
+
+  unsetPickup(pickupId);
+
+  var walkpath = new google.maps.Polyline({
+    path: polylineArray,
+    geodesic: true,
+    strokeColor: "FF000",
+    strokeOpacity: 1.0,
+    strokeWeight:2
+  })
+  walkpath.setMap(map);
+  return walkpath;
+}
+
+function setMouseResize(circle) {
+  google.maps.event.addListener(circle, 'center_changed', function() {
+    console.log('center_changed');
+  });
+  google.maps.event.addListener(circle, 'radius_changed', function() {
+    console.log('radius_changed');
+  });
+}
+
 function updateLocationCircle(pos, radius, isCreate) {
   if (curLocationCircle === undefined) {
 
