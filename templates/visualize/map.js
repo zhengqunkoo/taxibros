@@ -186,15 +186,14 @@ function getPoints() {
   ];
 }
 
-function genLoc(pos, radius, minutes, walkpathId) {
+function genLoc(pos, radius, minutes, pickupId) {
 
   // Set global location variables.
   locationEnabled = true;
-  walkpathIdLatest = walkpathId
+  pickupIdLatest = pickupId
   curLocation = pos;
 
   map.setCenter(pos);
-  map.setZoom(16);
 
   $.ajax({
     url: "{% url 'visualize:genLoc' %}",
@@ -217,9 +216,6 @@ function genLoc(pos, radius, minutes, walkpathId) {
       var path_time = data.path_time;
       var path_dist = data.path_dist;
 
-      coordinates.forEach(function(coord) {
-        pointArray.push(new google.maps.LatLng(coord[0], coord[1]));
-      });
       //Load stats
       if (number != 0) { //Gets around zero division error
         document.getElementById('average_dist').innerHTML = Math.trunc(total_dist/number) + "m";
@@ -241,36 +237,78 @@ function genLoc(pos, radius, minutes, walkpathId) {
           $('#path-dist').html(path_dist + "m");
       }
 
-      // Delete locationCircle if not null
-      if (locationCircle) {
-        locationCircle.setMap(null);
-        locationCircle = null;
-      }
-
-      // Draw locationCircle
-      locationCircle = new google.maps.Circle({
-        strokeColor: '#FF7F50',
-        strokeOpacity: 0.2,
-        strokeWeight: 2,
-        fillColor: '#FF7F50',
-        fillOpacity: 0.05,
-        map: map,
-        center: pos,
-        radius: radius,
-      });
-
       appearStats();
       infoWindow.setPosition(best_road_coords);
       infoWindow.setContent('Better location');
 
-      $('#walkpathGeom' + walkpathId).html(path_geom);
-      $('#walkpathInstructions' + walkpathId).html(path_instructions);
-      decode(path_geom, walkpathId);
+      $('#walkpathGeom' + pickupId).html(path_geom);
+      $('#walkpathInstructions' + pickupId).html(path_instructions);
+      $('#pickupLatLng' + pickupId).html(pos.lat() + ';' + pos.lng());
+      $('#pickupTaxiCoords' + pickupId).html(coordinates);
+      var walkpath = decode(path_geom, pickupId);
+
+      var locationCircle = updateLocationCircle(pos, radius, true);
+
+      // Push into pointArray and save in associative array.
+      var pickupPointArray = new google.maps.MVCArray();
+      coordinates.forEach(coord => {
+        pickupPointArray.push(new google.maps.LatLng(coord[0], coord[1]));
+        pointArray.push(new google.maps.LatLng(coord[0], coord[1]));
+      });
+      pickups[pickupId] = [walkpath, locationCircle, pickupPointArray];
+
+      // TODO this is costly when many old pickups.
+      // maybe invert? one global pointArray bound to hashmap: key latlng, value pickupId.
+      // on change / delete pickupId, remove from hashmap and thus from pointArray.
+
+      // Push rest of points from associative array.
+      for (var key in pickups) {
+        if (key != pickupId) {
+          pickups[key][2].forEach(latlng => {
+            pointArray.push(latlng);
+          });
+        }
+      }
     },
     error: function(rs, e) {
       console.log("Failed to reach {% url 'visualize:genLoc' %}.");
     }
   });
+}
+
+function updateLocationCircle(pos, radius, isReturn) {
+  if (curLocationCircle === undefined || curLocationCircle.getCenter() != pos) {
+    // If undefined or position changed.
+    curLocationCircle = new google.maps.Circle({
+      strokeColor: '#FF7F50',
+      strokeOpacity: 0.2,
+      strokeWeight: 2,
+      fillColor: '#FF7F50',
+      fillOpacity: 0.05,
+      map: map,
+      center: pos,
+      radius: radius,
+    });
+  } else {
+    curLocationCircle.setRadius(radius);
+  }
+
+  // Show entire locationCircle.
+  map.fitBounds(curLocationCircle.getBounds());
+
+  if (isReturn) {
+    locationCircle = new google.maps.Circle({
+      strokeColor: '#FF7F50',
+      strokeOpacity: 0.2,
+      strokeWeight: 2,
+      fillColor: '#FF7F50',
+      fillOpacity: 0.05,
+      map: map,
+      center: pos,
+      radius: radius,
+    });
+    return locationCircle;
+  }
 }
 
 function showNearby() {
@@ -285,7 +323,7 @@ function showNearby() {
       infoWindow.setPosition(pos);
       infoWindow.setContent('Location found.');
       infoWindow.open(map);
-      genLoc(pos, 500, 0, 'showNearby'); // genLoc in 500 meters, current time
+      genLoc(pos, locationRadius, locationMinutes, 'showNearby');
     }, function() {
       handleLocationError(true, infoWindow, map.getCenter());
     });
@@ -301,186 +339,6 @@ function handleLocationError(browserHasGeolocation, infoWindow, pos) {
                         'Error: The Geolocation service failed.' :
                         'Error: Your browser doesn\'t support geolocation.');
   infoWindow.open(map);
-}
-
-function genSliderCallback(minutes, url, successCallback) {
-
-  // Asynchronously update maps.
-  $.ajax({
-    url: url,
-    data: {
-        minutes: minutes,
-    },
-    dataType: 'json',
-    success: successCallback,
-    error: function(rs, e) {
-        console.log("Failed to reach " + url + ".");
-    }
-  });
-}
-
-function genTimeSliderChange(minutes) {
-  if (locationEnabled) {
-    // genTimeSliderChange should not have own walkpathId.
-    // If locationEnabled, then genLoc was called outside genTimeSliderChange.
-    // genTimeSliderChange then changes time in context of this location.
-    // So, path of location should change as well.
-    // Replace old path with path at new time.
-    console.log(walkpathIdLatest);
-    genLoc(curLocation, 500, minutes, walkpathIdLatest);
-  } else {
-    genSliderCallback(minutes, "{% url 'visualize:genTime' %}", function(data) {
-      pointArray.clear();
-      data.coordinates.forEach(function(coord) {
-        pointArray.push(new google.maps.LatLng(coord[0], coord[1]));
-      });
-    });
-  }
-}
-
-function genHeatmapSliderChange(minutes) {
-  genSliderCallback(minutes, "{% url 'visualize:genHeatmap' %}", function(data) {
-    pointArray.clear();
-    while (intensityArray.length) { intensityArray.pop(); }
-    data.heattiles.forEach(function(d) {
-      pointArray.push(new google.maps.LatLng(d[1], d[2]));
-      intensityArray.push(d);
-    });
-  });
-}
-
-function genHeatmapIntensitySliderChange(value) {
-
-  // Filters on intensityArray. Assume intensityArray defined.
-  // Only change pointArray if intensityArray has elements.
-  if (intensityArray.length != 0) {
-    var intensities = intensityArray.filter(d => d[0] >= value);
-    pointArray.clear();
-    intensities.forEach(function(d) {
-      pointArray.push(new google.maps.LatLng(d[1], d[2]));
-    });
-  }
-}
-
-function drawChart() {
-
-    var xhttp = new XMLHttpRequest();
-    xhttp.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) {
-
-           // Typical action to be performed when the document is ready:
-           var response = JSON.parse(this.responseText);
-           var day_stats = response.day_stats;
-           var title = response.chart_title;
-           var height = 210,
-               width = 300;
-           var margin = {top: 20, right: 10, bottom: 30, left: 40};
-
-           var chart = d3.select(".chart")
-               .attr("height", height);
-           chart.attr("width", width);
-
-           height = height - margin.top - margin.bottom;
-           width = width - margin.left - margin.right;
-           var barWidth = width/day_stats.length;
-
-           var y = d3.scaleLinear()
-               .domain([0, d3.max(day_stats)])
-               .range([height,0]);
-           var yAxis = d3.axisLeft(y)
-               .scale(y)
-               .ticks(5, "s");
-
-           var parseTime = d3.timeParse("%I:%M %p");
-           var startTime = parseTime("06:00 AM");
-           var endTime = parseTime("05:00 AM");
-
-           var x = d3.scaleTime().domain([startTime, endTime]).range([0,width]);
-           var xAxis = d3.axisBottom(x).tickFormat(d3.timeFormat("%I:%M %p")).tickArguments(d3.timeMinute.every(60));
-
-
-
-           var rect = chart.selectAll("g")
-               .data(day_stats)
-             .enter().append("rect")
-               .attr("transform", function(d, i) { return "translate(" + (margin.left + (i * barWidth)) + ",0)"; })
-               .attr("y", height) //To initialize bar outside chart
-               .attr("width", barWidth - 1)
-               .attr("height", function(d) {return height-y(d);});
-
-           rect.transition()
-               .delay(function(d, i) {return i * 100; })
-               .attr("y",function(d) {return y(d);});
-
-
-           chart.append("g")
-               .attr("transform", "translate(" + margin.left+ ",0)")
-               .call(yAxis);
-           chart.append("g")
-                .attr("transform", "translate(" + margin.left + "," + height + ")")
-              .call(xAxis)
-              .selectAll("text")
-                .style("text-anchor", "end")
-                .attr("dx", "-.8em")
-                .attr("dy", ".15em")
-                .attr("transform", "rotate(-65)");
-
-            $("#chart-title").text(title);
-        }
-    };
-    xhttp.open("GET", "{% url 'visualize:chart' %}", true);
-    xhttp.send();
-
-
-}
-
-function decode(encoded, walkpathId){
-    if (encoded == null) {
-        return
-    }
-    //Decoding the encoded path geometry
-
-    var index = 0, len = encoded.length;
-    var lat = 0, lng = 0;
-    var polylineArray = new google.maps.MVCArray();
-    while (index < len) {
-        var b, shift = 0, result = 0;
-        do {
-
-    b = encoded.charAt(index++).charCodeAt(0) - 63;//finds ascii                                                                                    //and substract it by 63
-              result |= (b & 0x1f) << shift;
-              shift += 5;
-             } while (b >= 0x20);
-
-
-       var dlat = ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
-       lat += dlat;
-      shift = 0;
-      result = 0;
-     do {
-        b = encoded.charAt(index++).charCodeAt(0) - 63;
-        result |= (b & 0x1f) << shift;
-       shift += 5;
-         } while (b >= 0x20);
-     var dlng = ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
-     lng += dlng;
-
-   polylineArray.push(new google.maps.LatLng(( lat / 1E5),( lng / 1E5)));
-  }
-
-  unsetWalkpath(walkpathId);
-
-  var walkpath = new google.maps.Polyline({
-    path: polylineArray,
-    geodesic: true,
-    strokeColor: "FF000",
-    strokeOpacity: 1.0,
-    strokeWeight:2
-  })
-  walkpath.setMap(map);
-
-  walkpaths[walkpathId] = walkpath;
-  console.log(walkpaths);
 }
 
 function initAutocomplete(input, isCallGenLoc) {
@@ -547,7 +405,7 @@ function initAutocomplete(input, isCallGenLoc) {
       // Create list element.
       var place = places[0];
       if (isCallGenLoc) {
-        genLoc(place.geometry.location, 500, 0, input.getAttribute('id')); // genLoc in 500 meters, current time
+        genLoc(place.geometry.location, locationRadius, locationMinutes, input.getAttribute('id'));
       }
       input.innerText = place.name;
       input.value = place.name;
@@ -556,93 +414,17 @@ function initAutocomplete(input, isCallGenLoc) {
   });
 }
 
-function createPacInput(cell, isCallGenLoc, innerText) {
-  var input = document.createElement('input');
-  input.setAttribute('id', 'pac-input' + pacInputCount);
-  input.setAttribute('class', 'controls td-height');
-  input.setAttribute('type', 'text');
-  input.setAttribute('placeholder', 'Search Google Maps');
-  cell.appendChild(input);
-  if (innerText !== undefined) {
-    input.value = innerText;
-    input.innerText = innerText;
+function unsetPickup(pickupId) {
+  // If pickupId exists, unset path, circle, and taxi coords.
+  if (pickupId in pickups) {
+    var pickup = pickups[pickupId];
+    var walkpath = pickup[0];
+    var locationCircle = pickup[1];
+    var pointArray = pickup[2];
+    unsetMapObj(walkpath);
+    unsetMapObj(locationCircle);
+    pointArray.clear();
   }
-  initAutocomplete(input, isCallGenLoc);
-  pacInputCount++;
-}
-
-function createDatetimepicker(cell, innerText) {
-  var input = document.createElement('input');
-  input.setAttribute('type', 'text');
-  input.setAttribute('class', 'form-control td-height');
-  input.setAttribute('id', 'datetimepicker' + datetimepickerCount);
-  input.setAttribute('placeholder', 'Pick a date');
-  cell.appendChild(input);
-  if (innerText !== undefined) {
-    $('#datetimepicker' + datetimepickerCount).datetimepicker({
-      format: 'YYYY/MM/DD HH:mm:ss',
-      date: innerText
-    }).on('dp.hide', function(e) {
-      input.innerText = moment(e.date).format('YYYY/MM/DD HH:mm:ss');
-      updateTable();
-    });
-    input.innerText = innerText;
-  } else {
-    $('#datetimepicker' + datetimepickerCount).datetimepicker({
-      format: 'YYYY/MM/DD HH:mm:ss'
-    }).on('dp.hide', function(e) {
-      input.innerText = moment(e.date).format('YYYY/MM/DD HH:mm:ss');
-      updateTable();
-    });
-  }
-  datetimepickerCount++;
-}
-
-function createHiddenText(id, innerText) {
-  var span = document.createElement('span');
-  span.setAttribute('class', 'hide');
-  span.setAttribute('id', id);
-  if (innerText !== undefined) {
-    span.innerText = innerText;
-  }
-  return span;
-}
-
-function createDeleteRowButton(cell, innerText) {
-  var input = document.createElement('input');
-  input.setAttribute('type', 'button');
-  input.setAttribute('class', 'deleteRow td-height');
-  input.setAttribute('value', 'Delete');
-  cell.appendChild(input);
-  cell.appendChild(createHiddenText('', innerText));
-}
-
-function addRow(pickupLocationInnerText, pickupTimeInnerText, arrivalLocationInnerText, arrivalTimeInnerText, walkpathGeomInnerText, walkpathInstructionsInnerText) {
-  var row = itineraryTable.getElementsByTagName('tbody')[0].insertRow(-1);
-  var pickupLocationCell = row.insertCell(0);
-  var pickupTimeCell = row.insertCell(1);
-  var arrivalLocationCell = row.insertCell(2);
-  var arrivalTimeCell = row.insertCell(3);
-  var deleteRowButtonCell = row.insertCell(4);
-  var walkpathGeomCell = row.insertCell(5);
-  var walkpathInstructionsCell = row.insertCell(6);
-
-  createDeleteRowButton(deleteRowButtonCell, '#pac-input' + pacInputCount);
-  walkpathGeomCell.appendChild(createHiddenText('walkpathGeompac-input' + pacInputCount, walkpathGeomInnerText));
-  walkpathInstructionsCell.appendChild(createHiddenText('walkpathInstructionspac-input' + pacInputCount, walkpathInstructionsInnerText));
-
-  createPacInput(pickupLocationCell, true, pickupLocationInnerText);
-  createDatetimepicker(pickupTimeCell, pickupTimeInnerText);
-  createPacInput(arrivalLocationCell, false, arrivalLocationInnerText);
-  createDatetimepicker(arrivalTimeCell, arrivalTimeInnerText);
-  updateTable();
-}
-
-function deleteRow(){
-  var tr = $(this).closest('tr');
-  unsetWalkpath(tr.find('.hide')[0].innerText);
-  tr.remove();
-  updateTable();
 }
 
 function disappearStats() {
@@ -734,69 +516,13 @@ function displayTaxiStats(duration, display_duration, display_distance, cost) {
     }
 }
 
-
-
-
-function updateTable() {
-  $('#itineraryTable').trigger('update')
-  $('#itineraryTable').tableExport().update({
-    headings: true,
-    footers: true,
-    formats: ['csv'],
-    filename: 'taxibros',
-    bootstrap: true,
-    position: "bottom",
-    ignoreCols: 4,
-    trimWhitespace: false
-  });
-}
-
-function importFromCsvChange(e) {
-  Papa.parse(e.target.files[0], {
-    error: function(err, file, inputElem, reason) {
-      alert('Papaparse ' + err + reason);
-    },
-    complete: function(e) {
-      importToItineraryTable(e.data);
-    }
-  });
-}
-
-function importToItineraryTable(data) {
-  $("#itineraryTable > tbody").empty();
-  data.slice(1).forEach(row =>
-    addRow.apply(null, row)
-  );
-  updateTable();
-}
-
-function unsetWalkpath(walkpathId) {
-  // If walkpathId exists, unset path.
-  if (walkpathId in walkpaths) {
-    var walkpathOld = walkpaths[walkpathId];
-    walkpathOld.setMap(null);
-    walkpathOld = null;
-  }
+function unsetMapObj(obj) {
+  obj.setMap(null);
+  obj = null;
 }
 
 
 $(document).ready(function() {
-  $('#addRow').on('click', function() {
-    addRow();
-  });
-  $('#itineraryTable').on('click', '.deleteRow', deleteRow);
-  $('#importFromCsv').on('change', importFromCsvChange);
-  TableExport.prototype.formatConfig.csv.buttonContent = 'Export';
-
-  $('#itineraryTable').tablesorter({
-    widthFixed: true,
-    widgets: [
-      'zebra',
-    ],
-  }).tablesorterPager({
-      container: $("#pager"),
-  });
-
   $('#slider').click(function() {
       var leftVal = $("#container-itinerary").css("left");
       if (leftVal == '10px'){
@@ -808,6 +534,4 @@ $(document).ready(function() {
           $('#slider').prop("value","<<");
       }
   });
-
-  addRow();
 });

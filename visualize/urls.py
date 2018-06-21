@@ -10,6 +10,8 @@ urlpatterns = [
     path("genLoc.js", views.gen_loc_js, name="genLoc"),
     path("map.js", views.map_js, name="map"),
     path("slider.js", views.slider_js, name="slider"),
-    path("genChart.js", views.get_chart_data_js, name="chart"),
+    path("table.js", views.table_js, name="table"),
+    path("chart.js", views.chart_js, name="chart"),
+    path("genChart.js", views.get_chart_data_js, name="genChart"),
     path("genCost.js", views.get_cost_data_js, name="cost"),
 ]
