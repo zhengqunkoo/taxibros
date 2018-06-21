@@ -243,6 +243,7 @@ function genLoc(pos, radius, minutes, pickupId) {
       // Unset and replace pickup, if pickupId exists.
       unsetPickup(pickupId);
       var walkpath = decode(path_geom, pickupId);
+      walkpath.setMap(map);
       var locationCircle = updateLocationCircle(pos, radius, true);
 
       // Push into pointArray and save in associative array.
@@ -309,8 +310,6 @@ function decode(encoded, pickupId){
    polylineArray.push(new google.maps.LatLng(( lat / 1E5),( lng / 1E5)));
   }
 
-  unsetPickup(pickupId);
-
   var walkpath = new google.maps.Polyline({
     path: polylineArray,
     geodesic: true,
@@ -318,7 +317,6 @@ function decode(encoded, pickupId){
     strokeOpacity: 1.0,
     strokeWeight:2
   })
-  walkpath.setMap(map);
   return walkpath;
 }
 
