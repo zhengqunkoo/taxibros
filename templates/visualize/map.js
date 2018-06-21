@@ -8,6 +8,7 @@ var map, heatmap, infoWindow;
 var pointArray, intensityArray;
 var walkpaths = {};
 var pacInputCount = 0, datetimepickerCount = 0;
+var pickups = {}, pickupIdLatest = 0;
 var locationEnabled = false, walkpathIdLatest, curLocation;
 var locationCircle = null; // google maps Circle
 var directionsService;
