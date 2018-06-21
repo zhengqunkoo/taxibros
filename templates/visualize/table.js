@@ -52,13 +52,12 @@ function createHiddenText(id, innerText) {
   return span;
 }
 
-function createDeleteRowButton(cell, innerText) {
+function createDeleteRowButton(cell) {
   var input = document.createElement('input');
   input.setAttribute('type', 'button');
   input.setAttribute('class', 'deleteRow td-height');
   input.setAttribute('value', 'Delete');
   cell.appendChild(input);
-  cell.appendChild(createHiddenText('', innerText));
 }
 
 function addRow(pickupLocationInnerText, pickupTimeInnerText, arrivalLocationInnerText, arrivalTimeInnerText, walkpathGeomInnerText, walkpathInstructionsInnerText, pickupLatLngInnerText, pickupTaxiCoordsInnerText) {
@@ -73,7 +72,7 @@ function addRow(pickupLocationInnerText, pickupTimeInnerText, arrivalLocationInn
   var pickupLatLngCell = row.insertCell(7);
   var pickupTaxiCoordsCell = row.insertCell(8);
 
-  createDeleteRowButton(deleteRowButtonCell, '#pac-input' + pacInputCount);
+  createDeleteRowButton(deleteRowButtonCell);
   walkpathGeomCell.appendChild(createHiddenText('walkpathGeompac-input' + pacInputCount, walkpathGeomInnerText));
   walkpathInstructionsCell.appendChild(createHiddenText('walkpathInstructionspac-input' + pacInputCount, walkpathInstructionsInnerText));
   pickupLatLngCell.appendChild(createHiddenText('pickupLatLngpac-input' + pacInputCount, pickupLatLngInnerText));
@@ -88,7 +87,7 @@ function addRow(pickupLocationInnerText, pickupTimeInnerText, arrivalLocationInn
 
 function deleteRow(){
   var tr = $(this).closest('tr');
-  unsetPickup(tr.find('.hide')[0].innerText);
+  unsetPickup(tr.children('td:first').attr('id'));
   tr.remove();
   updateTable();
 }
