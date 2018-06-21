@@ -9,7 +9,7 @@ def calculateCost(distance, waiting_time):
     @return: cost in cents"""
     now = datetime.datetime.now(pytz.timezone("Asia/Singapore"))
     distance = int(distance)
-    waiting_time = int(waiting_time)
+    waiting_time = int(float(waiting_time))
     low = 0
     high = 0
     # 1. Flagdown

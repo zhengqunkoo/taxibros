@@ -463,11 +463,16 @@ function calcRoute(start_lat, start_lng, end_lat, end_lng) {
             display_duration = result.routes[0].legs[0].duration_in_traffic["text"]
             duration = result.routes[0].legs[0].duration_in_traffic["value"];
             var raw_duration = result.routes[0].legs[0].duration["value"];
-            var waiting_duration = duration - raw_duration;
+
         } else {
             display_duration = result.routes[0].legs[0].duration["text"]
             duration = result.routes[0].legs[0].duration["value"];
         }
+        waiting_duration = 0.2*duration;
+        if (raw_duration > duration) {
+            waiting_duration = 0.1 * duration;
+        }
+
         display_distance = result.routes[0].legs[0].distance["text"];
         distance = result.routes[0].legs[0].distance["value"]
         calcCost(waiting_duration, distance);
@@ -500,6 +505,7 @@ function displayTaxiStats(duration, display_duration, display_distance) {
 }
 
 function calcCost(waiting_time, distance) {
+
     $.ajax({
       url: "{% url 'visualize:cost' %}",
       data: {
