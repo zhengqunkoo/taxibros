@@ -15,6 +15,7 @@ from django.utils import timezone
 from django.conf import settings
 from django.http import JsonResponse
 from visualize.heatmap_slider import HeatmapSlider
+from daemons.farecalculator import calculateCost
 
 
 def index(request):
@@ -134,6 +135,11 @@ def get_chart_data_js(request):
             "chart_title": "Distribution of available taxis across 24h",
         }
     )
+
+
+def get_cost_data_js(request):
+    cost = calculateCost(request.GET.get("distance"), request.GET.get("time"))
+    return JsonResponse({"cost": cost})
 
 
 def serialize_coordinates(coordinates):

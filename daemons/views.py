@@ -292,6 +292,23 @@ def get_closest_roads(lat, lng, locs, tree, radius):
     return [locs[idx] for idx in road_indexes]
 
 
+"""
+def get_taxi_route(start_lat, start_lng, end_lat, end_lng):
+    requests.get("https://maps.googleapis.com/maps/api/directions/json")
+    params = {
+        "origin": "{},{}".format(start_lat, start_lng),
+        "destination": "{},{}".format(end_lat, end_lng),
+        "key": settings.GOOGLEMAPS_SECRET_KEY,
+    }#Default mode is driving
+    r = requests.get(url, params=params)
+    if r.status_code != 200:
+        return None
+    json_val = r.json()
+    if json_val["status"] == "ZERO_RESULTS":# If route not found, only field is error
+        return None
+"""
+
+
 def serialize_coordinates(coordinates):
     """Helper function to serialize list to output as needed in JsonResponse.
     @return serialized list of coordinates.

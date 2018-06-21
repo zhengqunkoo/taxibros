@@ -2,22 +2,24 @@ import datetime
 import pytz
 
 
-def calculateCost(distance):
+def calculateCost(distance, waiting_time):
+    print("=======================================")
     """Main function that checks conditions and estimates the cost
     @param: distance in m
     @return: cost in cents"""
     now = datetime.datetime.now(pytz.timezone("Asia/Singapore"))
+    distance = int(distance)
+    waiting_time = int(float(waiting_time))
     low = 0
     high = 0
     # 1. Flagdown
     low += 320
     high += 390
-    # 2. Distance
-    blocks = calcDistanceBlock(distance)
+    # 2. Distance & Time
+    blocks = calcDistanceBlock(distance) + calcWaitingBlock(waiting_time)
     low += 22 * blocks
     high += 25 * blocks
-    # 3.Waiting Time
-    ## TODO: Calc waiting time surcharge (same rate as above)
+
     # 4. Surcharges
     if isPeakPeriod(now):
         low *= 1.25
@@ -66,3 +68,7 @@ def calcDistanceBlock(distance):
         result = 9000 // 400
         result += (distance - 9000) // 350
     return result
+
+
+def calcWaitingBlock(time):
+    return time // 45
