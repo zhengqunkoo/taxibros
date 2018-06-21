@@ -238,10 +238,11 @@ function genLoc(pos, radius, minutes, pickupId) {
       infoWindow.setPosition(best_road_coords);
       infoWindow.setContent('Better location');
 
-      $('#walkpathGeom' + pickupId).html(path_geom);
-      $('#walkpathInstructions' + pickupId).html(path_instructions);
-      $('#pickupLatLng' + pickupId).html(pos.lat() + ';' + pos.lng());
-      $('#pickupTaxiCoords' + pickupId).html(coordinates);
+      var tr = $('#' + pickupId).closest('tr');
+      tr.children('td:nth-child(6)').find('.hide').html(path_geom);
+      tr.children('td:nth-child(7)').find('.hide').html(path_instructions);
+      tr.children('td:nth-child(8)').find('.hide').html(pos.lat() + ';' + pos.lng());
+      tr.children('td:nth-child(9)').find('.hide').html(coordinates);
 
       // Unset and replace pickup, if pickupId exists.
       unsetPickup(pickupId);

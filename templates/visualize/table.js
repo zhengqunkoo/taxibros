@@ -42,10 +42,9 @@ function createDatetimepicker(cell, innerText) {
   datetimepickerCount++;
 }
 
-function createHiddenText(id, innerText) {
+function createHiddenText(innerText) {
   var span = document.createElement('span');
   span.setAttribute('class', 'hide');
-  span.setAttribute('id', id);
   if (innerText !== undefined) {
     span.innerText = innerText;
   }
@@ -73,10 +72,10 @@ function addRow(pickupLocationInnerText, pickupTimeInnerText, arrivalLocationInn
   var pickupTaxiCoordsCell = row.insertCell(8);
 
   createDeleteRowButton(deleteRowButtonCell);
-  walkpathGeomCell.appendChild(createHiddenText('walkpathGeompac-input' + pacInputCount, walkpathGeomInnerText));
-  walkpathInstructionsCell.appendChild(createHiddenText('walkpathInstructionspac-input' + pacInputCount, walkpathInstructionsInnerText));
-  pickupLatLngCell.appendChild(createHiddenText('pickupLatLngpac-input' + pacInputCount, pickupLatLngInnerText));
-  pickupTaxiCoordsCell.appendChild(createHiddenText('pickupTaxiCoordspac-input' + pacInputCount, pickupTaxiCoordsInnerText));
+  walkpathGeomCell.appendChild(createHiddenText(walkpathGeomInnerText));
+  walkpathInstructionsCell.appendChild(createHiddenText(walkpathInstructionsInnerText));
+  pickupLatLngCell.appendChild(createHiddenText(pickupLatLngInnerText));
+  pickupTaxiCoordsCell.appendChild(createHiddenText(pickupTaxiCoordsInnerText));
 
   createPacInput(pickupLocationCell, true, pickupLocationInnerText);
   createDatetimepicker(pickupTimeCell, pickupTimeInnerText);
