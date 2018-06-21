@@ -51,11 +51,11 @@ function createHiddenText(innerText) {
   return span;
 }
 
-function createDeleteRowButton(cell) {
+function createButton(cell, classattr, value) {
   var input = document.createElement('input');
   input.setAttribute('type', 'button');
-  input.setAttribute('class', 'deleteRow td-height');
-  input.setAttribute('value', 'Delete');
+  input.setAttribute('class', classattr + ' td-height');
+  input.setAttribute('value', value);
   cell.appendChild(input);
 }
 
@@ -70,12 +70,14 @@ function addRow(pickupLocationInnerText, pickupTimeInnerText, arrivalLocationInn
   var walkpathInstructionsCell = row.insertCell(6);
   var pickupLatLngCell = row.insertCell(7);
   var pickupTaxiCoordsCell = row.insertCell(8);
+  var visualizePickupButtonCell = row.insertCell(9);
 
-  createDeleteRowButton(deleteRowButtonCell);
   walkpathGeomCell.appendChild(createHiddenText(walkpathGeomInnerText));
   walkpathInstructionsCell.appendChild(createHiddenText(walkpathInstructionsInnerText));
   pickupLatLngCell.appendChild(createHiddenText(pickupLatLngInnerText));
   pickupTaxiCoordsCell.appendChild(createHiddenText(pickupTaxiCoordsInnerText));
+  createButton(deleteRowButtonCell, 'deleteRow', 'Delete row');
+  createButton(visualizePickupButtonCell, 'visualizePickup', 'Visualize pickup');
 
   createPacInput(pickupLocationCell, true, pickupLocationInnerText);
   createDatetimepicker(pickupTimeCell, pickupTimeInnerText);
@@ -84,7 +86,7 @@ function addRow(pickupLocationInnerText, pickupTimeInnerText, arrivalLocationInn
   updateTable();
 }
 
-function deleteRow(){
+function deleteRow() {
   var tr = $(this).closest('tr');
   unsetPickup(tr.children('td:first').attr('id'));
   tr.remove();
@@ -126,11 +128,24 @@ function importToItineraryTable(data) {
   updateTable();
 }
 
+// TODO detect offline and use info in imported csv to visualize
+// if online, query server database for latest info.
+function visualizePickup() {
+  var tr = $(this).closest('tr');
+  var pickupId = tr.children('td:first').attr('id');
+  var pickupLatLng = tr.children('td:nth-child(8)').find('.hide')[0].innerHTML.split(';');
+  var pickupLat = parseFloat(pickupLatLng[0])
+  var pickupLng = parseFloat(pickupLatLng[1])
+  curLocation = new google.maps.LatLng(pickupLat, pickupLng);
+  genLoc(curLocation, locationRadius, locationMinutes, pickupId);
+}
+
 $(document).ready(function() {
   $('#addRow').on('click', function() {
     addRow();
   });
   $('#itineraryTable').on('click', '.deleteRow', deleteRow);
+  $('#itineraryTable').on('click', '.visualizePickup', visualizePickup);
   $('#importFromCsv').on('change', importFromCsvChange);
   TableExport.prototype.formatConfig.csv.buttonContent = 'Export';
 
