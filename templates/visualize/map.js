@@ -243,7 +243,7 @@ function genLoc(pos, radius, minutes, pickupId) {
       tr.children('td:nth-child(6)').find('.hide').html(path_geom);
       tr.children('td:nth-child(7)').find('.hide').html(path_instructions);
       tr.children('td:nth-child(8)').find('.hide').html(pos.lat() + ';' + pos.lng());
-      tr.children('td:nth-child(9)').find('.hide').html(coordinates);
+      tr.children('td:nth-child(9)').find('.hide').html(coordinates.join(';'));
       updateTable();
 
       // Unset and replace pickup, if pickupId exists.
