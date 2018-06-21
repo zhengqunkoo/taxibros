@@ -239,8 +239,10 @@ function genLoc(pos, radius, minutes, pickupId) {
       $('#walkpathInstructions' + pickupId).html(path_instructions);
       $('#pickupLatLng' + pickupId).html(pos.lat() + ';' + pos.lng());
       $('#pickupTaxiCoords' + pickupId).html(coordinates);
-      var walkpath = decode(path_geom, pickupId);
 
+      // Unset and replace pickup, if pickupId exists.
+      unsetPickup(pickupId);
+      var walkpath = decode(path_geom, pickupId);
       var locationCircle = updateLocationCircle(pos, radius, true);
 
       // Push into pointArray and save in associative array.
@@ -270,9 +272,10 @@ function genLoc(pos, radius, minutes, pickupId) {
   });
 }
 
-function updateLocationCircle(pos, radius, isReturn) {
-  if (curLocationCircle === undefined || curLocationCircle.getCenter() != pos) {
-    // If undefined or position changed.
+function updateLocationCircle(pos, radius, isCreate) {
+  if (curLocationCircle === undefined) {
+
+    // Create new circle.
     curLocationCircle = new google.maps.Circle({
       strokeColor: '#FF7F50',
       strokeOpacity: 0.2,
@@ -282,15 +285,25 @@ function updateLocationCircle(pos, radius, isReturn) {
       map: map,
       center: pos,
       radius: radius,
+      editable: true,
     });
   } else {
-    curLocationCircle.setRadius(radius);
+
+    // Update center.
+    if (curLocationCircle.getCenter() != pos) {
+      curLocationCircle.setCenter(pos);
+    }
+
+    // Update radius.
+    if (curLocationCircle.getRadius() != radius) {
+      curLocationCircle.setRadius(radius);
+    }
   }
 
   // Show entire locationCircle.
   map.fitBounds(curLocationCircle.getBounds());
 
-  if (isReturn) {
+  if (isCreate) {
     locationCircle = new google.maps.Circle({
       strokeColor: '#FF7F50',
       strokeOpacity: 0.2,
