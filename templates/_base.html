@@ -17,8 +17,15 @@
 </head>
 
 <body>
-
-  {% block content %}
-  {% endblock %}
+  <noscript>
+    <style type="text/css">
+      .container-page {display:none;}
+    </style>
+    <div class="noscriptmsg">TaxiBros works best with Javascript enabled.</div>
+  </noscript>
+  <div class="container-page">
+    {% block content %}
+    {% endblock %}
+  </div>
 </body>
 </html>
