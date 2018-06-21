@@ -7,7 +7,10 @@
 var map, heatmap, infoWindow;
 var pointArray, intensityArray;
 var pickups = {}, pickupIdLatest = 0;
-var locationEnabled = false, curLocation, curLocationCircle; // curLocation is defined when locationEnabled.
+
+// TODO wrap curLocation and locationEnabled in function so that
+// curLocation is defined when locationEnabled.
+var locationEnabled = false, curLocation, curLocationCircle;
 
 function initMap() {
   map = new google.maps.Map(document.getElementById('map'), {
@@ -322,10 +325,16 @@ function decode(encoded, pickupId){
 
 function setMouseResize(circle) {
   google.maps.event.addListener(circle, 'center_changed', function() {
-    console.log('center_changed');
+    locationEnabled = true;
+    curLocation = circle.getCenter();
+    // Show entire circle.
+    map.fitBounds(circle.getBounds());
+    genLoc(curLocation, locationRadius, locationMinutes, pickupIdLatest);
   });
   google.maps.event.addListener(circle, 'radius_changed', function() {
-    console.log('radius_changed');
+    locationRadius = circle.getRadius();
+    map.fitBounds(circle.getBounds());
+    genLoc(curLocation, locationRadius, locationMinutes, pickupIdLatest);
   });
 }
 
@@ -344,6 +353,9 @@ function updateLocationCircle(pos, radius, isCreate) {
       radius: radius,
       editable: true,
     });
+
+    // Add event handlers.
+    setMouseResize(curLocationCircle);
   } else {
 
     // Update center.
