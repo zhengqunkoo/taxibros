@@ -236,6 +236,8 @@ function genLoc(pos, radius, minutes, pickupId, path_geom, path_instructions, co
         tr.children('td:nth-child(7)').find('.hide').html(path_instructions);
         tr.children('td:nth-child(8)').find('.hide').html(pos.lat() + ',' + pos.lng());
         tr.children('td:nth-child(9)').find('.hide').html(coordinates.join(';'));
+        tr.children('td:nth-child(10)').find('.hide').html(radius);
+        tr.children('td:nth-child(11)').find('.hide').html(minutes);
         updateTable();
 
         genLocHandleData(pos, radius, pickupId, path_geom, path_instructions, coordinates, path_time, path_dist, total_dist, number, best_road, best_road_coords);

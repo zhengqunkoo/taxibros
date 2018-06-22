@@ -59,7 +59,7 @@ function createButton(cell, classattr, value) {
   cell.appendChild(input);
 }
 
-function addRow(pickupLocationInnerText, pickupTimeInnerText, arrivalLocationInnerText, arrivalTimeInnerText, walkpathGeomInnerText, walkpathInstructionsInnerText, pickupPosInnerText, pickupTaxiCoordsInnerText) {
+function addRow(pickupLocationInnerText, pickupTimeInnerText, arrivalLocationInnerText, arrivalTimeInnerText, walkpathGeomInnerText, walkpathInstructionsInnerText, pickupPosInnerText, radiusInnerText, minutesInnerText, pickupTaxiCoordsInnerText) {
   var row = itineraryTable.getElementsByTagName('tbody')[0].insertRow(-1);
   var pickupLocationCell = row.insertCell(0);
   var pickupTimeCell = row.insertCell(1);
@@ -70,12 +70,17 @@ function addRow(pickupLocationInnerText, pickupTimeInnerText, arrivalLocationInn
   var walkpathInstructionsCell = row.insertCell(6);
   var pickupPosCell = row.insertCell(7);
   var pickupTaxiCoordsCell = row.insertCell(8);
-  var visualizePickupButtonCell = row.insertCell(9);
+  var radiusCell = row.insertCell(9);
+  var minutesCell = row.insertCell(10);
+  var visualizePickupButtonCell = row.insertCell(11);
 
   walkpathGeomCell.appendChild(createHiddenText(walkpathGeomInnerText));
   walkpathInstructionsCell.appendChild(createHiddenText(walkpathInstructionsInnerText));
   pickupPosCell.appendChild(createHiddenText(pickupPosInnerText));
   pickupTaxiCoordsCell.appendChild(createHiddenText(pickupTaxiCoordsInnerText));
+  radiusCell.appendChild(createHiddenText(radiusInnerText));
+  minutesCell.appendChild(createHiddenText(minutesInnerText));
+
   createButton(deleteRowButtonCell, 'deleteRow', 'Delete row');
   createButton(visualizePickupButtonCell, 'visualizePickup', 'Visualize pickup');
 
@@ -137,9 +142,13 @@ function visualizePickup() {
   var walkpathInstructions = tr.children('td:nth-child(7)').find('.hide')[0].innerHTML;
   var pickupPos = tr.children('td:nth-child(8)').find('.hide')[0].innerHTML;
   var pickupTaxiCoords = tr.children('td:nth-child(9)').find('.hide')[0].innerHTML;
+  var locationRadius = tr.children('td:nth-child(10)').find('.hide')[0].innerHTML;
+  var locationMinutes = tr.children('td:nth-child(11)').find('.hide')[0].innerHTML;
 
   var parsedLatLng = parseLatLng(pickupPos);
   curLocation = new google.maps.LatLng(parsedLatLng[0], parsedLatLng[1]);
+  locationRadius = parseInt(locationRadius);
+  locationMinutes = parseInt(locationMinutes);
   pickupTaxiCoords = pickupTaxiCoords.split(';');
   pickupTaxiCoords = pickupTaxiCoords.map(parseLatLng);
   genLoc(curLocation, locationRadius, locationMinutes, pickupId, walkpathGeom, walkpathInstructions, pickupTaxiCoords);
