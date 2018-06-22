@@ -377,7 +377,8 @@ function updateLocationCircle(pos, radius, isCreate) {
   } else {
 
     // Update center.
-    if (curLocationCircle.getCenter() != pos) {
+    if (curLocationCircle.getCenter().lat() !== pos.lat()
+      || curLocationCircle.getCenter().lng() !== pos.lng()) {
       curLocationCircle.setCenter(pos);
     }
 
