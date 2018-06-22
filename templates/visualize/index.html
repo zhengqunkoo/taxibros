@@ -24,14 +24,21 @@
 {% endblock %}
 {% block content %}
 <!--Error Message-->
+<div>
+  <button onclick="toggleUI()">Toggle UI</button>
+</div>
 <div id="container-error">
-{% if error_message %}
-<p><strong>{{ error_message }}</strong></p>
-{% endif %}
+  {% if error_message %}
+  <p><strong>{{ error_message }}</strong></p>
+  {% endif %}
 </div>
 <div id= "map-all">
     <!-- Google maps. -->
     <div id="map"></div>
+
+    <!-- UI -->
+    <div id="container-ui">
+
     <!-- Controls (Bottom) -->
     <div id="container-controls">
         <table>
@@ -69,21 +76,19 @@
 
     <!-- Itinerary table (top left)-->
     <div id = "container-itinerary">
-      <div>
-        <input type="button" id="addRow" value="Add new row">
-        <table id="itineraryTable" class="tablesorter" cellspacing="1">
-          <thead>
-            <tr>
-              <th>Pickup Location</th>
-              <th>Pickup Time</th>
-              <th>Arrival Location</th>
-              <th>Arrival Time</th>
-              <th>Delete</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
-      </div>
+      <input type="button" id="addRow" value="Add row">
+      <table id="itineraryTable" class="tablesorter" cellspacing="1">
+        <thead>
+          <tr>
+            <th>Pickup Location</th>
+            <th>Pickup Time</th>
+            <th>Arrival Location</th>
+            <th>Arrival Time</th>
+            <th>Delete</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
       <label for="importFromCsv" class="btn btn-default csv">Import</label>
       <input id="importFromCsv" type="file"/>
       <div id="pager" class="pager">
@@ -126,6 +131,9 @@
             </tr>
         </table>
 
+    </div>
+
+    <!-- End of UI -->
     </div>
 
 </div>

@@ -13,6 +13,7 @@ var pickups = {}, pickupIdLatest = 0;
 var locationEnabled = false, curLocation, curLocationCircle;
 var directionsService;
 var directionsDisplay;
+var enableUI = true;
 
 function initMap() {
     directionsService = new google.maps.DirectionsService();
@@ -147,6 +148,16 @@ function initMap() {
 
 function toggleHeatmap() {
   heatmap.setMap(heatmap.getMap() ? null : map);
+}
+
+function toggleUI() {
+  if (enableUI) {
+    $('#container-ui').hide();
+    enableUI = false;
+  } else {
+    $('#container-ui').show();
+    enableUI = true;
+  }
 }
 
 function changeGradient() {
