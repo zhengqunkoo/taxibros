@@ -228,31 +228,6 @@ function genLoc(pos, radius, minutes, pickupId) {
       var path_time = data.path_time;
       var path_dist = data.path_dist;
 
-      //Load stats
-      if (number != 0) { //Gets around zero division error
-        document.getElementById('average_dist').innerHTML = Math.trunc(total_dist/number) + "m";
-      }
-      document.getElementById('num').innerHTML = number;
-
-      //Add, modify, or delete data depending on condition
-      if ($('#a').length == 0) {
-          $('#stats-table tr:last').after('<tr id = "a"><th>Better Waiting Location</th></tr>');
-          $('#stats-table tr:last').after('<tr id = "b"><td>Time to travel</td><td id = "path-time">"-"</td></tr>');
-          $('#stats-table tr:last').after('<tr id = "c"><td>Distance of travel</td><td id = "path-dist">"-"</td></tr>');
-      }
-      if (path_time==null) {
-          $('#a').remove();
-          $('#b').remove();
-          $('#c').remove();
-      } else {
-          $('#path-time').html(path_time + "s");
-          $('#path-dist').html(path_dist + "m");
-      }
-
-      appearStats();
-      infoWindow.setPosition(best_road_coords);
-      infoWindow.setContent('Better location');
-
       // Update table with latest information.
       var tr = $('#' + pickupId).closest('tr');
       tr.children('td:nth-child(6)').find('.hide').html(path_geom);
@@ -261,37 +236,68 @@ function genLoc(pos, radius, minutes, pickupId) {
       tr.children('td:nth-child(9)').find('.hide').html(coordinates.join(';'));
       updateTable();
 
-      // Unset and replace pickup, if pickupId exists.
-      unsetPickup(pickupId);
-      var walkpath = decode(path_geom, pickupId);
-      walkpath.setMap(map);
-      var locationCircle = updateLocationCircle(pos, radius, true);
-
-      // Push into pointArray and save in associative array.
-      var pickupPointArray = new google.maps.MVCArray();
-      coordinates.forEach(coord => {
-        pickupPointArray.push(new google.maps.LatLng(coord[0], coord[1]));
-        pointArray.push(new google.maps.LatLng(coord[0], coord[1]));
-      });
-      pickups[pickupId] = [walkpath, locationCircle, pickupPointArray];
-
-      // TODO this is costly when many old pickups.
-      // maybe invert? one global pointArray bound to hashmap: key latlng, value pickupId.
-      // on change / delete pickupId, remove from hashmap and thus from pointArray.
-
-      // Push rest of points from associative array.
-      for (var key in pickups) {
-        if (key != pickupId) {
-          pickups[key][2].forEach(latlng => {
-            pointArray.push(latlng);
-          });
-        }
-      }
+      genLocHandleData(pos, radius, pickupId, path_geom, path_instructions, coordinates, path_time, path_dist, total_dist, number, best_road, best_road_coords);
     },
     error: function(rs, e) {
       console.log("Failed to reach {% url 'visualize:genLoc' %}.");
     }
   });
+}
+
+function genLocHandleData(pos, radius, pickupId, path_geom, path_instructions, coordinates, path_time, path_dist, total_dist, number, best_road, best_road_coords) {
+
+  // Load stats
+  if (number != 0) { //Gets around zero division error
+    document.getElementById('average_dist').innerHTML = Math.trunc(total_dist/number) + "m";
+  }
+  document.getElementById('num').innerHTML = number;
+
+  //Add, modify, or delete data depending on condition
+  if ($('#a').length == 0) {
+      $('#stats-table tr:last').after('<tr id = "a"><th>Better Waiting Location</th></tr>');
+      $('#stats-table tr:last').after('<tr id = "b"><td>Time to travel</td><td id = "path-time">"-"</td></tr>');
+      $('#stats-table tr:last').after('<tr id = "c"><td>Distance of travel</td><td id = "path-dist">"-"</td></tr>');
+  }
+  if (path_time==null) {
+      $('#a').remove();
+      $('#b').remove();
+      $('#c').remove();
+  } else {
+      $('#path-time').html(path_time + "s");
+      $('#path-dist').html(path_dist + "m");
+  }
+
+  appearStats();
+  infoWindow.setPosition(best_road_coords);
+  infoWindow.setContent('Better location');
+
+  // Unset and replace pickup, if pickupId exists.
+  unsetPickup(pickupId);
+  var walkpath = decode(path_geom, pickupId);
+  walkpath.setMap(map);
+  var locationCircle = updateLocationCircle(pos, radius, true);
+
+  // Push into pointArray and save in associative array.
+  pointArray.clear();
+  var pickupPointArray = new google.maps.MVCArray();
+  coordinates.forEach(coord => {
+    pickupPointArray.push(new google.maps.LatLng(coord[0], coord[1]));
+    pointArray.push(new google.maps.LatLng(coord[0], coord[1]));
+  });
+  pickups[pickupId] = [walkpath, locationCircle, pickupPointArray];
+
+  // TODO this is costly when many old pickups.
+  // maybe invert? one global pointArray bound to hashmap: key latlng, value pickupId.
+  // on change / delete pickupId, remove from hashmap and thus from pointArray.
+
+  // Push rest of points from associative array.
+  for (var key in pickups) {
+    if (key != pickupId) {
+      pickups[key][2].forEach(latlng => {
+        pointArray.push(latlng);
+      });
+    }
+  }
 }
 
 function decode(encoded, pickupId){
