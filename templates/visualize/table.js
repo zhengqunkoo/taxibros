@@ -59,7 +59,7 @@ function createButton(cell, classattr, value) {
   cell.appendChild(input);
 }
 
-function addRow(pickupLocationInnerText, pickupTimeInnerText, arrivalLocationInnerText, arrivalTimeInnerText, walkpathGeomInnerText, walkpathInstructionsInnerText, pickupLatLngInnerText, pickupTaxiCoordsInnerText) {
+function addRow(pickupLocationInnerText, pickupTimeInnerText, arrivalLocationInnerText, arrivalTimeInnerText, walkpathGeomInnerText, walkpathInstructionsInnerText, pickupPosInnerText, pickupTaxiCoordsInnerText) {
   var row = itineraryTable.getElementsByTagName('tbody')[0].insertRow(-1);
   var pickupLocationCell = row.insertCell(0);
   var pickupTimeCell = row.insertCell(1);
@@ -68,13 +68,13 @@ function addRow(pickupLocationInnerText, pickupTimeInnerText, arrivalLocationInn
   var deleteRowButtonCell = row.insertCell(4);
   var walkpathGeomCell = row.insertCell(5);
   var walkpathInstructionsCell = row.insertCell(6);
-  var pickupLatLngCell = row.insertCell(7);
+  var pickupPosCell = row.insertCell(7);
   var pickupTaxiCoordsCell = row.insertCell(8);
   var visualizePickupButtonCell = row.insertCell(9);
 
   walkpathGeomCell.appendChild(createHiddenText(walkpathGeomInnerText));
   walkpathInstructionsCell.appendChild(createHiddenText(walkpathInstructionsInnerText));
-  pickupLatLngCell.appendChild(createHiddenText(pickupLatLngInnerText));
+  pickupPosCell.appendChild(createHiddenText(pickupPosInnerText));
   pickupTaxiCoordsCell.appendChild(createHiddenText(pickupTaxiCoordsInnerText));
   createButton(deleteRowButtonCell, 'deleteRow', 'Delete row');
   createButton(visualizePickupButtonCell, 'visualizePickup', 'Visualize pickup');
@@ -133,11 +133,21 @@ function importToItineraryTable(data) {
 function visualizePickup() {
   var tr = $(this).closest('tr');
   var pickupId = tr.children('td:first').find('input').attr('id');
-  var pickupLatLng = tr.children('td:nth-child(8)').find('.hide')[0].innerHTML.split(';');
-  var pickupLat = parseFloat(pickupLatLng[0])
-  var pickupLng = parseFloat(pickupLatLng[1])
-  curLocation = new google.maps.LatLng(pickupLat, pickupLng);
-  genLoc(curLocation, locationRadius, locationMinutes, pickupId);
+  var walkpathGeom = tr.children('td:nth-child(6)').find('.hide')[0].innerHTML;
+  var walkpathInstructions = tr.children('td:nth-child(7)').find('.hide')[0].innerHTML;
+  var pickupPos = tr.children('td:nth-child(8)').find('.hide')[0].innerHTML;
+  var pickupTaxiCoords = tr.children('td:nth-child(9)').find('.hide')[0].innerHTML;
+
+  var parsedLatLng = parseLatLng(pickupPos);
+  curLocation = new google.maps.LatLng(parsedLatLng[0], parsedLatLng[1]);
+  pickupTaxiCoords = pickupTaxiCoords.split(';');
+  pickupTaxiCoords = pickupTaxiCoords.map(parseLatLng);
+  genLoc(curLocation, locationRadius, locationMinutes, pickupId, walkpathGeom, walkpathInstructions, pickupTaxiCoords);
+}
+
+function parseLatLng(latlng) {
+  latlng = latlng.split(',');
+  return [parseFloat(latlng[0]), parseFloat(latlng[1])];
 }
 
 $(document).ready(function() {
