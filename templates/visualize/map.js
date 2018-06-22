@@ -6,8 +6,6 @@
 // locate you.
 var map, heatmap, infoWindow;
 var pointArray, intensityArray;
-var walkpaths = {};
-var pacInputCount = 0, datetimepickerCount = 0;
 var pickups = {}, pickupIdLatest = 0;
 
 // TODO wrap curLocation and locationEnabled in function so that
@@ -512,17 +510,6 @@ function unsetPickup(pickupId) {
   }
 }
 
-function disappearStats() {
-    //Function for container stats to disappear to the side
-  $('#container-stats').stop().animate({right: "-50%"},1200);
-}
-
-function appearStats() {
-    //Function for container stats to appear on RHS of screen
-  $('#container-stats').stop().animate({right: "0%"},400);
-}
-
-
 function calcRoute(start_lat, start_lng, end_lat, end_lng) {
     var request = {
         origin: new google.maps.LatLng(start_lat,start_lng),
@@ -625,7 +612,6 @@ function unsetMapObj(obj) {
   obj.setMap(null);
   obj = null;
 }
-
 
 $(document).ready(function() {
   $('#slider').click(function() {

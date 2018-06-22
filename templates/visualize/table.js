@@ -88,7 +88,7 @@ function addRow(pickupLocationInnerText, pickupTimeInnerText, arrivalLocationInn
 
 function deleteRow() {
   var tr = $(this).closest('tr');
-  unsetPickup(tr.children('td:first').attr('id'));
+  unsetPickup(tr.children('td:first').find('input').attr('id'));
   tr.remove();
   updateTable();
 }
@@ -132,7 +132,7 @@ function importToItineraryTable(data) {
 // if online, query server database for latest info.
 function visualizePickup() {
   var tr = $(this).closest('tr');
-  var pickupId = tr.children('td:first').attr('id');
+  var pickupId = tr.children('td:first').find('input').attr('id');
   var pickupLatLng = tr.children('td:nth-child(8)').find('.hide')[0].innerHTML.split(';');
   var pickupLat = parseFloat(pickupLatLng[0])
   var pickupLng = parseFloat(pickupLatLng[1])
