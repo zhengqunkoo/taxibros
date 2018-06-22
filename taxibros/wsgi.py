@@ -15,7 +15,6 @@ import requests
 import subprocess
 import time
 
-from .dotenv_extensions import set_key
 from background_task.models import Task
 from daemons.download import start_download
 from daemons.convert import process_location_coordinates
@@ -25,7 +24,7 @@ from django.conf import settings
 dotenv_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), ".env")
 
 # Read .env file.
-dotenv.read_dotenv(dotenv_path)
+dotenv.load_dotenv(dotenv_path=dotenv_path)
 
 # If expired keys, update .env file, read .env file again.
 if not settings.ONEMAP_EXPIRY_TIMESTAMP or time.time() > int(
@@ -39,9 +38,9 @@ if not settings.ONEMAP_EXPIRY_TIMESTAMP or time.time() > int(
         headers={"Content-Type": "application/json"},
     )
     request_json = request.json()
-    set_key(dotenv_path, "ONEMAP_SECRET_KEY", request_json["access_token"])
-    set_key(dotenv_path, "ONEMAP_EXPIRY_TIMESTAMP", request_json["expiry_timestamp"])
-    dotenv.read_dotenv(dotenv_path)
+    dotenv.set_key(dotenv_path, "ONEMAP_SECRET_KEY", request_json["access_token"])
+    dotenv.set_key(dotenv_path, "ONEMAP_EXPIRY_TIMESTAMP", request_json["expiry_timestamp"])
+    dotenv.load_dotenv(dotenv_path=dotenv_path)
 else:
     print("Using old OneMap token")
 
