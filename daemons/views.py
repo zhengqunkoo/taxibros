@@ -235,10 +235,10 @@ def get_path_data(start_lat, start_lng, end_lat, end_lng):
     }
     r = requests.get(url, params=params)
     if r.status_code != 200:
-        return None, None, None
+        return None, None, None, None
     json_val = r.json()
     if "error" in json_val:  # If route not found, only field is error
-        return None, None, None
+        return None, None, None, None
 
     return (
         json_val["route_geometry"],
