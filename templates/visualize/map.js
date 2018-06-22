@@ -198,7 +198,7 @@ function getPoints() {
   ];
 }
 
-function genLoc(pos, radius, minutes, pickupId) {
+function genLoc(pos, radius, minutes, pickupId, path_geom, path_instructions, coordinates) {
 
   // Set global location variables.
   locationEnabled = true;
@@ -207,69 +207,78 @@ function genLoc(pos, radius, minutes, pickupId) {
 
   map.setCenter(pos);
 
-  $.ajax({
-    url: "{% url 'visualize:genLoc' %}",
-    data: {
-      lat: pos.lat,
-      lng: pos.lng,
-      radius: radius,
-      minutes: minutes
-    },
-    dataType: 'json',
-    success: function(data) {
-      pointArray.clear();
-      var coordinates = data.coordinates;
-      var total_dist = data.total_dist;
-      var number = data.number;
-      var best_road = data.best_road;
-      var best_road_coords = data.best_road_coords;
-      var path_geom = data.path_geom;
-      var path_instructions = data.path_instructions;
-      var path_time = data.path_time;
-      var path_dist = data.path_dist;
+  // If no optional arguments, perform ajax call.
+  if (arguments.length == 4) {
 
-      // Update table with latest information.
-      var tr = $('#' + pickupId).closest('tr');
-      tr.children('td:nth-child(6)').find('.hide').html(path_geom);
-      tr.children('td:nth-child(7)').find('.hide').html(path_instructions);
-      tr.children('td:nth-child(8)').find('.hide').html(pos.lat() + ';' + pos.lng());
-      tr.children('td:nth-child(9)').find('.hide').html(coordinates.join(';'));
-      updateTable();
+    $.ajax({
+      url: "{% url 'visualize:genLoc' %}",
+      data: {
+        lat: pos.lat,
+        lng: pos.lng,
+        radius: radius,
+        minutes: minutes
+      },
+      dataType: 'json',
+      success: function(data) {
+        coordinates = data.coordinates;
+        total_dist = data.total_dist;
+        number = data.number;
+        best_road = data.best_road;
+        best_road_coords = data.best_road_coords;
+        path_geom = data.path_geom;
+        path_instructions = data.path_instructions;
+        path_time = data.path_time;
+        path_dist = data.path_dist;
 
-      genLocHandleData(pos, radius, pickupId, path_geom, path_instructions, coordinates, path_time, path_dist, total_dist, number, best_road, best_road_coords);
-    },
-    error: function(rs, e) {
-      console.log("Failed to reach {% url 'visualize:genLoc' %}.");
-    }
-  });
+        // Update table with latest information.
+        var tr = $('#' + pickupId).closest('tr');
+        tr.children('td:nth-child(6)').find('.hide').html(path_geom);
+        tr.children('td:nth-child(7)').find('.hide').html(path_instructions);
+        tr.children('td:nth-child(8)').find('.hide').html(pos.lat() + ',' + pos.lng());
+        tr.children('td:nth-child(9)').find('.hide').html(coordinates.join(';'));
+        updateTable();
+
+        genLocHandleData(pos, radius, pickupId, path_geom, path_instructions, coordinates, path_time, path_dist, total_dist, number, best_road, best_road_coords);
+      },
+      error: function(rs, e) {
+        console.log("Failed to reach {% url 'visualize:genLoc' %}.");
+      }
+    });
+  } else {
+    genLocHandleData(pos, radius, pickupId, path_geom, path_instructions, coordinates);
+  }
 }
 
 function genLocHandleData(pos, radius, pickupId, path_geom, path_instructions, coordinates, path_time, path_dist, total_dist, number, best_road, best_road_coords) {
 
-  // Load stats
-  if (number != 0) { //Gets around zero division error
-    document.getElementById('average_dist').innerHTML = Math.trunc(total_dist/number) + "m";
-  }
-  document.getElementById('num').innerHTML = number;
+  // If optional args.
+  if (arguments.length != 6) {
 
-  //Add, modify, or delete data depending on condition
-  if ($('#a').length == 0) {
-      $('#stats-table tr:last').after('<tr id = "a"><th>Better Waiting Location</th></tr>');
-      $('#stats-table tr:last').after('<tr id = "b"><td>Time to travel</td><td id = "path-time">"-"</td></tr>');
-      $('#stats-table tr:last').after('<tr id = "c"><td>Distance of travel</td><td id = "path-dist">"-"</td></tr>');
-  }
-  if (path_time==null) {
-      $('#a').remove();
-      $('#b').remove();
-      $('#c').remove();
-  } else {
-      $('#path-time').html(path_time + "s");
-      $('#path-dist').html(path_dist + "m");
-  }
+    // Load stats
+    if (number != 0) { //Gets around zero division error
+      document.getElementById('average_dist').innerHTML = Math.trunc(total_dist/number) + "m";
+    }
+    document.getElementById('num').innerHTML = number;
 
-  appearStats();
-  infoWindow.setPosition(best_road_coords);
-  infoWindow.setContent('Better location');
+    //Add, modify, or delete data depending on condition
+    if ($('#a').length == 0) {
+        $('#stats-table tr:last').after('<tr id = "a"><th>Better Waiting Location</th></tr>');
+        $('#stats-table tr:last').after('<tr id = "b"><td>Time to travel</td><td id = "path-time">"-"</td></tr>');
+        $('#stats-table tr:last').after('<tr id = "c"><td>Distance of travel</td><td id = "path-dist">"-"</td></tr>');
+    }
+    if (path_time==null) {
+        $('#a').remove();
+        $('#b').remove();
+        $('#c').remove();
+    } else {
+        $('#path-time').html(path_time + "s");
+        $('#path-dist').html(path_dist + "m");
+    }
+
+    appearStats();
+    infoWindow.setPosition(best_road_coords);
+    infoWindow.setContent('Better location');
+  }
 
   // Unset and replace pickup, if pickupId exists.
   unsetPickup(pickupId);
