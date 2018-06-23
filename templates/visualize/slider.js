@@ -122,13 +122,11 @@ function genSliderCallback(minutes, url, successCallback) {
 
 function genTimeSliderChange(minutes) {
   locationMinutes = minutes;
-  if (locationEnabled) {
+  if (locationCenter !== undefined) {
     // genTimeSliderChange should not have own pickupId.
-    // If locationEnabled, then genLoc was called outside genTimeSliderChange.
+    // If locationCenter defined, then genLoc was called outside genTimeSliderChange.
     // genTimeSliderChange then changes time in context of this location.
-    // So, path of location should change as well.
-    // Replace old path with path at new time.
-    genLoc(location, locationRadius, locationMinutes, pickupIdLatest);
+    genLoc(locationCenter, locationRadius, locationMinutes, pickupIdLatest);
   } else {
     genSliderCallback(minutes, "{% url 'visualize:genTime' %}", function(data) {
       pointArray.clear();
@@ -141,15 +139,15 @@ function genTimeSliderChange(minutes) {
 
 function genLocationRadiusSliderChange(radius) {
   locationRadius = radius;
-  if (locationEnabled) {
-    updateLocationCircle(location, locationRadius, false);
+  if (locationCenter !== undefined) {
+    updateLocationCircle(locationCenter, locationRadius, false);
   }
 }
 
 function genLocationRadiusSliderStop(radius) {
   locationRadius = radius;
-  if (locationEnabled) {
-    genLoc(location, locationRadius, locationMinutes, pickupIdLatest);
+  if (locationCenter !== undefined) {
+    genLoc(locationCenter, locationRadius, locationMinutes, pickupIdLatest);
   }
 }
 

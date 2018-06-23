@@ -146,12 +146,12 @@ function visualizePickup() {
   var locationMinutes = tr.children('td:nth-child(12)').find('.hide')[0].innerHTML;
 
   var parsedLatLng = parseLatLng(pickupPos);
-  location = new google.maps.LatLng(parsedLatLng[0], parsedLatLng[1]);
+  locationCenter = new google.maps.LatLng(parsedLatLng[0], parsedLatLng[1]);
   locationRadius = parseInt(locationRadius);
   locationMinutes = parseInt(locationMinutes);
   pickupTaxiCoords = pickupTaxiCoords.split(';');
   pickupTaxiCoords = pickupTaxiCoords.map(parseLatLng);
-  genLoc(location, locationRadius, locationMinutes, pickupId, walkpathGeom, walkpathInstructions, pickupTaxiCoords);
+  genLoc(locationCenter, locationRadius, locationMinutes, pickupId, walkpathGeom, walkpathInstructions, pickupTaxiCoords);
 }
 
 function parseLatLng(latlng) {

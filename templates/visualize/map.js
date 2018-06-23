@@ -8,7 +8,7 @@ var map, heatmap, infoWindow;
 var pointArray, intensityArray;
 var pickups = {}, pickupIdLatest = 0;
 
-var location, locationCircle;
+var locationCenter, locationCircle;
 var directionsService;
 var directionsDisplay;
 var genCount = 0;
@@ -181,11 +181,11 @@ function changeOpacity() {
 }
 
 function setLocation(pos) {
-  location = pos;
+  locationCenter = pos;
 }
 
 function unsetLocation() {
-  location = undefined;
+  locationCenter = undefined;
 }
 
 function getPoints() {
@@ -215,6 +215,7 @@ function genLoc(pos, radius, minutes, pickupId, path_geom, path_instructions, co
    */
   // Set global location variables.
   pickupIdLatest = pickupId
+  setLocation(pos);
 
   map.setCenter(pos);
 
@@ -390,14 +391,14 @@ function setMouseResize(circle) {
     setLocation(circle.getCenter());
     // Show entire circle.
     map.fitBounds(circle.getBounds());
-    genLoc(location, locationRadius, locationMinutes, pickupIdLatest);
+    genLoc(locationCenter, locationRadius, locationMinutes, pickupIdLatest);
   });
 
   google.maps.event.addListener(circle, 'radius_changed', function() {
     console.log('setMouseResize: radius_changed');
     locationRadius = circle.getRadius();
     map.fitBounds(circle.getBounds());
-    genLoc(location, locationRadius, locationMinutes, pickupIdLatest);
+    genLoc(locationCenter, locationRadius, locationMinutes, pickupIdLatest);
   });
 }
 
