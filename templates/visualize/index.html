@@ -25,7 +25,7 @@
 {% block content %}
 <!--Error Message-->
 <div>
-  <button onclick="toggleUI()">Toggle UI</button>
+  <button onclick="toggleUi()">Toggle UI</button>
 </div>
 <div id="container-error">
   {% if error_message %}
@@ -48,7 +48,7 @@
                 <button onclick="changeRadius()">Change radius</button>
                 <button onclick="changeOpacity()">Change opacity</button>
                 <button onclick="showNearby()">Show near-by taxis</button>
-                <button onclick="resetLocation()">Reset location</button>
+                <button onclick="unsetLocation()">Reset location</button>
             </tr>
         </table>
     </div>

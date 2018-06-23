@@ -151,7 +151,7 @@ function toggleHeatmap() {
   heatmap.setMap(heatmap.getMap() ? null : map);
 }
 
-function toggleUI() {
+function toggleUi() {
   if (enableUI) {
     $('#container-ui').hide();
     enableUI = false;
@@ -189,7 +189,7 @@ function changeOpacity() {
   heatmap.set('opacity', heatmap.get('opacity') ? null : 0.2);
 }
 
-function resetLocation() {
+function unsetLocation() {
   locationEnabled = false;
 }
 
