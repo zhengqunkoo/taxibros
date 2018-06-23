@@ -421,11 +421,8 @@ function updateLocationCircle(pos, radius, isCreate) {
       map: map,
       center: pos,
       radius: radius,
-      editable: true,
     });
 
-    // Add event handlers.
-    setMouseResize(locationCircle);
   } else {
 
     // Update center.
@@ -458,7 +455,12 @@ function updateLocationCircle(pos, radius, isCreate) {
       map: map,
       center: pos,
       radius: radius,
+      editable: true,
     });
+
+    // Add event handlers.
+    setMouseResize(circle);
+
     return circle;
   }
 }
