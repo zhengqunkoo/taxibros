@@ -8,9 +8,9 @@ var map, heatmap, infoWindow;
 var pointArray, intensityArray;
 var pickups = {}, pickupIdLatest = 0;
 
-// TODO wrap curLocation and locationEnabled in function so that
-// curLocation is defined when locationEnabled.
-var locationEnabled = false, curLocation, curLocationCircle;
+// TODO wrap location and locationEnabled in function so that
+// location is defined when locationEnabled.
+var locationEnabled = false, location, locationCircle;
 var directionsService;
 var directionsDisplay;
 var enableUI = true;
@@ -202,9 +202,7 @@ function getPoints() {
 function genLoc(pos, radius, minutes, pickupId, path_geom, path_instructions, coordinates) {
 
   // Set global location variables.
-  locationEnabled = true;
   pickupIdLatest = pickupId
-  curLocation = pos;
 
   map.setCenter(pos);
 
@@ -295,7 +293,7 @@ function genLocHandleData(pos, radius, pickupId, path_geom, path_instructions, c
   unsetPickup(pickupId);
   var walkpath = decode(path_geom, pickupId);
   walkpath.setMap(map);
-  var locationCircle = updateLocationCircle(pos, radius, true);
+  var circle = updateLocationCircle(pos, radius, true);
 
   // Push into pointArray and save in associative array.
   pointArray.clear();
@@ -304,7 +302,7 @@ function genLocHandleData(pos, radius, pickupId, path_geom, path_instructions, c
     pickupPointArray.push(new google.maps.LatLng(coord[0], coord[1]));
     pointArray.push(new google.maps.LatLng(coord[0], coord[1]));
   });
-  pickups[pickupId] = [walkpath, locationCircle, pickupPointArray];
+  pickups[pickupId] = [walkpath, circle, pickupPointArray];
 
   // TODO this is costly when many old pickups.
   // maybe invert? one global pointArray bound to hashmap: key latlng, value pickupId.
@@ -371,26 +369,26 @@ function setMouseResize(circle) {
   google.maps.event.addListener(circle, 'center_changed', function() {
     console.log('setMouseResize: center_changed');
     locationEnabled = true;
-    curLocation = circle.getCenter();
+    location = circle.getCenter();
     // Show entire circle.
     map.fitBounds(circle.getBounds());
-    genLoc(curLocation, locationRadius, locationMinutes, pickupIdLatest);
+    genLoc(location, locationRadius, locationMinutes, pickupIdLatest);
   });
 
   google.maps.event.addListener(circle, 'radius_changed', function() {
     console.log('setMouseResize: radius_changed');
     locationRadius = circle.getRadius();
     map.fitBounds(circle.getBounds());
-    genLoc(curLocation, locationRadius, locationMinutes, pickupIdLatest);
+    genLoc(location, locationRadius, locationMinutes, pickupIdLatest);
   });
 }
 
 function updateLocationCircle(pos, radius, isCreate) {
-  if (curLocationCircle === undefined) {
+  if (locationCircle === undefined) {
     console.log('updateLocationCircle: creating new circle, binding new mouse handlers');
 
     // Create new circle.
-    curLocationCircle = new google.maps.Circle({
+    locationCircle = new google.maps.Circle({
       strokeColor: '#FF7F50',
       strokeOpacity: 0.2,
       strokeWeight: 2,
@@ -403,28 +401,28 @@ function updateLocationCircle(pos, radius, isCreate) {
     });
 
     // Add event handlers.
-    setMouseResize(curLocationCircle);
+    setMouseResize(locationCircle);
   } else {
 
     // Update center.
-    if (curLocationCircle.getCenter().lat() !== pos.lat()
-      || curLocationCircle.getCenter().lng() !== pos.lng()) {
-      console.log('updateLocationCircle: center updated', curLocationCircle.getCenter().lat(), curLocationCircle.getCenter().lng(), pos.lat(), pos.lng());
-      curLocationCircle.setCenter(pos);
+    if (locationCircle.getCenter().lat() !== pos.lat()
+      || locationCircle.getCenter().lng() !== pos.lng()) {
+      console.log('updateLocationCircle: center updated', locationCircle.getCenter().lat(), locationCircle.getCenter().lng(), pos.lat(), pos.lng());
+      locationCircle.setCenter(pos);
     }
 
     // Update radius.
-    if (curLocationCircle.getRadius() != radius) {
-      console.log('updateLocationCircle: radius updated', curLocationCircle.getRadius(), radius);
-      curLocationCircle.setRadius(radius);
+    if (locationCircle.getRadius() != radius) {
+      console.log('updateLocationCircle: radius updated', locationCircle.getRadius(), radius);
+      locationCircle.setRadius(radius);
     }
   }
 
   // Show entire locationCircle.
-  map.fitBounds(curLocationCircle.getBounds());
+  map.fitBounds(locationCircle.getBounds());
 
   if (isCreate) {
-    locationCircle = new google.maps.Circle({
+    var circle = new google.maps.Circle({
       strokeColor: '#FF7F50',
       strokeOpacity: 0.2,
       strokeWeight: 2,
@@ -434,7 +432,7 @@ function updateLocationCircle(pos, radius, isCreate) {
       center: pos,
       radius: radius,
     });
-    return locationCircle;
+    return circle;
   }
 }
 

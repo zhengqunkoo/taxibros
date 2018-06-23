@@ -128,7 +128,7 @@ function genTimeSliderChange(minutes) {
     // genTimeSliderChange then changes time in context of this location.
     // So, path of location should change as well.
     // Replace old path with path at new time.
-    genLoc(curLocation, locationRadius, locationMinutes, pickupIdLatest);
+    genLoc(location, locationRadius, locationMinutes, pickupIdLatest);
   } else {
     genSliderCallback(minutes, "{% url 'visualize:genTime' %}", function(data) {
       pointArray.clear();
@@ -142,14 +142,14 @@ function genTimeSliderChange(minutes) {
 function genLocationRadiusSliderChange(radius) {
   locationRadius = radius;
   if (locationEnabled) {
-    updateLocationCircle(curLocation, locationRadius, false);
+    updateLocationCircle(location, locationRadius, false);
   }
 }
 
 function genLocationRadiusSliderStop(radius) {
   locationRadius = radius;
   if (locationEnabled) {
-    genLoc(curLocation, locationRadius, locationMinutes, pickupIdLatest);
+    genLoc(location, locationRadius, locationMinutes, pickupIdLatest);
   }
 }
 
