@@ -8,12 +8,9 @@ var map, heatmap, infoWindow;
 var pointArray, intensityArray;
 var pickups = {}, pickupIdLatest = 0;
 
-// TODO wrap location and locationEnabled in function so that
-// location is defined when locationEnabled.
-var locationEnabled = false, location, locationCircle;
+var location, locationCircle;
 var directionsService;
 var directionsDisplay;
-var enableUI = true;
 var genCount = 0;
 
 function initMap() {
@@ -152,13 +149,7 @@ function toggleHeatmap() {
 }
 
 function toggleUi() {
-  if (enableUI) {
-    $('#container-ui').hide();
-    enableUI = false;
-  } else {
-    $('#container-ui').show();
-    enableUI = true;
-  }
+  $('#container-ui').toggle();
 }
 
 function changeGradient() {
@@ -189,8 +180,12 @@ function changeOpacity() {
   heatmap.set('opacity', heatmap.get('opacity') ? null : 0.2);
 }
 
+function setLocation(pos) {
+  location = pos;
+}
+
 function unsetLocation() {
-  locationEnabled = false;
+  location = undefined;
 }
 
 function getPoints() {
@@ -365,8 +360,7 @@ function decode(encoded, pickupId){
 function setMouseResize(circle) {
   google.maps.event.addListener(circle, 'center_changed', function() {
     console.log('setMouseResize: center_changed');
-    locationEnabled = true;
-    location = circle.getCenter();
+    setLocation(circle.getCenter());
     // Show entire circle.
     map.fitBounds(circle.getBounds());
     genLoc(location, locationRadius, locationMinutes, pickupIdLatest);
