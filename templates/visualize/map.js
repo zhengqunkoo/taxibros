@@ -14,6 +14,7 @@ var locationEnabled = false, curLocation, curLocationCircle;
 var directionsService;
 var directionsDisplay;
 var enableUI = true;
+var genCount = 0;
 
 function initMap() {
     directionsService = new google.maps.DirectionsService();
@@ -209,6 +210,7 @@ function genLoc(pos, radius, minutes, pickupId, path_geom, path_instructions, co
 
   // If no optional arguments, perform ajax call.
   if (arguments.length == 4) {
+    console.log('genLoc: optional args undefined');
 
     $.ajax({
       url: "{% url 'visualize:genLoc' %}",
@@ -240,6 +242,8 @@ function genLoc(pos, radius, minutes, pickupId, path_geom, path_instructions, co
         tr.children('td:nth-child(12)').find('.hide').html(minutes);
         updateTable();
 
+        console.log('genLoc: calling genLocHandleData online', genCount);
+        genCount++;
         genLocHandleData(pos, radius, pickupId, path_geom, path_instructions, coordinates, path_time, path_dist, total_dist, number, best_road, best_road_coords);
       },
       error: function(rs, e) {
@@ -247,6 +251,9 @@ function genLoc(pos, radius, minutes, pickupId, path_geom, path_instructions, co
       }
     });
   } else {
+    console.log('genLoc: optional args defined');
+    console.log('genLoc: calling genLocHandleData offline', genCount);
+    genCount++;
     genLocHandleData(pos, radius, pickupId, path_geom, path_instructions, coordinates);
   }
 }
@@ -255,7 +262,7 @@ function genLocHandleData(pos, radius, pickupId, path_geom, path_instructions, c
 
   // If optional args.
   if (arguments.length != 6) {
-
+    console.log('genLocHandleData: optional args defined');
     // Load stats
     if (number != 0) { //Gets around zero division error
       document.getElementById('average_dist').innerHTML = Math.trunc(total_dist/number) + "m";
@@ -280,6 +287,8 @@ function genLocHandleData(pos, radius, pickupId, path_geom, path_instructions, c
     appearStats();
     infoWindow.setPosition(best_road_coords);
     infoWindow.setContent('Better location');
+  } else {
+    console.log('genLocHandleData: optional args undefined');
   }
 
   // Unset and replace pickup, if pickupId exists.
@@ -360,13 +369,16 @@ function decode(encoded, pickupId){
 
 function setMouseResize(circle) {
   google.maps.event.addListener(circle, 'center_changed', function() {
+    console.log('setMouseResize: center_changed');
     locationEnabled = true;
     curLocation = circle.getCenter();
     // Show entire circle.
     map.fitBounds(circle.getBounds());
     genLoc(curLocation, locationRadius, locationMinutes, pickupIdLatest);
   });
+
   google.maps.event.addListener(circle, 'radius_changed', function() {
+    console.log('setMouseResize: radius_changed');
     locationRadius = circle.getRadius();
     map.fitBounds(circle.getBounds());
     genLoc(curLocation, locationRadius, locationMinutes, pickupIdLatest);
@@ -375,6 +387,7 @@ function setMouseResize(circle) {
 
 function updateLocationCircle(pos, radius, isCreate) {
   if (curLocationCircle === undefined) {
+    console.log('updateLocationCircle: creating new circle, binding new mouse handlers');
 
     // Create new circle.
     curLocationCircle = new google.maps.Circle({
@@ -396,11 +409,13 @@ function updateLocationCircle(pos, radius, isCreate) {
     // Update center.
     if (curLocationCircle.getCenter().lat() !== pos.lat()
       || curLocationCircle.getCenter().lng() !== pos.lng()) {
+      console.log('updateLocationCircle: center updated', curLocationCircle.getCenter().lat(), curLocationCircle.getCenter().lng(), pos.lat(), pos.lng());
       curLocationCircle.setCenter(pos);
     }
 
     // Update radius.
     if (curLocationCircle.getRadius() != radius) {
+      console.log('updateLocationCircle: radius updated', curLocationCircle.getRadius(), radius);
       curLocationCircle.setRadius(radius);
     }
   }
