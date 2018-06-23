@@ -140,11 +140,11 @@ class GenLocTest(TestCase):
         self.assertEquals(dist, 725)
 
         mock_response_json.return_value = self._path_geom_error_val
-        result, a, b = get_path_data(1, 2, 3, 4)
+        result, a, b, c = get_path_data(1, 2, 3, 4)
         self.assertEquals(result, None)
 
         mock_requests_get.return_value = self._path_geom_error
-        result, a, b = get_path_data(1, 2, 3, 4)
+        result, a, b, c = get_path_data(1, 2, 3, 4)
         self.assertEquals(result, None)
 
     def test_get_count_at_road(self):

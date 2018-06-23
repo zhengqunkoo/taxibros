@@ -189,13 +189,30 @@ function unsetLocation() {
 }
 
 function getPoints() {
+  /**
+   * Use Django templating to loop over coordinates (passed from context).
+   * @return: array of LatLngs.
+   */
   return [
     {% for coord in coordinates %}new google.maps.LatLng({{ coord.lat }},{{ coord.lng }}),{% endfor %}
   ];
 }
 
 function genLoc(pos, radius, minutes, pickupId, path_geom, path_instructions, coordinates) {
-
+  /**
+   * Show real taxi distribution at a location and time.
+   * @param pickupId: associative array key to be handled by genLocHandleData.
+   *
+   * Call Taxibros API at visualize/genLoc.js with @params:
+   *   pos: center of circle of interest.
+   *   radius: radius of circle of interest.
+   *   minutes: time of interest.
+   * Unpack data from API and pass to genLocHandleData.
+   *
+   * Alternatively, if optional arguments, don't call Taxibros API.
+   * Pass data from optional arguments straight to genLocHandleData.
+   * @return: undefined.
+   */
   // Set global location variables.
   pickupIdLatest = pickupId
 
@@ -252,7 +269,14 @@ function genLoc(pos, radius, minutes, pickupId, path_geom, path_instructions, co
 }
 
 function genLocHandleData(pos, radius, pickupId, path_geom, path_instructions, coordinates, path_time, path_dist, total_dist, number, best_road, best_road_coords) {
-
+  /**
+   * Show stats and visualize data.
+   * 1. Dynamically create HTML stats-table, then call appearStats().
+   * 2. Create google map objects (polylineArrays, circles, pointArrays).
+   * Store objects in associative array, keyed with @param pickupId.
+   * Replace objects, by unsetPickup function, on key collision.
+   * @return: undefined.
+   */
   // If optional args.
   if (arguments.length != 6) {
     console.log('genLocHandleData: optional args defined');
@@ -312,39 +336,38 @@ function genLocHandleData(pos, radius, pickupId, path_geom, path_instructions, c
 
 function decode(encoded, pickupId){
   /**
-   * return walkpath: google Polyline object.
+   * Decode the @param encoded polyline.
+   * https://developers.google.com/maps/documentation/utilities/polylinealgorithm
+   * @return walkpath: google Polyline object.
    */
-    if (encoded == null) {
-        return
-    }
-    //Decoding the encoded path geometry
+  if (encoded == null) {
+    return
+  }
+  var index = 0, len = encoded.length;
+  var lat = 0, lng = 0;
+  var polylineArray = new google.maps.MVCArray();
 
-    var index = 0, len = encoded.length;
-    var lat = 0, lng = 0;
-    var polylineArray = new google.maps.MVCArray();
-    while (index < len) {
-        var b, shift = 0, result = 0;
-        do {
+  while (index < len) {
+    var b, shift = 0, result = 0;
+    do {
+      b = encoded.charAt(index++).charCodeAt(0) - 63; //finds ascii and substract it by 63
+      result |= (b & 0x1f) << shift;
+      shift += 5;
+    } while (b >= 0x20);
 
-    b = encoded.charAt(index++).charCodeAt(0) - 63;//finds ascii                                                                                    //and substract it by 63
-              result |= (b & 0x1f) << shift;
-              shift += 5;
-             } while (b >= 0x20);
+    var dlat = ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
+    lat += dlat;
+    shift = 0;
+    result = 0;
+    do {
+      b = encoded.charAt(index++).charCodeAt(0) - 63;
+      result |= (b & 0x1f) << shift;
+      shift += 5;
+    } while (b >= 0x20);
+    var dlng = ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
+    lng += dlng;
 
-
-       var dlat = ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
-       lat += dlat;
-      shift = 0;
-      result = 0;
-     do {
-        b = encoded.charAt(index++).charCodeAt(0) - 63;
-        result |= (b & 0x1f) << shift;
-       shift += 5;
-         } while (b >= 0x20);
-     var dlng = ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
-     lng += dlng;
-
-   polylineArray.push(new google.maps.LatLng(( lat / 1E5),( lng / 1E5)));
+    polylineArray.push(new google.maps.LatLng(( lat / 1E5),( lng / 1E5)));
   }
 
   var walkpath = new google.maps.Polyline({
@@ -358,6 +381,10 @@ function decode(encoded, pickupId){
 }
 
 function setMouseResize(circle) {
+  /**
+   * Add event listeners to center and radius changes.
+   * @return: undefined.
+   */
   google.maps.event.addListener(circle, 'center_changed', function() {
     console.log('setMouseResize: center_changed');
     setLocation(circle.getCenter());
@@ -375,6 +402,11 @@ function setMouseResize(circle) {
 }
 
 function updateLocationCircle(pos, radius, isCreate) {
+  /**
+   * Create or update global @param locationCircle if @param pos or radius differ.
+   * Reposition map to fit circle bounds.
+   * @return: new local circle, if @param isCreate set, else undefined.
+   */
   if (locationCircle === undefined) {
     console.log('updateLocationCircle: creating new circle, binding new mouse handlers');
 
@@ -412,6 +444,9 @@ function updateLocationCircle(pos, radius, isCreate) {
   // Show entire locationCircle.
   map.fitBounds(locationCircle.getBounds());
 
+  // No need fit bounds here.
+  // Only function that calls with isCreate set is searchBox event listener.
+  // That listener already fits bounds on returned search places.
   if (isCreate) {
     var circle = new google.maps.Circle({
       strokeColor: '#FF7F50',
@@ -428,7 +463,10 @@ function updateLocationCircle(pos, radius, isCreate) {
 }
 
 function showNearby() {
-  // Try HTML5 geolocation.
+  /**
+   * Show geolocated position in infoWindow.
+   * @return: undefined.
+   */
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(function(position) {
       var pos = new google.maps.LatLng(
@@ -450,6 +488,9 @@ function showNearby() {
 }
 
 function handleLocationError(browserHasGeolocation, infoWindow, pos) {
+  /**
+   * Writes an error message to @param infoWindow.
+   */
   infoWindow.setPosition(pos);
   infoWindow.setContent(browserHasGeolocation ?
                         'Error: The Geolocation service failed.' :
@@ -458,6 +499,14 @@ function handleLocationError(browserHasGeolocation, infoWindow, pos) {
 }
 
 function initAutocomplete(input, isCallGenLoc) {
+  /**
+   * Call the Place API with string as input. API returns list of places.
+   * @param input: HTML input element to put the search box at.
+   *   Hidden info from returned place (e.g. name) appends to input element.
+   * @param isCallGenLoc: if true, call genLoc if one place returned from API.
+   *   If false, prevents unwanted showing of taxi distribution.
+   * @return undefined.
+   */
   // Create the search box and link it to the UI element.
   var searchBox = new google.maps.places.SearchBox(input);
 
@@ -531,7 +580,10 @@ function initAutocomplete(input, isCallGenLoc) {
 }
 
 function unsetPickup(pickupId) {
-  // If pickupId exists, unset path, circle, and taxi coords.
+  /**
+   * @param pickupId: associative array key.
+   * Unset walkpath, circle, and taxi coords, corresponding to pickupId.
+   */
   if (pickupId in pickups) {
     var pickup = pickups[pickupId];
     var walkpath = pickup[0];
@@ -641,7 +693,12 @@ function displayCosts(costs) {
         $('#taxi-cost-h').html("$" + parseFloat(costs[1]/100).toFixed(2));
     }
 }
+
 function unsetMapObj(obj) {
+  /**
+   * Remove google map objects from map.
+   * @param obj: google map object.
+   */
   obj.setMap(null);
   obj = null;
 }
