@@ -296,11 +296,9 @@ function genLocHandleData(pos, radius, pickupId, path_geom, path_instructions, c
   var circle = updateLocationCircle(pos, radius, true);
 
   // Push into pointArray and save in associative array.
-  pointArray.clear();
   var pickupPointArray = new google.maps.MVCArray();
   coordinates.forEach(coord => {
     pickupPointArray.push(new google.maps.LatLng(coord[0], coord[1]));
-    pointArray.push(new google.maps.LatLng(coord[0], coord[1]));
   });
   pickups[pickupId] = [walkpath, circle, pickupPointArray];
 
@@ -309,12 +307,11 @@ function genLocHandleData(pos, radius, pickupId, path_geom, path_instructions, c
   // on change / delete pickupId, remove from hashmap and thus from pointArray.
 
   // Push rest of points from associative array.
+  pointArray.clear();
   for (var key in pickups) {
-    if (key != pickupId) {
-      pickups[key][2].forEach(latlng => {
-        pointArray.push(latlng);
-      });
-    }
+    pickups[key][2].forEach(latlng => {
+      pointArray.push(latlng);
+    });
   }
 }
 
