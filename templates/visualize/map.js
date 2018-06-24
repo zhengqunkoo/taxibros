@@ -197,7 +197,7 @@ function getPoints() {
   ];
 }
 
-function genLoc(pos, radius, minutes, pickupId, path_geom, path_instructions, coordinates) {
+function genLoc(pos, radius, minutes, pickupId, path_geom, path_instructions, coordinates, number, best_road, best_road_coords, path_time, path_dist, total_dist) {
   /**
    * Show real taxi distribution at a location and time.
    * @param pickupId: associative array key to be handled by updatePickupId.
@@ -255,6 +255,12 @@ function genLoc(pos, radius, minutes, pickupId, path_geom, path_instructions, co
         tr.children('td:nth-child(10)').find('.hide').html(coordinates.join(';'));
         tr.children('td:nth-child(11)').find('.hide').html(radius);
         tr.children('td:nth-child(12)').find('.hide').html(minutes);
+        tr.children('td:nth-child(13)').find('.hide').html(number);
+        tr.children('td:nth-child(14)').find('.hide').html(best_road);
+        tr.children('td:nth-child(15)').find('.hide').html(best_road_coords.lat + ',' + best_road_coords.lng);
+        tr.children('td:nth-child(16)').find('.hide').html(path_time);
+        tr.children('td:nth-child(17)').find('.hide').html(path_dist);
+        tr.children('td:nth-child(18)').find('.hide').html(total_dist);
         updateTable();
 
         updatePickup(circle, pickupId, path_geom, path_instructions, coordinates);
@@ -266,6 +272,7 @@ function genLoc(pos, radius, minutes, pickupId, path_geom, path_instructions, co
     });
   } else {
     updatePickup(circle, pickupId, path_geom, path_instructions, coordinates);
+    genLocHandleData(path_time, path_dist, total_dist, number, best_road, best_road_coords);
   }
 }
 
