@@ -147,6 +147,8 @@ def get_coordinates_location(request):
     best_lng = None
     path_geom = None
     path_instructions = None
+    path_time = None
+    path_dist = None
 
     if time != None:
         coords = time.coordinate_set.all()
@@ -156,8 +158,6 @@ def get_coordinates_location(request):
                 result.append(coord)
                 num += 1
                 total_dist += dist
-        path_time = None
-        path_dist = None
         if best_road != None:
             best_lat = float(best_road.lat)
             best_lng = float(best_road.lng)
