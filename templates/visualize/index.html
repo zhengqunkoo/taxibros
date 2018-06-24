@@ -31,9 +31,14 @@
 </div>
 <div id= "map-all">
 
+    <!-- Google maps. -->
+    <div id="map"></div>
 
-    <!-- Controls (Bottom) -->
+
+    <!-- Controls (Top left) -->
     <div id="menuToggle">
+        <div class = "container-bg"></div>
+
         <input type="checkbox" />
         <!--hamburger-->
         <span></span>
@@ -41,6 +46,7 @@
         <span></span>
 
         <ul id="container-controls">
+
             <button onclick="toggleUi()">Toggle UI</button>
             <button onclick="toggleHeatmap()">Toggle Heatmap</button>
             <button onclick="changeGradient()">Change gradient</button>
@@ -51,14 +57,9 @@
         </ul>
     </div>
 
-    <!-- Google maps. -->
-    <div id="map"></div>
 
     <!-- UI -->
     <div id="container-ui">
-
-
-
 
     <!--Sliders (top right)-->
     <div id="container-slider">
@@ -116,6 +117,7 @@
       </div>
       <input type="button" id="slider" value="<<">
     </div>
+
     <!--SVG for charts -->
     <div id="container-chart" >
         <svg class="chart"></svg>
@@ -143,16 +145,6 @@
 
     <!-- End of UI -->
     </div>
-    <script>
-      // Look for .hamburger
-      var hamburger = document.querySelector(".hamburger");
-      // On click
-      hamburger.addEventListener("click", function() {
-        // Toggle class "is-active"
-        hamburger.classList.toggle("is-active");
-        // Do something else, like open/close menu
-      });
-    </script>
 </div>
 
 <script src="https://d3js.org/d3.v4.min.js"></script>

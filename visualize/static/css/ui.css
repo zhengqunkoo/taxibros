@@ -26,7 +26,7 @@ a:hover
 #menuToggle
 {
   display: block;
-  position: relative;
+  position: absolute;
   top: 50px;
   left: 50px;
 
@@ -53,9 +53,7 @@ a:hover
   -webkit-touch-callout: none;
 }
 
-/*
- * Just a quick hamburger
- */
+
 #menuToggle span
 {
   display: block;
