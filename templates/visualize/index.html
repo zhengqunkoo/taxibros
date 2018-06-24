@@ -37,16 +37,15 @@
 
     <!-- Controls (Top left) -->
     <div id="menuToggle">
-        <div class = "container-bg"></div>
-
         <input type="checkbox" />
+
         <!--hamburger-->
         <span></span>
         <span></span>
         <span></span>
 
         <ul id="container-controls">
-
+            <div class = "container-bg"></div>
             <button onclick="toggleUi()">Toggle UI</button>
             <button onclick="toggleHeatmap()">Toggle Heatmap</button>
             <button onclick="changeGradient()">Change gradient</button>
@@ -56,6 +55,9 @@
             <button onclick="unsetLocation()">Reset location</button>
         </ul>
     </div>
+    <div id="description-controls">
+        DISPLAY CONTROLS
+    </div>
 
 
     <!-- UI -->
@@ -64,7 +66,7 @@
     <!--Sliders (top right)-->
     <div id="container-slider">
         <div class = "container-bg"></div>
-        <div> Display Controls </div>
+        <div> Display Sliders </div>
         <div> Slide across time </div>
         <input type="range" id="genTime" data-slider-id="genTimeSlider" type="text" data-slider-min="0" data-slider-max="60" data-slider-step="1" data-slider-value="0" data-slider-reversed="true"><br>
         <div>Slide location radius</div>
@@ -144,7 +146,7 @@
     </div>
 
     <!-- End of UI -->
-    </div>
+</div>
 </div>
 
 <script src="https://d3js.org/d3.v4.min.js"></script>

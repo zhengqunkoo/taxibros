@@ -1,26 +1,17 @@
-/*
- * Made by Erik Terwan
- * 24th of November 2015
- * MIT License
- *
- *
- * If you are thinking of using this in
- * production code, beware of the browser
- * prefixes.
- */
 
 
-a
-{
-  text-decoration: none;
-  color: #232323;
-
-  transition: color 0.3s ease;
-}
-
-a:hover
+#description-controls:hover
 {
   color: tomato;
+}
+
+#description-controls {
+    top: 50px;
+    left: 100px;
+    position:absolute;
+    z-index:2;
+    color: #cdcdcd;
+    font-family: "Avenir Next", "Avenir", sans-serif;
 }
 
 #menuToggle
@@ -84,10 +75,7 @@ a:hover
   transform-origin: 0% 100%;
 }
 
-/*
- * Transform all the slices of hamburger
- * into a crossmark.
- */
+
 #menuToggle input:checked ~ span
 {
   opacity: 1;
@@ -95,36 +83,32 @@ a:hover
   background: #232323;
 }
 
-/*
- * But let's hide the middle one.
- */
+
 #menuToggle input:checked ~ span:nth-last-child(3)
 {
   opacity: 0;
   transform: rotate(0deg) scale(0.2, 0.2);
 }
 
-/*
- * Ohyeah and the last one should go the other direction
- */
+
 #menuToggle input:checked ~ span:nth-last-child(2)
 {
   transform: rotate(-45deg) translate(0, -1px);
 }
-
-
+#menuToggle input:checked ~ #description-controls
+{
+    color:tomato;
+}
 #container-controls
 {
   position: absolute;
-  width: 300px;
+  width: 750%;
   margin: -100px 0 0 -50px;
   padding: 50px;
   padding-top: 125px;
-
-  background: #ededed;
+  overflow: hidden;
   list-style-type: none;
   -webkit-font-smoothing: antialiased;
-  /* to stop flickering of text in safari */
 
   transform-origin: 0% 0%;
   transform: translate(-100%, 0);
@@ -138,9 +122,6 @@ a:hover
   font-size: 22px;
 }
 
-/*
- * And let's slide it in from the left
- */
 #menuToggle input:checked ~ ul
 {
   transform: none;
@@ -179,7 +160,7 @@ a:hover
 }
 #container-itinerary {
     left: 10px;
-    top: 0;
+    top: 300px;
     position: absolute;
     width: 55%;
 }
