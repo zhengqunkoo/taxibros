@@ -16,6 +16,7 @@
 <script async src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/4.5.0/papaparse.min.js"></script>
 <link rel="stylesheet" href="{% static 'css/ui.css' %}">
 <link rel="stylesheet" href="{% static 'css/map.css' %}">
+<link rel="stylesheet" href="{% static 'css/button.css' %}">
 <script type="text/javascript" src="{% url 'visualize:chart' %}" ></script>
 <script type="text/javascript" src="{% url 'visualize:map' %}" ></script>
 <script defer type="text/javascript" src="{% url 'visualize:slider' %}" ></script>
@@ -29,6 +30,8 @@
   <p><strong>{{ error_message }}</strong></p>
   {% endif %}
 </div>
+
+
 <div id= "map-all">
 
     <!-- Google maps. -->
@@ -44,7 +47,14 @@
         <span></span>
         <span></span>
 
-        <ul id="container-controls">
+        <ul id="container-controls"><!--Switch-->
+            <div class="switch switch--horizontal switch--expanding-inner">
+                <input id="radio-i" type="radio" name="fifth-switch" checked="checked" />
+                <label for="radio-i">Off</label>
+                <input id="radio-j" type="radio" name="fifth-switch" />
+                <label for="radio-j">On</label>
+                <span class="toggle-outside"><span class="toggle-inside"></span></span>
+            </div>
             <div class = "container-bg"></div>
             <button onclick="toggleUi()">Toggle UI</button>
             <button onclick="toggleHeatmap()">Toggle Heatmap</button>

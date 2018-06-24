@@ -27,7 +27,7 @@
   user-select: none;
 }
 
-#menuToggle input
+#menuToggle input:not(#radio-i):not(#radio-j)
 {
   display: block;
   width: 40px;
@@ -45,7 +45,7 @@
 }
 
 
-#menuToggle span
+#menuToggle span:not(.toggle-inside):not(.toggle-outside)
 {
   display: block;
   width: 33px;
@@ -65,18 +65,18 @@
               opacity 0.55s ease;
 }
 
-#menuToggle span:first-child
+#menuToggle span:first-child:not(.toggle-inside):not(.toggle-outside)
 {
   transform-origin: 0% 0%;
 }
 
-#menuToggle span:nth-last-child(2)
+#menuToggle span:nth-last-child(2):not(.toggle-inside):not(.toggle-outside)
 {
   transform-origin: 0% 100%;
 }
 
 
-#menuToggle input:checked ~ span
+#menuToggle input:checked ~ span:not(.toggle-inside):not(.toggle-outside)
 {
   opacity: 1;
   transform: rotate(45deg) translate(-2px, -1px);
@@ -84,14 +84,14 @@
 }
 
 
-#menuToggle input:checked ~ span:nth-last-child(3)
+#menuToggle input:checked ~ span:nth-last-child(3):not(.toggle-inside):not(.toggle-outside)
 {
   opacity: 0;
   transform: rotate(0deg) scale(0.2, 0.2);
 }
 
 
-#menuToggle input:checked ~ span:nth-last-child(2)
+#menuToggle input:checked ~ span:nth-last-child(2):not(.toggle-inside):not(.toggle-outside)
 {
   transform: rotate(-45deg) translate(0, -1px);
 }
