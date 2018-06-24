@@ -24,9 +24,6 @@
 {% endblock %}
 {% block content %}
 <!--Error Message-->
-<div>
-  <button onclick="toggleUi()">Toggle UI</button>
-</div>
 <div id="container-error">
   {% if error_message %}
   <p><strong>{{ error_message }}</strong></p>
@@ -43,6 +40,7 @@
     <div id="container-controls">
         <table>
             <tr>
+                <button onclick="toggleUi()">Toggle UI</button>
                 <button onclick="toggleHeatmap()">Toggle Heatmap</button>
                 <button onclick="changeGradient()">Change gradient</button>
                 <button onclick="changeRadius()">Change radius</button>
