@@ -201,7 +201,7 @@ function getPoints() {
 function genLoc(pos, radius, minutes, pickupId, path_geom, path_instructions, coordinates) {
   /**
    * Show real taxi distribution at a location and time.
-   * @param pickupId: associative array key to be handled by genLocHandleData.
+   * @param pickupId: associative array key to be handled by updatePickupId.
    *
    * Call Taxibros API at visualize/genLoc.js with @params:
    *   pos: center of circle of interest.
@@ -210,14 +210,20 @@ function genLoc(pos, radius, minutes, pickupId, path_geom, path_instructions, co
    * Unpack data from API and pass to genLocHandleData.
    *
    * Alternatively, if optional arguments, don't call Taxibros API.
-   * Pass data from optional arguments straight to genLocHandleData.
    * @return: undefined.
    */
   // Set global location variables.
   pickupIdLatest = pickupId
   setLocation(pos);
-
   map.setCenter(pos);
+
+  // Update global @param locationCircle to be same pos, radius as local @param circle.
+  // Pass circle to updatePickup for storage in associative array.
+  // Important: do this before ajax query.
+  
+  // TODO not efficient
+  // Create new circle here (isCreate==true) because unset old circle.
+  var circle = updateLocationCircle(pos, radius, pickupId, true);
 
   // If no optional arguments, perform ajax call.
   if (arguments.length == 4) {
@@ -255,7 +261,8 @@ function genLoc(pos, radius, minutes, pickupId, path_geom, path_instructions, co
 
         console.log('genLoc: calling genLocHandleData online', genCount);
         genCount++;
-        genLocHandleData(pos, radius, pickupId, path_geom, path_instructions, coordinates, path_time, path_dist, total_dist, number, best_road, best_road_coords);
+        updatePickup(circle, pickupId, path_geom, path_instructions, coordinates);
+        genLocHandleData(path_time, path_dist, total_dist, number, best_road, best_road_coords);
       },
       error: function(rs, e) {
         console.log("Failed to reach {% url 'visualize:genLoc' %}.");
@@ -265,55 +272,53 @@ function genLoc(pos, radius, minutes, pickupId, path_geom, path_instructions, co
     console.log('genLoc: optional args defined');
     console.log('genLoc: calling genLocHandleData offline', genCount);
     genCount++;
-    genLocHandleData(pos, radius, pickupId, path_geom, path_instructions, coordinates);
+    updatePickup(circle, pickupId, path_geom, path_instructions, coordinates);
   }
 }
 
-function genLocHandleData(pos, radius, pickupId, path_geom, path_instructions, coordinates, path_time, path_dist, total_dist, number, best_road, best_road_coords) {
+function genLocHandleData(path_time, path_dist, total_dist, number, best_road, best_road_coords) {
   /**
-   * Show stats and visualize data.
-   * 1. Dynamically create HTML stats-table, then call appearStats().
-   * 2. Create google map objects (polylineArrays, circles, pointArrays).
+   * Show stats.
+   * Dynamically create HTML stats-table, then call appearStats().
+   * @return: undefined.
+   */
+  // Load stats
+  if (number != 0) { //Gets around zero division error
+    document.getElementById('average_dist').innerHTML = Math.trunc(total_dist/number) + "m";
+  }
+  document.getElementById('num').innerHTML = number;
+
+  //Add, modify, or delete data depending on condition
+  if ($('#a').length == 0) {
+      $('#stats-table tr:last').after('<tr id = "a"><th>Better Waiting Location</th></tr>');
+      $('#stats-table tr:last').after('<tr id = "b"><td>Time to travel</td><td id = "path-time">"-"</td></tr>');
+      $('#stats-table tr:last').after('<tr id = "c"><td>Distance of travel</td><td id = "path-dist">"-"</td></tr>');
+  }
+  if (path_time==null) {
+      $('#a').remove();
+      $('#b').remove();
+      $('#c').remove();
+  } else {
+      $('#path-time').html(path_time + "s");
+      $('#path-dist').html(path_dist + "m");
+  }
+
+  appearStats();
+  infoWindow.setPosition(best_road_coords);
+  infoWindow.setContent('Better location');
+}
+
+function updatePickup(circle, pickupId, path_geom, path_instructions, coordinates) {
+  /**
+   * Visualize data.
+   * Create google map objects (polylineArrays, circles, pointArrays).
    * Store objects in associative array, keyed with @param pickupId.
    * Replace objects, by unsetPickup function, on key collision.
    * @return: undefined.
    */
-  // If optional args.
-  if (arguments.length != 6) {
-    console.log('genLocHandleData: optional args defined');
-    // Load stats
-    if (number != 0) { //Gets around zero division error
-      document.getElementById('average_dist').innerHTML = Math.trunc(total_dist/number) + "m";
-    }
-    document.getElementById('num').innerHTML = number;
-
-    //Add, modify, or delete data depending on condition
-    if ($('#a').length == 0) {
-        $('#stats-table tr:last').after('<tr id = "a"><th>Better Waiting Location</th></tr>');
-        $('#stats-table tr:last').after('<tr id = "b"><td>Time to travel</td><td id = "path-time">"-"</td></tr>');
-        $('#stats-table tr:last').after('<tr id = "c"><td>Distance of travel</td><td id = "path-dist">"-"</td></tr>');
-    }
-    if (path_time==null) {
-        $('#a').remove();
-        $('#b').remove();
-        $('#c').remove();
-    } else {
-        $('#path-time').html(path_time + "s");
-        $('#path-dist').html(path_dist + "m");
-    }
-
-    appearStats();
-    infoWindow.setPosition(best_road_coords);
-    infoWindow.setContent('Better location');
-  } else {
-    console.log('genLocHandleData: optional args undefined');
-  }
-
-  // Unset and replace pickup, if pickupId exists.
   unsetPickup(pickupId);
   var walkpath = decode(path_geom, pickupId);
   walkpath.setMap(map);
-  var circle = updateLocationCircle(pos, radius, true);
 
   // Push into pointArray and save in associative array.
   var pickupPointArray = new google.maps.MVCArray();
@@ -590,10 +595,10 @@ function unsetPickup(pickupId) {
   if (pickupId in pickups) {
     var pickup = pickups[pickupId];
     var walkpath = pickup[0];
-    var locationCircle = pickup[1];
+    var circle = pickup[1];
     var pointArray = pickup[2];
     unsetMapObj(walkpath);
-    unsetMapObj(locationCircle);
+    unsetMapObj(circle);
     pointArray.clear();
   }
 }
