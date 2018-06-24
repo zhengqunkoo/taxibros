@@ -386,7 +386,7 @@ function decode(encoded, pickupId){
   return walkpath;
 }
 
-function setMouseResize(circle) {
+function setMouseResize(circle, pickupId) {
   /**
    * Add event listeners to center and radius changes.
    * @return: undefined.
@@ -394,20 +394,23 @@ function setMouseResize(circle) {
   google.maps.event.addListener(circle, 'center_changed', function() {
     console.log('setMouseResize: center_changed');
     setLocation(circle.getCenter());
-    // Show entire circle.
+    locationRadius = circle.getRadius();
+    pickupIdLatest = pickupId;
     map.fitBounds(circle.getBounds());
     genLoc(locationCenter, locationRadius, locationMinutes, pickupIdLatest);
   });
 
   google.maps.event.addListener(circle, 'radius_changed', function() {
     console.log('setMouseResize: radius_changed');
+    setLocation(circle.getCenter());
     locationRadius = circle.getRadius();
+    pickupIdLatest = pickupId;
     map.fitBounds(circle.getBounds());
     genLoc(locationCenter, locationRadius, locationMinutes, pickupIdLatest);
   });
 }
 
-function updateLocationCircle(pos, radius, isCreate) {
+function updateLocationCircle(pos, radius, pickupId, isCreate) {
   /**
    * Create or update global @param locationCircle if @param pos or radius differ.
    * Reposition map to fit circle bounds.
@@ -464,7 +467,7 @@ function updateLocationCircle(pos, radius, isCreate) {
     });
 
     // Add event handlers.
-    setMouseResize(circle);
+    setMouseResize(circle, pickupId);
 
     return circle;
   }
