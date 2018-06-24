@@ -59,7 +59,7 @@ function createButton(cell, classattr, value) {
   cell.appendChild(input);
 }
 
-function addRow(pickupLocationInnerText, pickupTimeInnerText, arrivalLocationInnerText, arrivalTimeInnerText, walkpathGeomInnerText, walkpathInstructionsInnerText, pickupPosInnerText, pickupTaxiCoordsInnerText, radiusInnerText, minutesInnerText) {
+function addRow(pickupLocationInnerText, pickupTimeInnerText, arrivalLocationInnerText, arrivalTimeInnerText, walkpathGeomInnerText, walkpathInstructionsInnerText, pickupPosInnerText, pickupTaxiCoordsInnerText, radiusInnerText, minutesInnerText, numberInnerText, bestRoadInnerText, bestRoadCoordsInnerText, pathTimeInnerText, pathDistInnerText, totalDistInnerText) {
   var row = itineraryTable.getElementsByTagName('tbody')[0].insertRow(-1);
   var pickupLocationCell = row.insertCell(0);
   var pickupTimeCell = row.insertCell(1);
@@ -73,6 +73,12 @@ function addRow(pickupLocationInnerText, pickupTimeInnerText, arrivalLocationInn
   var pickupTaxiCoordsCell = row.insertCell(9);
   var radiusCell = row.insertCell(10);
   var minutesCell = row.insertCell(11);
+  var numberCell = row.insertCell(12);
+  var bestRoadCell = row.insertCell(13);
+  var bestRoadCoordsCell = row.insertCell(14);
+  var pathTimeCell = row.insertCell(15);
+  var pathDistCell = row.insertCell(16);
+  var totalDistCell = row.insertCell(17);
 
   walkpathGeomCell.appendChild(createHiddenText(walkpathGeomInnerText));
   walkpathInstructionsCell.appendChild(createHiddenText(walkpathInstructionsInnerText));
@@ -80,6 +86,12 @@ function addRow(pickupLocationInnerText, pickupTimeInnerText, arrivalLocationInn
   pickupTaxiCoordsCell.appendChild(createHiddenText(pickupTaxiCoordsInnerText));
   radiusCell.appendChild(createHiddenText(radiusInnerText));
   minutesCell.appendChild(createHiddenText(minutesInnerText));
+  numberCell.appendChild(createHiddenText(numberInnerText));
+  bestRoadCell.appendChild(createHiddenText(bestRoadInnerText));
+  bestRoadCoordsCell.appendChild(createHiddenText(bestRoadCoordsInnerText));
+  pathTimeCell.appendChild(createHiddenText(pathTimeInnerText));
+  pathDistCell.appendChild(createHiddenText(pathDistInnerText));
+  totalDistCell.appendChild(createHiddenText(totalDistInnerText));
 
   createButton(deleteRowButtonCell, 'deleteRow', 'Delete row');
   createButton(visualizePickupButtonCell, 'visualizePickup', 'Visualize pickup');
@@ -144,6 +156,13 @@ function visualizePickup() {
   var pickupTaxiCoords = tr.children('td:nth-child(10)').find('.hide')[0].innerHTML;
   var locationRadius = tr.children('td:nth-child(11)').find('.hide')[0].innerHTML;
   var locationMinutes = tr.children('td:nth-child(12)').find('.hide')[0].innerHTML;
+  var number = tr.children('td:nth-child(13)').find('.hide')[0].innerHTML;
+  var bestRoad = tr.children('td:nth-child(14)').find('.hide')[0].innerHTML;
+  var bestRoadCoords = tr.children('td:nth-child(15)').find('.hide')[0].innerHTML;
+  var pathTime = tr.children('td:nth-child(16)').find('.hide')[0].innerHTML;
+  var pathDist = tr.children('td:nth-child(17)').find('.hide')[0].innerHTML;
+  var totalDist = tr.children('td:nth-child(18)').find('.hide')[0].innerHTML;
+  var journeyGeom = tr.children('td:nth-child(19)').find('.hide')[0].innerHTML;
 
   var parsedLatLng = parseLatLng(pickupPos);
   locationCenter = new google.maps.LatLng(parsedLatLng[0], parsedLatLng[1]);
@@ -151,7 +170,11 @@ function visualizePickup() {
   locationMinutes = parseInt(locationMinutes);
   pickupTaxiCoords = pickupTaxiCoords.split(';');
   pickupTaxiCoords = pickupTaxiCoords.map(parseLatLng);
-  genLoc(locationCenter, locationRadius, locationMinutes, pickupId, walkpathGeom, walkpathInstructions, pickupTaxiCoords);
+  number = parseInt(number);
+  var parsedLatLng = parseLatLng(bestRoadCoords);
+  bestRoadCoords = new google.maps.LatLng(parsedLatLng[0], parsedLatLng[1]);
+  totalDist = parseFloat(totalDist);
+  genLoc(locationCenter, locationRadius, locationMinutes, pickupId, walkpathGeom, walkpathInstructions, pickupTaxiCoords, number, bestRoad, bestRoadCoords, pathTime, pathDist, totalDist);
 }
 
 function parseLatLng(latlng) {

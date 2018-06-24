@@ -13,8 +13,8 @@ var directionsService;
 var directionsDisplay;
 
 function initMap() {
-    directionsService = new google.maps.DirectionsService();
-    directionsDisplay = new google.maps.DirectionsRenderer();
+    directionsService = new google.maps.DirectionsService;
+    directionsDisplay = new google.maps.DirectionsRenderer;
     map = new google.maps.Map(document.getElementById('map'), {
     zoom: 12,
     center: new google.maps.LatLng(1.3521, 103.8198),
@@ -197,7 +197,7 @@ function getPoints() {
   ];
 }
 
-function genLoc(pos, radius, minutes, pickupId, path_geom, path_instructions, coordinates) {
+function genLoc(pos, radius, minutes, pickupId, path_geom, path_instructions, coordinates, number, best_road, best_road_coords, path_time, path_dist, total_dist) {
   /**
    * Show real taxi distribution at a location and time.
    * @param pickupId: associative array key to be handled by updatePickupId.
@@ -255,6 +255,12 @@ function genLoc(pos, radius, minutes, pickupId, path_geom, path_instructions, co
         tr.children('td:nth-child(10)').find('.hide').html(coordinates.join(';'));
         tr.children('td:nth-child(11)').find('.hide').html(radius);
         tr.children('td:nth-child(12)').find('.hide').html(minutes);
+        tr.children('td:nth-child(13)').find('.hide').html(number);
+        tr.children('td:nth-child(14)').find('.hide').html(best_road);
+        tr.children('td:nth-child(15)').find('.hide').html(best_road_coords.lat + ',' + best_road_coords.lng);
+        tr.children('td:nth-child(16)').find('.hide').html(path_time);
+        tr.children('td:nth-child(17)').find('.hide').html(path_dist);
+        tr.children('td:nth-child(18)').find('.hide').html(total_dist);
         updateTable();
 
         updatePickup(circle, pickupId, path_geom, path_instructions, coordinates);
@@ -266,6 +272,7 @@ function genLoc(pos, radius, minutes, pickupId, path_geom, path_instructions, co
     });
   } else {
     updatePickup(circle, pickupId, path_geom, path_instructions, coordinates);
+    genLocHandleData(path_time, path_dist, total_dist, number, best_road, best_road_coords);
   }
 }
 
@@ -502,7 +509,7 @@ function initAutocomplete(input, isCallGenLoc) {
    * @param input: HTML input element to put the search box at.
    *   Hidden info from returned place (e.g. name) appends to input element.
    * @param isCallGenLoc: if true, call genLoc if one place returned from API.
-   *   If false, prevents unwanted showing of taxi distribution.
+   *   If false, call calcRoute.
    * @return undefined.
    */
   // Create the search box and link it to the UI element.
@@ -569,6 +576,17 @@ function initAutocomplete(input, isCallGenLoc) {
       var place = places[0];
       if (isCallGenLoc) {
         genLoc(place.geometry.location, locationRadius, locationMinutes, input.getAttribute('id'));
+      } else {
+
+        // Extract origin from hidden info in table.
+        // Calc route only if info is not null.
+        var tr = $('#' + input.getAttribute('id')).closest('tr');
+        var pickupPos = tr.children('td:nth-child(9)').find('.hide')[0].innerHTML;
+        if (pickupPos) {
+          var parsedLatLng = parseLatLng(pickupPos);
+          origin = new google.maps.LatLng(parsedLatLng[0], parsedLatLng[1]);
+          calcRoute(origin, place.geometry.location);
+        }
       }
       input.innerText = place.name;
       input.value = place.name;
@@ -593,10 +611,10 @@ function unsetPickup(pickupId) {
   }
 }
 
-function calcRoute(start_lat, start_lng, end_lat, end_lng) {
+function calcRoute(origin, destination) {
     var request = {
-        origin: new google.maps.LatLng(start_lat,start_lng),
-        destination: new google.maps.LatLng(end_lat,end_lng),
+        origin: origin,
+        destination: destination,
         travelMode: 'DRIVING',
         drivingOptions: {
             departureTime: new Date(Date.now()),  // for the time N milliseconds from now.
@@ -611,6 +629,7 @@ function calcRoute(start_lat, start_lng, end_lat, end_lng) {
         var display_distance;
         var distance;
         directionsDisplay.setDirections(result);
+        directionsDisplay.setMap(map);
         if (result.routes[0].legs[0].hasOwnProperty("duration_in_traffic")) {
             //Duration in traffic is only displayed when there is enough traffic
             display_duration = result.routes[0].legs[0].duration_in_traffic["text"]
@@ -632,8 +651,9 @@ function calcRoute(start_lat, start_lng, end_lat, end_lng) {
         displayTaxiStats(duration, display_duration, display_distance);
         appearStats();
 
+    } else {
+      window.alert('Directions request failed due to ' + status);
     }
-
 
   });
 }
