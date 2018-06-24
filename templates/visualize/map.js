@@ -197,7 +197,7 @@ function getPoints() {
   ];
 }
 
-function genLoc(pos, radius, minutes, pickupId, path_geom, path_instructions, coordinates, number, best_road, best_road_coords, path_time, path_dist, total_dist) {
+function genLoc(pos, radius, minutes, pickupId, path_geom, path_instructions, coordinates, number, best_road, best_road_coords, path_time, path_dist, total_dist, journey_geom) {
   /**
    * Show real taxi distribution at a location and time.
    * @param pickupId: associative array key to be handled by updatePickupId.
@@ -263,7 +263,7 @@ function genLoc(pos, radius, minutes, pickupId, path_geom, path_instructions, co
         tr.children('td:nth-child(18)').find('.hide').html(total_dist);
         updateTable();
 
-        updatePickup(circle, pickupId, path_geom, path_instructions, coordinates);
+        updatePickup(circle, pickupId, path_geom, path_instructions, coordinates, journey_geom);
         genLocHandleData(path_time, path_dist, total_dist, number, best_road, best_road_coords);
       },
       error: function(rs, e) {
@@ -271,7 +271,7 @@ function genLoc(pos, radius, minutes, pickupId, path_geom, path_instructions, co
       }
     });
   } else {
-    updatePickup(circle, pickupId, path_geom, path_instructions, coordinates);
+    updatePickup(circle, pickupId, path_geom, path_instructions, coordinates, journey_geom);
     genLocHandleData(path_time, path_dist, total_dist, number, best_road, best_road_coords);
   }
 }
@@ -308,7 +308,7 @@ function genLocHandleData(path_time, path_dist, total_dist, number, best_road, b
   infoWindow.setContent('Better location');
 }
 
-function updatePickup(circle, pickupId, path_geom, path_instructions, coordinates) {
+function updatePickup(circle, pickupId, path_geom, path_instructions, coordinates, journey_geom) {
   /**
    * Visualize data.
    * Create google map objects (polylineArrays, circles, pointArrays).
@@ -318,8 +318,12 @@ function updatePickup(circle, pickupId, path_geom, path_instructions, coordinate
    */
   unsetPickup(pickupId);
   var walkpath = decode(path_geom, pickupId);
+  var journey = decode(journey_geom, pickupId);
   if (walkpath) {
     walkpath.setMap(map);
+  }
+  if (journey) {
+    journey.setMap(map);
   }
 
   // Push into pointArray and save in associative array.
@@ -327,7 +331,7 @@ function updatePickup(circle, pickupId, path_geom, path_instructions, coordinate
   coordinates.forEach(coord => {
     pickupPointArray.push(new google.maps.LatLng(coord[0], coord[1]));
   });
-  pickups[pickupId] = [walkpath, circle, pickupPointArray];
+  pickups[pickupId] = [walkpath, circle, pickupPointArray, journey];
 
   // TODO this is costly when many old pickups.
   // maybe invert? one global pointArray bound to hashmap: key latlng, value pickupId.
@@ -585,7 +589,7 @@ function initAutocomplete(input, isCallGenLoc) {
         if (pickupPos) {
           var parsedLatLng = parseLatLng(pickupPos);
           origin = new google.maps.LatLng(parsedLatLng[0], parsedLatLng[1]);
-          calcRoute(origin, place.geometry.location);
+          calcRoute(origin, place.geometry.location, tr);
         }
       }
       input.innerText = place.name;
@@ -605,13 +609,15 @@ function unsetPickup(pickupId) {
     var walkpath = pickup[0];
     var circle = pickup[1];
     var pointArray = pickup[2];
+    var journey = pickup[3];
     unsetMapObj(walkpath);
     unsetMapObj(circle);
     pointArray.clear();
+    unsetMapObj(journey);
   }
 }
 
-function calcRoute(origin, destination) {
+function calcRoute(origin, destination, tr) {
     var request = {
         origin: origin,
         destination: destination,
@@ -630,6 +636,7 @@ function calcRoute(origin, destination) {
         var distance;
         directionsDisplay.setDirections(result);
         directionsDisplay.setMap(map);
+        tr.children('td:nth-child(19)').find('.hide').html(result.routes[0].overview_polyline);
         if (result.routes[0].legs[0].hasOwnProperty("duration_in_traffic")) {
             //Duration in traffic is only displayed when there is enough traffic
             display_duration = result.routes[0].legs[0].duration_in_traffic["text"]
