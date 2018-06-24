@@ -59,7 +59,7 @@ function createButton(cell, classattr, value) {
   cell.appendChild(input);
 }
 
-function addRow(pickupLocationInnerText, pickupTimeInnerText, arrivalLocationInnerText, arrivalTimeInnerText, walkpathGeomInnerText, walkpathInstructionsInnerText, pickupPosInnerText, pickupTaxiCoordsInnerText, radiusInnerText, minutesInnerText, numberInnerText, bestRoadInnerText, bestRoadCoordsInnerText, pathTimeInnerText, pathDistInnerText, totalDistInnerText) {
+function addRow(pickupLocationInnerText, pickupTimeInnerText, arrivalLocationInnerText, arrivalTimeInnerText, walkpathGeomInnerText, walkpathInstructionsInnerText, pickupPosInnerText, pickupTaxiCoordsInnerText, radiusInnerText, minutesInnerText, numberInnerText, bestRoadInnerText, bestRoadCoordsInnerText, pathTimeInnerText, pathDistInnerText, totalDistInnerText, journeyGeomInnerText) {
   var row = itineraryTable.getElementsByTagName('tbody')[0].insertRow(-1);
   var pickupLocationCell = row.insertCell(0);
   var pickupTimeCell = row.insertCell(1);
@@ -79,6 +79,7 @@ function addRow(pickupLocationInnerText, pickupTimeInnerText, arrivalLocationInn
   var pathTimeCell = row.insertCell(15);
   var pathDistCell = row.insertCell(16);
   var totalDistCell = row.insertCell(17);
+  var journeyGeomCell = row.insertCell(18);
 
   walkpathGeomCell.appendChild(createHiddenText(walkpathGeomInnerText));
   walkpathInstructionsCell.appendChild(createHiddenText(walkpathInstructionsInnerText));
@@ -92,6 +93,7 @@ function addRow(pickupLocationInnerText, pickupTimeInnerText, arrivalLocationInn
   pathTimeCell.appendChild(createHiddenText(pathTimeInnerText));
   pathDistCell.appendChild(createHiddenText(pathDistInnerText));
   totalDistCell.appendChild(createHiddenText(totalDistInnerText));
+  journeyGeomCell.appendChild(createHiddenText(journeyGeomInnerText));
 
   createButton(deleteRowButtonCell, 'deleteRow', 'Delete row');
   createButton(visualizePickupButtonCell, 'visualizePickup', 'Visualize pickup');
@@ -162,6 +164,7 @@ function visualizePickup() {
   var pathTime = tr.children('td:nth-child(16)').find('.hide')[0].innerHTML;
   var pathDist = tr.children('td:nth-child(17)').find('.hide')[0].innerHTML;
   var totalDist = tr.children('td:nth-child(18)').find('.hide')[0].innerHTML;
+  var journeyGeom = tr.children('td:nth-child(19)').find('.hide')[0].innerHTML;
 
   var parsedLatLng = parseLatLng(pickupPos);
   locationCenter = new google.maps.LatLng(parsedLatLng[0], parsedLatLng[1]);
@@ -173,7 +176,7 @@ function visualizePickup() {
   var parsedLatLng = parseLatLng(bestRoadCoords);
   bestRoadCoords = new google.maps.LatLng(parsedLatLng[0], parsedLatLng[1]);
   totalDist = parseFloat(totalDist);
-  genLoc(locationCenter, locationRadius, locationMinutes, pickupId, walkpathGeom, walkpathInstructions, pickupTaxiCoords, number, bestRoad, bestRoadCoords, pathTime, pathDist, totalDist);
+  genLoc(locationCenter, locationRadius, locationMinutes, pickupId, walkpathGeom, walkpathInstructions, pickupTaxiCoords, number, bestRoad, bestRoadCoords, pathTime, pathDist, totalDist, journeyGeom);
 }
 
 function parseLatLng(latlng) {
