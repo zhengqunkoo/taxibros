@@ -396,7 +396,6 @@ function setMouseResize(circle, pickupId) {
     setLocation(circle.getCenter());
     locationRadius = circle.getRadius();
     pickupIdLatest = pickupId;
-    map.fitBounds(circle.getBounds());
     genLoc(locationCenter, locationRadius, locationMinutes, pickupIdLatest);
   });
 
@@ -405,7 +404,6 @@ function setMouseResize(circle, pickupId) {
     setLocation(circle.getCenter());
     locationRadius = circle.getRadius();
     pickupIdLatest = pickupId;
-    map.fitBounds(circle.getBounds());
     genLoc(locationCenter, locationRadius, locationMinutes, pickupIdLatest);
   });
 }
