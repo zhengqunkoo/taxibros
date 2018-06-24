@@ -311,7 +311,9 @@ function updatePickup(circle, pickupId, path_geom, path_instructions, coordinate
    */
   unsetPickup(pickupId);
   var walkpath = decode(path_geom, pickupId);
-  walkpath.setMap(map);
+  if (walkpath) {
+    walkpath.setMap(map);
+  }
 
   // Push into pointArray and save in associative array.
   var pickupPointArray = new google.maps.MVCArray();
@@ -337,10 +339,10 @@ function decode(encoded, pickupId){
   /**
    * Decode the @param encoded polyline.
    * https://developers.google.com/maps/documentation/utilities/polylinealgorithm
-   * @return walkpath: google Polyline object.
+   * @return walkpath: google Polyline object, or null if @param encoded is null.
    */
   if (encoded == null) {
-    return
+    return null;
   }
   var index = 0, len = encoded.length;
   var lat = 0, lng = 0;
