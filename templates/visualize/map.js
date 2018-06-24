@@ -304,8 +304,10 @@ function genLocHandleData(path_time, path_dist, total_dist, number, best_road, b
   }
 
   appearStats();
-  infoWindow.setPosition(best_road_coords);
-  infoWindow.setContent('Better location');
+  if (best_road_coords.lat != null && best_road_coords.lat != null) {
+    infoWindow.setPosition(best_road_coords);
+    infoWindow.setContent('Better location');
+  }
 }
 
 function updatePickup(circle, pickupId, path_geom, path_instructions, coordinates, journey_geom) {
@@ -610,10 +612,14 @@ function unsetPickup(pickupId) {
     var circle = pickup[1];
     var pointArray = pickup[2];
     var journey = pickup[3];
-    unsetMapObj(walkpath);
+    if (walkpath) {
+      unsetMapObj(walkpath);
+    }
     unsetMapObj(circle);
     pointArray.clear();
-    unsetMapObj(journey);
+    if (journey) {
+      unsetMapObj(journey);
+    }
   }
 }
 
