@@ -30,26 +30,36 @@
   {% endif %}
 </div>
 <div id= "map-all">
+
+
+    <!-- Controls (Bottom) -->
+    <div id="menuToggle">
+        <input type="checkbox" />
+        <!--hamburger-->
+        <span></span>
+        <span></span>
+        <span></span>
+
+        <ul id="container-controls">
+            <button onclick="toggleUi()">Toggle UI</button>
+            <button onclick="toggleHeatmap()">Toggle Heatmap</button>
+            <button onclick="changeGradient()">Change gradient</button>
+            <button onclick="changeRadius()">Change radius</button>
+            <button onclick="changeOpacity()">Change opacity</button>
+            <button onclick="showNearby()">Show near-by taxis</button>
+            <button onclick="unsetLocation()">Reset location</button>
+        </ul>
+    </div>
+
     <!-- Google maps. -->
     <div id="map"></div>
 
     <!-- UI -->
     <div id="container-ui">
 
-    <!-- Controls (Bottom) -->
-    <div id="container-controls">
-        <table>
-            <tr>
-                <button onclick="toggleUi()">Toggle UI</button>
-                <button onclick="toggleHeatmap()">Toggle Heatmap</button>
-                <button onclick="changeGradient()">Change gradient</button>
-                <button onclick="changeRadius()">Change radius</button>
-                <button onclick="changeOpacity()">Change opacity</button>
-                <button onclick="showNearby()">Show near-by taxis</button>
-                <button onclick="unsetLocation()">Reset location</button>
-            </tr>
-        </table>
-    </div>
+
+
+
     <!--Sliders (top right)-->
     <div id="container-slider">
         <div class = "container-bg"></div>
@@ -133,7 +143,16 @@
 
     <!-- End of UI -->
     </div>
-
+    <script>
+      // Look for .hamburger
+      var hamburger = document.querySelector(".hamburger");
+      // On click
+      hamburger.addEventListener("click", function() {
+        // Toggle class "is-active"
+        hamburger.classList.toggle("is-active");
+        // Do something else, like open/close menu
+      });
+    </script>
 </div>
 
 <script src="https://d3js.org/d3.v4.min.js"></script>
