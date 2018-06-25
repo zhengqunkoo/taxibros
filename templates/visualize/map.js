@@ -197,7 +197,7 @@ function getPoints() {
   ];
 }
 
-function genLoc(pos, radius, minutes, pickupId, path_geom, path_instructions, coordinates, number, best_road, best_road_coords, path_time, path_dist, total_dist, journey_geom) {
+function genLoc(pos, radius, minutes, pickupId, isCreate, path_geom, path_instructions, coordinates, number, best_road, best_road_coords, path_time, path_dist, total_dist, journey_geom) {
   /**
    * Show real taxi distribution at a location and time.
    * @param pickupId: associative array key to be handled by updatePickupId.
@@ -222,10 +222,10 @@ function genLoc(pos, radius, minutes, pickupId, path_geom, path_instructions, co
   
   // TODO not efficient
   // Create new circle here (isCreate==true) because unset old circle.
-  var circle = updateLocationCircle(pos, radius, pickupId, true);
+  var circle = updateLocationCircle(pos, radius, pickupId, isCreate);
 
   // If no optional arguments, perform ajax call.
-  if (arguments.length == 4) {
+  if (arguments.length == 5) {
 
     $.ajax({
       url: "{% url 'visualize:genLoc' %}",
@@ -263,7 +263,7 @@ function genLoc(pos, radius, minutes, pickupId, path_geom, path_instructions, co
         tr.children('td:nth-child(18)').find('.hide').html(total_dist);
         updateTable();
 
-        updatePickup(circle, pickupId, path_geom, path_instructions, coordinates, journey_geom);
+        updatePickup(circle, pickupId, isCreate, path_geom, path_instructions, coordinates, journey_geom);
         genLocHandleData(path_time, path_dist, total_dist, number, best_road, best_road_coords);
       },
       error: function(rs, e) {
@@ -271,7 +271,7 @@ function genLoc(pos, radius, minutes, pickupId, path_geom, path_instructions, co
       }
     });
   } else {
-    updatePickup(circle, pickupId, path_geom, path_instructions, coordinates, journey_geom);
+    updatePickup(circle, pickupId, isCreate, path_geom, path_instructions, coordinates, journey_geom);
     genLocHandleData(path_time, path_dist, total_dist, number, best_road, best_road_coords);
   }
 }
@@ -310,7 +310,7 @@ function genLocHandleData(path_time, path_dist, total_dist, number, best_road, b
   }
 }
 
-function updatePickup(circle, pickupId, path_geom, path_instructions, coordinates, journey_geom) {
+function updatePickup(circle, pickupId, isCreate, path_geom, path_instructions, coordinates, journey_geom) {
   /**
    * Visualize data.
    * Create google map objects (polylineArrays, circles, pointArrays).
@@ -318,7 +318,7 @@ function updatePickup(circle, pickupId, path_geom, path_instructions, coordinate
    * Replace objects, by unsetPickup function, on key collision.
    * @return: undefined.
    */
-  unsetPickup(pickupId);
+  unsetPickup(pickupId, isCreate);
   var walkpath = decode(path_geom, pickupId);
   var journey = decode(journey_geom, pickupId);
   if (walkpath) {
@@ -403,13 +403,13 @@ function setMouseResize(circle, pickupId) {
     setLocation(circle.getCenter());
     locationRadius = circle.getRadius();
     pickupIdLatest = pickupId;
-    genLoc(locationCenter, locationRadius, locationMinutes, pickupIdLatest);
+    genLoc(locationCenter, locationRadius, locationMinutes, pickupIdLatest, true);
   });
   google.maps.event.addListener(circle, 'radius_changed', function() {
     setLocation(circle.getCenter());
     locationRadius = circle.getRadius();
     pickupIdLatest = pickupId;
-    genLoc(locationCenter, locationRadius, locationMinutes, pickupIdLatest);
+    genLoc(locationCenter, locationRadius, locationMinutes, pickupIdLatest, true);
   });
 }
 
@@ -488,7 +488,7 @@ function showNearby() {
       infoWindow.setPosition(pos);
       infoWindow.setContent('Location found.');
       infoWindow.open(map);
-      genLoc(pos, locationRadius, locationMinutes, 'showNearby');
+      genLoc(pos, locationRadius, locationMinutes, 'showNearby', false);
     }, function() {
       handleLocationError(true, infoWindow, map.getCenter());
     });
@@ -581,7 +581,7 @@ function initAutocomplete(input, isCallGenLoc) {
       // Create list element.
       var place = places[0];
       if (isCallGenLoc) {
-        genLoc(place.geometry.location, locationRadius, locationMinutes, input.getAttribute('id'));
+        genLoc(place.geometry.location, locationRadius, locationMinutes, input.getAttribute('id'), false);
       } else {
 
         // Extract origin from hidden info in table.
@@ -601,7 +601,7 @@ function initAutocomplete(input, isCallGenLoc) {
   });
 }
 
-function unsetPickup(pickupId) {
+function unsetPickup(pickupId, isCreate) {
   /**
    * @param pickupId: associative array key.
    * Unset walkpath, circle, and taxi coords, corresponding to pickupId.
@@ -615,7 +615,9 @@ function unsetPickup(pickupId) {
     if (walkpath) {
       unsetMapObj(walkpath);
     }
-    unsetMapObj(circle);
+    if (isCreate) {
+      unsetMapObj(circle);
+    }
     pointArray.clear();
     if (journey) {
       unsetMapObj(journey);
