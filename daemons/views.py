@@ -70,6 +70,10 @@ def get_timestamp(request):
     else:
         minutes = int(minutes)
 
+    # 30 day limit
+    if minutes > 43200:
+        return None
+
     # If true, minutes=0 means current time.
     # If false, minutes=0 means time of latest timestamp.
     if settings.HEATMAP_NOW:

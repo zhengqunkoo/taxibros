@@ -114,6 +114,15 @@ class DownloadJson:
                 ).save()
         return created, timestamp, coordinates
 
+    def delete_old_timestamps(self, minutes=43200):
+        """Delete timestamps older than 30 days."""
+        timestamps = Timestamp.objects.filter(date_time__lte=self._date_time_end-datetime.timedelta(minutes=minutes))
+        print("Deleting old timestamps:")
+        for timestamp in timestamps:
+            print(timestamp.date_time)
+        print("Finished deleting old timestamps.")
+        timestamps.delete()
+
     def download_missing_timestamps(self):
         """Get current timestamps in database. Identify missing timestamps.
         Timestamps are more or less 60 seconds apart.
@@ -221,4 +230,5 @@ def start_download():
     logger = getLogger(__name__)
     logger.debug("daemons.download.start_download")
     ta = TaxiAvailability()
+    ta.delete_old_timestamps()
     ta.download_timestamps()
