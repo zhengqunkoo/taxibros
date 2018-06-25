@@ -170,7 +170,7 @@
     width: 100%;
 }
 #container-itinerary {
-    left: 10px;
+    right: 10px;
     top: 300px;
     position: absolute;
     width: 55%;

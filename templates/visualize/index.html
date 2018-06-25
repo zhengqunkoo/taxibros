@@ -18,6 +18,7 @@
 <link rel="stylesheet" href="{% static 'css/map.css' %}">
 <link rel="stylesheet" href="{% static 'css/button.css' %}">
 <script type="text/javascript" src="{% static 'js/control.js' %}" ></script>
+<script type="text/javascript" src="{% static 'js/itinerary.js' %}" ></script>
 <script type="text/javascript" src="{% url 'visualize:chart' %}" ></script>
 <script type="text/javascript" src="{% url 'visualize:map' %}" ></script>
 <script defer type="text/javascript" src="{% url 'visualize:slider' %}" ></script>
@@ -139,7 +140,7 @@
     <!--Sliders (top right)-->
     <div id="container-slider">
         <div class = "container-bg"></div>
-        <div> Display Sliders </div>
+        <div> Visualization Sliders </div>
         <div> Slide across time </div>
         <input type="range" id="genTime" data-slider-id="genTimeSlider" type="text" data-slider-min="0" data-slider-max="43200" data-slider-step="1" data-slider-value="0"><br>
         <div>Slide location radius</div>
@@ -160,37 +161,37 @@
 
     <!-- Itinerary table (top left)-->
     <div id = "container-itinerary">
-      <input type="button" id="addRow" value="Add row">
-      <table id="itineraryTable" class="tablesorter" cellspacing="1">
-        <thead>
-          <tr>
-            <th>Pickup Location</th>
-            <th>Pickup Time</th>
-            <th>Arrival Location</th>
-            <th>Arrival Time</th>
-            <th>Delete</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-      <label for="importFromCsv" class="btn btn-default csv">Import</label>
-      <input id="importFromCsv" type="file"/>
-      <div id="pager" class="pager">
-        <form>
-          <img src="http://tablesorter.com/addons/pager/icons/first.png" class="first"/>
-          <img src="http://tablesorter.com/addons/pager/icons/prev.png" class="prev"/>
-          <input type="text" class="pagedisplay"/>
-          <img src="http://tablesorter.com/addons/pager/icons/next.png" class="next"/>
-          <img src="http://tablesorter.com/addons/pager/icons/last.png" class="last"/>
-          <select class="pagesize">
-            <option selected="selected" value="5">5</option>
-            <option value="10">10</option>
-            <option value="10">15</option>
-            <option value="20">20</option>
-          </select>
-        </form>
-      </div>
-      <input type="button" id="slider" value="<<">
+        <input type="button" id="slider" value=">>">
+        <input type="button" id="addRow" value="Add row">
+        <table id="itineraryTable" class="tablesorter" cellspacing="1">
+            <thead>
+                <tr>
+                    <th>Pickup Location</th>
+                    <th>Pickup Time</th>
+                    <th>Arrival Location</th>
+                    <th>Arrival Time</th>
+                    <th>Delete</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+        <label for="importFromCsv" class="btn btn-default csv">Import</label>
+        <input id="importFromCsv" type="file"/>
+        <div id="pager" class="pager">
+            <form>
+                <img src="http://tablesorter.com/addons/pager/icons/first.png" class="first"/>
+                <img src="http://tablesorter.com/addons/pager/icons/prev.png" class="prev"/>
+                <input type="text" class="pagedisplay"/>
+                <img src="http://tablesorter.com/addons/pager/icons/next.png" class="next"/>
+                <img src="http://tablesorter.com/addons/pager/icons/last.png" class="last"/>
+                <select class="pagesize">
+                    <option selected="selected" value="5">5</option>
+                    <option value="10">10</option>
+                    <option value="10">15</option>
+                    <option value="20">20</option>
+                </select>
+            </form>
+        </div>
     </div>
 
     <!--SVG for charts -->

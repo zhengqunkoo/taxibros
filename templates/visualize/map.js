@@ -219,7 +219,7 @@ function genLoc(pos, radius, minutes, pickupId, isCreate, path_geom, path_instru
   // Update global @param locationCircle to be same pos, radius as local @param circle.
   // Pass circle to updatePickup for storage in associative array.
   // Important: do this before ajax query.
-  
+
   // TODO not efficient
   // Create new circle here (isCreate==true) because unset old circle.
   var circle = updateLocationCircle(pos, radius, pickupId, isCreate);
@@ -735,17 +735,3 @@ function unsetMapObj(obj) {
   obj.setMap(null);
   obj = null;
 }
-
-$(document).ready(function() {
-  $('#slider').click(function() {
-      var leftVal = $("#container-itinerary").css("left");
-      if (leftVal == '10px'){
-          $('#container-itinerary').stop().animate({left:"-50%"}, 500);
-          $('#slider').prop("value",">>");
-
-      } else {
-          $('#container-itinerary').stop().animate({left:"10px"},500);
-          $('#slider').prop("value","<<");
-      }
-  });
-});
