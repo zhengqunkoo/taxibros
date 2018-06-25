@@ -48,19 +48,81 @@
         <span></span>
 
         <ul id="container-controls"><!--Switch-->
-            <div class="switch switch--horizontal switch--expanding-inner">
-                <input id="radio-i" type="radio" name="fifth-switch" checked="checked" />
-                <label for="radio-i">Off</label>
-                <input id="radio-j" type="radio" name="fifth-switch" />
-                <label for="radio-j">On</label>
-                <span class="toggle-outside"><span class="toggle-inside"></span></span>
-            </div>
             <div class = "container-bg"></div>
-            <button onclick="toggleUi()">Toggle UI</button>
-            <button onclick="toggleHeatmap()">Toggle Heatmap</button>
-            <button onclick="changeGradient()">Change gradient</button>
-            <button onclick="changeRadius()">Change radius</button>
-            <button onclick="changeOpacity()">Change opacity</button>
+
+            <table>
+                <tr>
+                    <td style="color:white">
+                        Toggle UI
+                    </td>
+                    <td>
+                        <div class="switch switch--horizontal switch--expanding-inner">
+                            <input id="radio-i" type="radio" name="fifth-switch" checked="checked" onchange="toggleUi()"/>
+                            <label for="radio-i">Off</label>
+                            <input id="radio-j" type="radio" name="fifth-switch" onchange="toggleUi()"/>
+                            <label for="radio-j">On</label>
+                            <span class="toggle-outside"><span class="toggle-inside"></span></span>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="color:white">
+                        Toggle Heatmap
+                    </td>
+                    <td>
+                        <div class="switch switch--horizontal switch--expanding-inner">
+                            <input id="radio-i" type="radio" name="fifth-switch" checked="checked" onchange="toggleHeatmap()"/>
+                            <label for="radio-i">Off</label>
+                            <input id="radio-j" type="radio" name="fifth-switch" onchange="toggleHeatmap()"/>
+                            <label for="radio-j">On</label>
+                            <span class="toggle-outside"><span class="toggle-inside"></span></span>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="color:white">
+                        Toggle Gradient
+                    </td>
+                    <td>
+                        <div class="switch switch--horizontal switch--expanding-inner">
+                            <input id="radio-i" type="radio" name="fifth-switch" checked="checked" onchange="changeGradient()"/>
+                            <label for="radio-i">Off</label>
+                            <input id="radio-j" type="radio" name="fifth-switch" onchange="changeGradient()"/>
+                            <label for="radio-j">On</label>
+                            <span class="toggle-outside"><span class="toggle-inside"></span></span>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="color:white">
+                        Change Radius
+                    </td>
+                    <td>
+                        <div class="switch switch--horizontal switch--expanding-inner">
+                            <input id="radio-i" type="radio" name="fifth-switch" checked="checked" onchange="changeRadius()"/>
+                            <label for="radio-i">Off</label>
+                            <input id="radio-j" type="radio" name="fifth-switch" onchange="changeRadius()"/>
+                            <label for="radio-j">On</label>
+                            <span class="toggle-outside"><span class="toggle-inside"></span></span>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="color:white">
+                        Change Opacity
+                    </td>
+                    <td>
+                        <div class="switch switch--horizontal switch--expanding-inner">
+                            <input id="radio-i" type="radio" name="fifth-switch" checked="checked" onchange="changeOpacity()"/>
+                            <label for="radio-i">Off</label>
+                            <input id="radio-j" type="radio" name="fifth-switch" onchange="changeOpacity()"/>
+                            <label for="radio-j">On</label>
+                            <span class="toggle-outside"><span class="toggle-inside"></span></span>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+
             <button onclick="showNearby()">Show near-by taxis</button>
             <button onclick="unsetLocation()">Reset location</button>
         </ul>
