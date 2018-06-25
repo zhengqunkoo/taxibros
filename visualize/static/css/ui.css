@@ -234,10 +234,14 @@ background: rgba(155,155,155,0.6);
 }
 
 #remove-stats {
-    font-size: 0.5em;
+    font-size: 2em;
     height:1em;
     width:1em;
     text-align: center;
+    float:left;
+    position:absolute;
+    left:0%;
+    top:0%;
 }
 .chart rect {
   fill: steelblue;
