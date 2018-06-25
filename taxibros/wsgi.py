@@ -39,7 +39,9 @@ if not settings.ONEMAP_EXPIRY_TIMESTAMP or time.time() > int(
     )
     request_json = request.json()
     dotenv.set_key(dotenv_path, "ONEMAP_SECRET_KEY", request_json["access_token"])
-    dotenv.set_key(dotenv_path, "ONEMAP_EXPIRY_TIMESTAMP", request_json["expiry_timestamp"])
+    dotenv.set_key(
+        dotenv_path, "ONEMAP_EXPIRY_TIMESTAMP", request_json["expiry_timestamp"]
+    )
     dotenv.load_dotenv(dotenv_path=dotenv_path)
 else:
     print("Using old OneMap token")

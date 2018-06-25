@@ -5,17 +5,18 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/TableExport/5.0.2/css/tableexport.min.css">
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/9.9.0/bootstrap-slider.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.2/moment.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.30.6/js/jquery.tablesorter.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.30.6/js/extras/jquery.tablesorter.pager.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.13.0/xlsx.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/1.3.8/FileSaver.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/TableExport/5.0.2/js/tableexport.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/4.5.0/papaparse.min.js"></script>
+<script async src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/9.9.0/bootstrap-slider.js"></script>
+<script async src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.2/moment.min.js"></script>
+<script async src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
+<script async src="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.30.6/js/jquery.tablesorter.min.js"></script>
+<script async src="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.30.6/js/extras/jquery.tablesorter.pager.min.js"></script>
+<script async src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.13.0/xlsx.min.js"></script>
+<script async src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/1.3.8/FileSaver.min.js"></script>
+<script async src="https://cdnjs.cloudflare.com/ajax/libs/TableExport/5.0.2/js/tableexport.min.js"></script>
+<script async src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/4.5.0/papaparse.min.js"></script>
 <link rel="stylesheet" href="{% static 'css/ui.css' %}">
 <link rel="stylesheet" href="{% static 'css/map.css' %}">
+<link rel="stylesheet" href="{% static 'css/button.css' %}">
 <script type="text/javascript" src="{% url 'visualize:chart' %}" ></script>
 <script type="text/javascript" src="{% url 'visualize:map' %}" ></script>
 <script defer type="text/javascript" src="{% url 'visualize:slider' %}" ></script>
@@ -24,38 +25,120 @@
 {% endblock %}
 {% block content %}
 <!--Error Message-->
-<div>
-  <button onclick="toggleUi()">Toggle UI</button>
-</div>
 <div id="container-error">
   {% if error_message %}
   <p><strong>{{ error_message }}</strong></p>
   {% endif %}
 </div>
+
+
 <div id= "map-all">
+
     <!-- Google maps. -->
     <div id="map"></div>
+
+
+    <!-- Controls (Top left) -->
+    <div id="menuToggle">
+        <input type="checkbox" />
+
+        <!--hamburger-->
+        <span></span>
+        <span></span>
+        <span></span>
+
+        <ul id="container-controls"><!--Switch-->
+            <div class = "container-bg"></div>
+
+            <table>
+                <tr>
+                    <td style="color:white">
+                        Toggle UI
+                    </td>
+                    <td>
+                        <div class="switch switch--horizontal switch--expanding-inner">
+                            <input id="radio-i" type="radio" name="fifth-switch" checked="checked" onchange="toggleUi()"/>
+                            <label for="radio-i">Off</label>
+                            <input id="radio-j" type="radio" name="fifth-switch" onchange="toggleUi()"/>
+                            <label for="radio-j">On</label>
+                            <span class="toggle-outside"><span class="toggle-inside"></span></span>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="color:white">
+                        Toggle Heatmap
+                    </td>
+                    <td>
+                        <div class="switch switch--horizontal switch--expanding-inner">
+                            <input id="radio-i" type="radio" name="fifth-switch" checked="checked" onchange="toggleHeatmap()"/>
+                            <label for="radio-i">Off</label>
+                            <input id="radio-j" type="radio" name="fifth-switch" onchange="toggleHeatmap()"/>
+                            <label for="radio-j">On</label>
+                            <span class="toggle-outside"><span class="toggle-inside"></span></span>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="color:white">
+                        Toggle Gradient
+                    </td>
+                    <td>
+                        <div class="switch switch--horizontal switch--expanding-inner">
+                            <input id="radio-i" type="radio" name="fifth-switch" checked="checked" onchange="changeGradient()"/>
+                            <label for="radio-i">Off</label>
+                            <input id="radio-j" type="radio" name="fifth-switch" onchange="changeGradient()"/>
+                            <label for="radio-j">On</label>
+                            <span class="toggle-outside"><span class="toggle-inside"></span></span>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="color:white">
+                        Change Radius
+                    </td>
+                    <td>
+                        <div class="switch switch--horizontal switch--expanding-inner">
+                            <input id="radio-i" type="radio" name="fifth-switch" checked="checked" onchange="changeRadius()"/>
+                            <label for="radio-i">Off</label>
+                            <input id="radio-j" type="radio" name="fifth-switch" onchange="changeRadius()"/>
+                            <label for="radio-j">On</label>
+                            <span class="toggle-outside"><span class="toggle-inside"></span></span>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="color:white">
+                        Change Opacity
+                    </td>
+                    <td>
+                        <div class="switch switch--horizontal switch--expanding-inner">
+                            <input id="radio-i" type="radio" name="fifth-switch" checked="checked" onchange="changeOpacity()"/>
+                            <label for="radio-i">Off</label>
+                            <input id="radio-j" type="radio" name="fifth-switch" onchange="changeOpacity()"/>
+                            <label for="radio-j">On</label>
+                            <span class="toggle-outside"><span class="toggle-inside"></span></span>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+
+            <button onclick="showNearby()">Show near-by taxis</button>
+            <button onclick="unsetLocation()">Reset location</button>
+        </ul>
+    </div>
+    <div id="description-controls">
+        DISPLAY CONTROLS
+    </div>
+
 
     <!-- UI -->
     <div id="container-ui">
 
-    <!-- Controls (Bottom) -->
-    <div id="container-controls">
-        <table>
-            <tr>
-                <button onclick="toggleHeatmap()">Toggle Heatmap</button>
-                <button onclick="changeGradient()">Change gradient</button>
-                <button onclick="changeRadius()">Change radius</button>
-                <button onclick="changeOpacity()">Change opacity</button>
-                <button onclick="showNearby()">Show near-by taxis</button>
-                <button onclick="unsetLocation()">Reset location</button>
-            </tr>
-        </table>
-    </div>
     <!--Sliders (top right)-->
     <div id="container-slider">
         <div class = "container-bg"></div>
-        <div> Display Controls </div>
+        <div> Display Sliders </div>
         <div> Slide across time </div>
         <input type="range" id="genTime" data-slider-id="genTimeSlider" type="text" data-slider-min="0" data-slider-max="43200" data-slider-step="1" data-slider-value="0"><br>
         <div>Slide location radius</div>
@@ -108,6 +191,7 @@
       </div>
       <input type="button" id="slider" value="<<">
     </div>
+
     <!--SVG for charts -->
     <div id="container-chart" >
         <svg class="chart"></svg>
@@ -134,8 +218,7 @@
     </div>
 
     <!-- End of UI -->
-    </div>
-
+</div>
 </div>
 
 <script src="https://d3js.org/d3.v4.min.js"></script>

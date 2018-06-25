@@ -1,3 +1,132 @@
+
+
+#description-controls:hover
+{
+  color: tomato;
+}
+
+#description-controls {
+    top: 50px;
+    left: 100px;
+    position:absolute;
+    z-index:2;
+    color: #cdcdcd;
+    font-family: "Avenir Next", "Avenir", sans-serif;
+}
+
+#menuToggle
+{
+  display: block;
+  position: absolute;
+  top: 50px;
+  left: 50px;
+
+  z-index: 1;
+
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+#menuToggle input:not(#radio-i):not(#radio-j)
+{
+  display: block;
+  width: 40px;
+  height: 32px;
+  position: absolute;
+  top: -7px;
+  left: -5px;
+
+  cursor: pointer;
+
+  opacity: 0; /* hide this */
+  z-index: 2; /* and place it over the hamburger */
+
+  -webkit-touch-callout: none;
+}
+
+
+#menuToggle span:not(.toggle-inside):not(.toggle-outside)
+{
+  display: block;
+  width: 33px;
+  height: 4px;
+  margin-bottom: 5px;
+  position: relative;
+
+  background: #cdcdcd;
+  border-radius: 3px;
+
+  z-index: 1;
+
+  transform-origin: 4px 0px;
+
+  transition: transform 0.5s cubic-bezier(0.77,0.2,0.05,1.0),
+              background 0.5s cubic-bezier(0.77,0.2,0.05,1.0),
+              opacity 0.55s ease;
+}
+
+#menuToggle span:first-child:not(.toggle-inside):not(.toggle-outside)
+{
+  transform-origin: 0% 0%;
+}
+
+#menuToggle span:nth-last-child(2):not(.toggle-inside):not(.toggle-outside)
+{
+  transform-origin: 0% 100%;
+}
+
+
+#menuToggle input:checked ~ span:not(.toggle-inside):not(.toggle-outside)
+{
+  opacity: 1;
+  transform: rotate(45deg) translate(-2px, -1px);
+  background: #232323;
+}
+
+
+#menuToggle input:checked ~ span:nth-last-child(3):not(.toggle-inside):not(.toggle-outside)
+{
+  opacity: 0;
+  transform: rotate(0deg) scale(0.2, 0.2);
+}
+
+
+#menuToggle input:checked ~ span:nth-last-child(2):not(.toggle-inside):not(.toggle-outside)
+{
+  transform: rotate(-45deg) translate(0, -1px);
+}
+#menuToggle input:checked ~ #description-controls
+{
+    color:tomato;
+}
+#container-controls
+{
+  position: absolute;
+  width: 850%;
+  margin: -100px 0 0 -50px;
+  padding: 50px;
+  padding-top: 125px;
+  overflow: hidden;
+  list-style-type: none;
+  -webkit-font-smoothing: antialiased;
+
+  transform-origin: 0% 0%;
+  transform: translate(-100%, 0);
+
+  transition: transform 0.5s cubic-bezier(0.77,0.2,0.05,1.0);
+}
+
+#container-controls li
+{
+  padding: 10px 0;
+  font-size: 22px;
+}
+
+#menuToggle input:checked ~ ul
+{
+  transform: none;
+}
+
 #genTimeSlider .slider-selection, #genHeatmapSlider .slider-selection {
 	background: #BABABA;
 }
@@ -12,6 +141,7 @@
     overflow: hidden;
     padding: 10px;
 }
+
 
 #container-chart {
     position: absolute;
@@ -30,7 +160,7 @@
 }
 #container-itinerary {
     left: 10px;
-    top: 0;
+    top: 300px;
     position: absolute;
     width: 55%;
 }
@@ -79,7 +209,7 @@
   height:120%;
   width: 120%;
   background: rgb(34,34,34); /* for IE */
-background: rgba(155,155,155,0.3);
+background: rgba(155,155,155,0.6);
   top:0;
   padding:-10px;
   left:-25px;
