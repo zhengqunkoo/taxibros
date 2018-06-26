@@ -36,7 +36,7 @@ class ConvertHeatmap:
         @param timestamp: Timestamp object of LTA date_time that JSON was updated.
         @param coordinates: list of coordinates to be stored.
         """
-        print("Convert {}".format(timestamp))
+        print("ConvertHeatmap {}".format(timestamp))
 
         # Store as heat tile.
         coo = self.convert(coordinates)
@@ -109,6 +109,7 @@ class ConvertRoad:
     def process_closest_roads(cls, coordinates, timestamp):
         """Processes the coordinates by tabulating counts for their respective road segments
         """
+        print("ConvertRoad {}".format(timestamp))
         try:
             # Breaks coordinates into smaller chunks due to error 413
             coord_chunks = [
