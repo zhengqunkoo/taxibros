@@ -106,6 +106,15 @@ class ConvertRoad:
         pass
 
     @classmethod
+    def get_json(cls, url):
+        """Generic method to download JSON streams.
+        @param url: URL to download from.
+        @return JSON.
+        """
+        response = requests.get(url)
+        return response.json()
+
+    @classmethod
     def get_coord_chunks(cls, coordinates):
         """
         Breaks coordinates into smaller chunks due to error 413.
@@ -143,7 +152,9 @@ class ConvertRoad:
             + "&key="
             + settings.GOOGLEMAPS_SECRET_KEY
         )
-        json_val = requests.get(url).json()
+
+        # Need this call for mock tests.
+        json_val = cls.get_json(url)
         result = [None] * len(coordinates)
 
         # Ignore case when no points snap to any road.
