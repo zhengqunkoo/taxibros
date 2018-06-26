@@ -6,7 +6,36 @@ from scipy.sparse import coo_matrix
 from .models import Heatmap, Heattile, Location, LocationRecord
 from django.conf import settings
 from django.utils import dateparse, timezone
+from django.db import OperationalError
+from scipy.spatial import KDTree
 
+
+# Approximating lat/lng
+# http://www.longitudestore.com/how-big-is-one-gps-degree.html
+M_PER_LAT = 110570
+M_PER_LONG = 111320
+
+# Set up KDTree once on server start.
+import sys
+
+sys.setrecursionlimit(30000)
+try:
+    locs = [loc for loc in Location.objects.all()]
+    locs = list(filter(lambda x: x.lat != 0, locs))
+    if len(locs) > 0:  # Tests initialize kdtree with no values
+        tree = KDTree(
+            list(map(lambda x: (float(x.lat), float(x.lng)), locs)), leafsize=3000
+        )
+        print("Successfully populated KDTree.")
+    else:
+        tree = KDTree([[], []])
+        print("Initialized empty KDTree, due to locs empty.")
+except OperationalError as e:
+    print("Error accessing daemons_location, see: {}.".format(e))
+    locs = []
+    tree = KDTree([[], []])
+else:
+    print("Successfully populated locs and tree.")
 
 class ConvertHeatmap:
     """Converts coordinates into heatmap.
@@ -105,76 +134,62 @@ class ConvertRoad:
     def __init__(self):
         pass
 
-    @classmethod
-    def get_coord_chunks(cls, coordinates):
-        """
-        Breaks coordinates into smaller chunks due to error 413.
-        """
-        return [coordinates[x : x + 100] for x in range(0, len(coordinates), 100)]
+
 
     @classmethod
     def process_closest_roads(cls, coordinates, timestamp):
         """Processes the coordinates by tabulating counts for their respective road segments
         """
         print("ConvertRoad {}".format(timestamp))
+        print("Number of grid points (sanity check): {}.".format(len(coordinates)))
+
         try:
+            #corresponding points of kdtree are returned to passed in coordinates
+            #distances: distance of coordinate from closest coordinate in kdtree
+            #indexes: index of closest coordinate in tree.data
+            #These two arrays are sorted by distance
+            distances, indexes = tree.query(coordinates)
+            #Assumption: data is an array of
+            data = tree.data
+            #threshold if coordinate is too far from any closest road dont store
+            threshold = 20/M_PER_LAT
             vals = {}
-            for coord_chunk in cls.get_coord_chunks(coordinates):
-                cls.add_list_to_dict(cls.get_closest_roads(coord_chunk), vals)
+            for i in range(len(indexes)):
+                if distances[i] > threshold:
+                    continue
+                if vals[data[i]] not in vals:
+                    vals[data[i]] = 1
+                else:
+                    vals[data[i]] += 1
             cls.store_road_data(vals, timestamp)
 
         except Exception as e:
             print(str(e))
 
-    @classmethod
-    def get_closest_roads(cls, coordinates):
-        """Retrieves the closest road segments to the coordinates
-        @param: coordinates of the taxis
-        @return: list of same size as coordinates containing road segment or None if none is found"""
-        coords_params = "|".join(
-            [
-                str(coordinate[1]) + "," + str(coordinate[0])
-                for coordinate in coordinates
-            ]
-        )
-        url = (
-            "https://roads.googleapis.com/v1/nearestRoads?points="
-            + coords_params
-            + "&key="
-            + settings.GOOGLEMAPS_SECRET_KEY
-        )
-        json_val = requests.get(url).json()
-        result = [None] * len(coordinates)
-
-        # Ignore case when no points snap to any road.
-        if json_val:
-            for point in json_val["snappedPoints"]:
-                index = point["originalIndex"]
-                if (
-                    result[index] != None and point["placeId"] > result[index]
-                ) or result[index] == None:
-                    result[index] = point["placeId"]
-        return result
-
-    @classmethod
-    def add_list_to_dict(cls, road_id_list, vals):
-        """Stores a road_id_list into a dictionary
-        """
-        for id in road_id_list:
-            if id == None:
-                continue
-            if id in vals:
-                vals[id] += 1
-            else:
-                vals[id] = 1
 
     @classmethod
     def store_road_data(cls, vals, timestamp):
         """Stores a dictionary of road ids and count into a db
         """
-        for id, count in vals.items():
-            location, created = Location.objects.get_or_create(pk=id)
-            LocationRecord(count=count, location=location, timestamp=timestamp).save()
+        for coord, count in vals.items():
+            try:
+                location = find_corresponding_location(coord)
+                LocationRecord(count=count, location=location, timestamp=timestamp).save()
+            except Exception as e:
+                print(str(e))
+                print("Corresponding location for coordinate not found in db:")
+                print(str(coord))
+
+    @classmethod
+    def find_corresponding_location(coordinate):
+        """Finds corresponding location from coordinate
+        If not found, django model manager get will raise does not exist error
+        If multiple objects found, django model will raise multiple objects returned error"""
+        lat = coordinate[0]
+        lng = coordinate[1]
+        location = Location.objects.get(lat=lat, lng=lng)
+        return location
+
 
     @classmethod
     def get_road_info_from_id(cls, roadID, tries=4):
@@ -213,17 +228,6 @@ class ConvertRoad:
         lat, lng, road_name = cls.get_road_info_from_id(road_id)
         Location(roadID=road_id, road_name=road_name, lat=lat, lng=lng).save()
 
-    @classmethod
-    def convert(cls, coordinates):
-        """Entry point to save many @param coordinates as many Locations."""
-        print("Number of grid points (sanity check): {}.".format(len(coordinates)))
-        for coord_chunk in cls.get_coord_chunks(coordinates):
-            print("Processing coord chunk of length {}.".format(len(coord_chunk)))
-            for road_id in cls.get_closest_roads(coord_chunk):
-                if road_id:  # If not none.
-                    print("Processing {}".format(road_id))
-                    cls.process_location_coordinates(road_id)
-        print("Processing finished!")
 
 
 def process_location_coordinates():
