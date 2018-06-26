@@ -32,7 +32,7 @@ html {
 	 opacity: 0.5;
 }
  .switch label {
-	 color: #fff;
+	 color: #4a4a4a;
 	 opacity: 0.33;
 	 transition: opacity 0.25s ease;
 	 cursor: pointer;

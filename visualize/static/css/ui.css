@@ -12,6 +12,7 @@
     z-index:2;
     color: #cdcdcd;
     font-family: "Avenir Next", "Avenir", sans-serif;
+
 }
 
 #menuToggle
@@ -95,26 +96,36 @@
 {
   transform: rotate(-45deg) translate(0, -1px);
 }
-#menuToggle input:checked ~ #description-controls
-{
-    color:tomato;
-}
+
 #container-controls
 {
   position: absolute;
-  width: 850%;
+  width: 1000%;
   margin: -100px 0 0 -50px;
   padding: 50px;
   padding-top: 125px;
   overflow: hidden;
   list-style-type: none;
   -webkit-font-smoothing: antialiased;
+  color:#4a4a4a;
+  font-family: "Avenir Next", "Avenir", sans-serif;
+  font-weight:bold;
+
 
   transform-origin: 0% 0%;
   transform: translate(-100%, 0);
 
   transition: transform 0.5s cubic-bezier(0.77,0.2,0.05,1.0);
 }
+
+#container-controls td {
+    width:120px;
+}
+#container-controls table{
+    table-layout: fixed;
+    width: 240px;
+}
+
 
 #container-controls li
 {
@@ -135,8 +146,8 @@
     z-index:1;
     display: inline;
     position:absolute;
-    top: 5%;
-    left: 75%;
+    bottom: 5%;
+    right: 5%;
     width:20%;
     overflow: hidden;
     padding: 10px;
@@ -145,8 +156,8 @@
 
 #container-chart {
     position: absolute;
-    bottom: 10%;
-    left: 0%;
+    bottom: 2em;
+    left: 2em;
 }
 
 #chart-title{
@@ -159,10 +170,12 @@
     width: 100%;
 }
 #container-itinerary {
-    left: 10px;
-    top: 300px;
+    right: 10px;
+    top: 10px;
     position: absolute;
     width: 55%;
+    overflow:hidden;
+    z-index:1;
 }
 
 #slider {
@@ -221,10 +234,14 @@ background: rgba(155,155,155,0.6);
 }
 
 #remove-stats {
-    font-size: 0.5em;
+    font-size: 2em;
     height:1em;
     width:1em;
     text-align: center;
+    float:left;
+    position:absolute;
+    left:0%;
+    top:0%;
 }
 .chart rect {
   fill: steelblue;

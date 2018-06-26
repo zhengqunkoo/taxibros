@@ -17,6 +17,8 @@
 <link rel="stylesheet" href="{% static 'css/ui.css' %}">
 <link rel="stylesheet" href="{% static 'css/map.css' %}">
 <link rel="stylesheet" href="{% static 'css/button.css' %}">
+<script type="text/javascript" src="{% static 'js/control.js' %}" ></script>
+<script type="text/javascript" src="{% static 'js/itinerary.js' %}" ></script>
 <script type="text/javascript" src="{% url 'visualize:chart' %}" ></script>
 <script type="text/javascript" src="{% url 'visualize:map' %}" ></script>
 <script defer type="text/javascript" src="{% url 'visualize:slider' %}" ></script>
@@ -52,71 +54,71 @@
 
             <table>
                 <tr>
-                    <td style="color:white">
+                    <td>
                         Toggle UI
                     </td>
                     <td>
                         <div class="switch switch--horizontal switch--expanding-inner">
                             <input id="radio-i" type="radio" name="fifth-switch" checked="checked" onchange="toggleUi()"/>
-                            <label for="radio-i">Off</label>
+                            <label for="radio-i">On</label>
                             <input id="radio-j" type="radio" name="fifth-switch" onchange="toggleUi()"/>
-                            <label for="radio-j">On</label>
+                            <label for="radio-j">Off</label>
                             <span class="toggle-outside"><span class="toggle-inside"></span></span>
                         </div>
                     </td>
                 </tr>
                 <tr>
-                    <td style="color:white">
+                    <td>
                         Toggle Heatmap
                     </td>
                     <td>
                         <div class="switch switch--horizontal switch--expanding-inner">
                             <input id="radio-i" type="radio" name="fifth-switch" checked="checked" onchange="toggleHeatmap()"/>
-                            <label for="radio-i">Off</label>
+                            <label for="radio-i">On</label>
                             <input id="radio-j" type="radio" name="fifth-switch" onchange="toggleHeatmap()"/>
-                            <label for="radio-j">On</label>
+                            <label for="radio-j">Off</label>
                             <span class="toggle-outside"><span class="toggle-inside"></span></span>
                         </div>
                     </td>
                 </tr>
                 <tr>
-                    <td style="color:white">
+                    <td>
                         Toggle Gradient
                     </td>
                     <td>
                         <div class="switch switch--horizontal switch--expanding-inner">
                             <input id="radio-i" type="radio" name="fifth-switch" checked="checked" onchange="changeGradient()"/>
-                            <label for="radio-i">Off</label>
+                            <label for="radio-i">Green</label>
                             <input id="radio-j" type="radio" name="fifth-switch" onchange="changeGradient()"/>
-                            <label for="radio-j">On</label>
+                            <label for="radio-j">Blue</label>
                             <span class="toggle-outside"><span class="toggle-inside"></span></span>
                         </div>
                     </td>
                 </tr>
                 <tr>
-                    <td style="color:white">
+                    <td>
                         Change Radius
                     </td>
                     <td>
                         <div class="switch switch--horizontal switch--expanding-inner">
                             <input id="radio-i" type="radio" name="fifth-switch" checked="checked" onchange="changeRadius()"/>
-                            <label for="radio-i">Off</label>
+                            <label for="radio-i">Small</label>
                             <input id="radio-j" type="radio" name="fifth-switch" onchange="changeRadius()"/>
-                            <label for="radio-j">On</label>
+                            <label for="radio-j">Big</label>
                             <span class="toggle-outside"><span class="toggle-inside"></span></span>
                         </div>
                     </td>
                 </tr>
                 <tr>
-                    <td style="color:white">
+                    <td>
                         Change Opacity
                     </td>
                     <td>
                         <div class="switch switch--horizontal switch--expanding-inner">
                             <input id="radio-i" type="radio" name="fifth-switch" checked="checked" onchange="changeOpacity()"/>
-                            <label for="radio-i">Off</label>
+                            <label for="radio-i">Heavy</label>
                             <input id="radio-j" type="radio" name="fifth-switch" onchange="changeOpacity()"/>
-                            <label for="radio-j">On</label>
+                            <label for="radio-j">Light</label>
                             <span class="toggle-outside"><span class="toggle-inside"></span></span>
                         </div>
                     </td>
@@ -138,7 +140,7 @@
     <!--Sliders (top right)-->
     <div id="container-slider">
         <div class = "container-bg"></div>
-        <div> Display Sliders </div>
+        <div> VISUALIZATION SLIDERS </div>
         <div> Slide across time </div>
         <input type="range" id="genTime" data-slider-id="genTimeSlider" type="text" data-slider-min="0" data-slider-max="43200" data-slider-step="1" data-slider-value="0"><br>
         <div>Slide location radius</div>
@@ -159,37 +161,38 @@
 
     <!-- Itinerary table (top left)-->
     <div id = "container-itinerary">
-      <input type="button" id="addRow" value="Add row">
-      <table id="itineraryTable" class="tablesorter" cellspacing="1">
-        <thead>
-          <tr>
-            <th>Pickup Location</th>
-            <th>Pickup Time</th>
-            <th>Arrival Location</th>
-            <th>Arrival Time</th>
-            <th>Delete</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-      <label for="importFromCsv" class="btn btn-default csv">Import</label>
-      <input id="importFromCsv" type="file"/>
-      <div id="pager" class="pager">
-        <form>
-          <img src="http://tablesorter.com/addons/pager/icons/first.png" class="first"/>
-          <img src="http://tablesorter.com/addons/pager/icons/prev.png" class="prev"/>
-          <input type="text" class="pagedisplay"/>
-          <img src="http://tablesorter.com/addons/pager/icons/next.png" class="next"/>
-          <img src="http://tablesorter.com/addons/pager/icons/last.png" class="last"/>
-          <select class="pagesize">
-            <option selected="selected" value="5">5</option>
-            <option value="10">10</option>
-            <option value="10">15</option>
-            <option value="20">20</option>
-          </select>
-        </form>
-      </div>
-      <input type="button" id="slider" value="<<">
+        <div class = "container-bg"></div>
+        <input type="button" id="slider" value=">>">
+        <input type="button" id="addRow" value="Add row">
+        <table id="itineraryTable" class="tablesorter" cellspacing="1">
+            <thead>
+                <tr>
+                    <th>Pickup Location</th>
+                    <th>Pickup Time</th>
+                    <th>Arrival Location</th>
+                    <th>Arrival Time</th>
+                    <th>Delete</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+        <label for="importFromCsv" class="btn btn-default csv">Import</label>
+        <input id="importFromCsv" type="file"/>
+        <div id="pager" class="pager">
+            <form>
+                <img src="http://tablesorter.com/addons/pager/icons/first.png" class="first"/>
+                <img src="http://tablesorter.com/addons/pager/icons/prev.png" class="prev"/>
+                <input type="text" class="pagedisplay"/>
+                <img src="http://tablesorter.com/addons/pager/icons/next.png" class="next"/>
+                <img src="http://tablesorter.com/addons/pager/icons/last.png" class="last"/>
+                <select class="pagesize">
+                    <option selected="selected" value="5">5</option>
+                    <option value="10">10</option>
+                    <option value="10">15</option>
+                    <option value="20">20</option>
+                </select>
+            </form>
+        </div>
     </div>
 
     <!--SVG for charts -->
@@ -200,7 +203,7 @@
 
     <!--Local statistics(Right)-->
     <div id = "container-stats">
-        <button id="remove-stats" onclick="disappearStats()">X</button>
+        <button id="remove-stats" onclick="disappearStats()"type="button" class="close" aria-label="Close"><span aria-hidden="true">&times;</span></button>
         <div class = "container-bg"></div>
         <table id = "stats-table">
             <tr>
