@@ -116,7 +116,9 @@ class DownloadJson:
 
     def delete_old_timestamps(self, minutes=43200):
         """Delete timestamps older than 30 days."""
-        timestamps = Timestamp.objects.filter(date_time__lte=self._date_time_end-datetime.timedelta(minutes=minutes))
+        timestamps = Timestamp.objects.filter(
+            date_time__lte=self._date_time_end - datetime.timedelta(minutes=minutes)
+        )
         print("Deleting old timestamps:")
         for timestamp in timestamps:
             print(timestamp.date_time)
@@ -222,7 +224,8 @@ class TaxiAvailability(DownloadJson, ConvertHeatmap, ConvertRoad):
         ).store_timestamp_coordinates(date_time, taxi_count, coordinates)
         if created:
             self.store_heatmap(timestamp, coordinates)
-            self.process_closest_roads(coordinates, timestamp)
+            if not settings.GRID_CLOSEST_ROADS:
+                self.process_closest_roads(coordinates, timestamp)
 
 
 @background(queue="taxi-availability")

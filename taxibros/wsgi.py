@@ -16,8 +16,9 @@ import subprocess
 import time
 
 from background_task.models import Task
-from daemons.download import start_download
 from daemons.convert import process_location_coordinates
+from daemons.download import start_download
+from daemons.grid_coordinates import GridCoordinates
 from django.core.wsgi import get_wsgi_application
 from django.conf import settings
 
@@ -68,5 +69,16 @@ if settings.DAEMON_START:
             break
     else:
         subprocess.Popen(cmd)
+
+if settings.GRID_CLOSEST_ROADS:
+    gc = GridCoordinates()
+    gc.start(
+        ll_lat=settings.GRID_LL_LAT,
+        ll_lng=settings.GRID_LL_LNG,
+        ur_lat=settings.GRID_UR_LAT,
+        ur_lng=settings.GRID_UR_LNG,
+        resolution=1000000,
+    )
+
 if settings.UPDATE_ROADS and not settings.DAEMON_START:
     process_location_coordinates()
