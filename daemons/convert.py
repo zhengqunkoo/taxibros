@@ -106,17 +106,20 @@ class ConvertRoad:
         pass
 
     @classmethod
+    def get_coord_chunks(cls, coordinates):
+        """
+        Breaks coordinates into smaller chunks due to error 413.
+        """
+        return [coordinates[x : x + 100] for x in range(0, len(coordinates), 100)]
+
+    @classmethod
     def process_closest_roads(cls, coordinates, timestamp):
         """Processes the coordinates by tabulating counts for their respective road segments
         """
         print("ConvertRoad {}".format(timestamp))
         try:
-            # Breaks coordinates into smaller chunks due to error 413
-            coord_chunks = [
-                coordinates[x : x + 100] for x in range(0, len(coordinates), 100)
-            ]
             vals = {}
-            for coord_chunk in coord_chunks:
+            for coord_chunk in cls.get_coord_chunks(coordinates):
                 cls.add_list_to_dict(cls.get_closest_roads(coord_chunk), vals)
             cls.store_road_data(vals, timestamp)
 
