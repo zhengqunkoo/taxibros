@@ -17,12 +17,14 @@ Each instruction is a command, and a description of the command.
    ```
    python3 -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"
    ```
-3. Migrate, as well as synchronize apps without migrations.
+3. Follow `taxibros/settings/local_settings.py.template` to create your personal
+   settings in `taxibros/settings/local_settings.py`.
+4. Migrate, as well as synchronize apps without migrations.
    ```
    python3 manage.py makemigrations
    python3 manage.py migrate --run-syncdb
    ```
-4. Run server.
+5. Run server.
    ```
    python3 manage.py runserver`
    ```
