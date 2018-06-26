@@ -143,14 +143,17 @@ class ConvertRoad:
             + "&key="
             + settings.GOOGLEMAPS_SECRET_KEY
         )
-        json_val = cls.get_json(cls, url)
+        json_val = requests.get(url).json()
         result = [None] * len(coordinates)
-        for point in json_val["snappedPoints"]:
-            index = point["originalIndex"]
-            if (result[index] != None and point["placeId"] > result[index]) or result[
-                index
-            ] == None:
-                result[index] = point["placeId"]
+
+        # Ignore case when no points snap to any road.
+        if json_val:
+            for point in json_val["snappedPoints"]:
+                index = point["originalIndex"]
+                if (
+                    result[index] != None and point["placeId"] > result[index]
+                ) or result[index] == None:
+                    result[index] = point["placeId"]
         return result
 
     @classmethod
@@ -173,6 +176,55 @@ class ConvertRoad:
             location, created = Location.objects.get_or_create(pk=id)
             LocationRecord(count=count, location=location, timestamp=timestamp).save()
 
+    @classmethod
+    def get_road_info_from_id(cls, roadID, tries=4):
+        if tries == 0:
+            raise Exception("Cannot get location")
+        url = (
+            "https://maps.googleapis.com/maps/api/place/details/json?placeid="
+            + roadID
+            + "&key="
+            + settings.GOOGLEMAPS_SECRET_KEY
+        )
+        r = requests.get(url)
+        if r.status_code != 200:
+            time.sleep(1)
+            return get_road_info_from_id(roadID, tries=tries - 1)
+        json_val = r.json()
+        if "error_message" in json_val:
+            raise Exception(json_val["error_message"])
+        if json_val["status"] == "NOT_FOUND":
+            raise Exception("RoadID not available")
+        # Sometimes, road_name is just Singapore
+        road_name = json_val["result"]["name"]
+        if road_name == "Singapore":
+            road_name = "Unnamed Road"
+
+        coordinates = json_val["result"]["geometry"]["location"]
+        lat = coordinates["lat"]
+        lng = coordinates["lng"]
+
+        return lat, lng, road_name
+
+    @classmethod
+    def process_location_coordinates(cls, road_id):
+        """Store @param road_id as a Location model along with other info."""
+        location, created = Location.objects.get_or_create(pk=road_id)
+        lat, lng, road_name = cls.get_road_info_from_id(road_id)
+        Location(roadID=road_id, road_name=road_name, lat=lat, lng=lng).save()
+
+    @classmethod
+    def convert(cls, coordinates):
+        """Entry point to save many @param coordinates as many Locations."""
+        print("Number of grid points (sanity check): {}.".format(len(coordinates)))
+        for coord_chunk in cls.get_coord_chunks(coordinates):
+            print("Processing coord chunk of length {}.".format(len(coord_chunk)))
+            for road_id in cls.get_closest_roads(coord_chunk):
+                if road_id:  # If not none.
+                    print("Processing {}".format(road_id))
+                    cls.process_location_coordinates(road_id)
+        print("Processing finished!")
+
 
 def process_location_coordinates():
     """Auxiliary task to run after sufficient downloads of information to update locaiton info
@@ -185,7 +237,7 @@ def process_location_coordinates():
         print(str(count) + ": Processing " + loc.roadID)
         count += 1
         try:
-            lat, lng, road_name = get_road_info_from_id(loc.roadID)
+            lat, lng, road_name = ConvertRoad.get_road_info_from_id(loc.roadID)
             loc.lat = lat
             loc.lng = lng
             loc.road_name = road_name
@@ -193,31 +245,3 @@ def process_location_coordinates():
         except Exception as e:
             loc.delete()
             print(str(e))
-
-
-def get_road_info_from_id(roadID, tries=4):
-    if tries == 0:
-        raise Exception("Cannot get location")
-    url = (
-        "https://maps.googleapis.com/maps/api/place/details/json?placeid="
-        + roadID
-        + "&key="
-        + settings.GOOGLEMAPS_SECRET_KEY
-    )
-    r = requests.get(url)
-    if r.status_code != 200:
-        time.sleep(1)
-        return get_road_info_from_id(roadID, tries=tries - 1)
-    json_val = r.json()
-    if r.json()["status"] == "NOT_FOUND":
-        raise Exception("RoadID not available")
-    # Sometimes, road_name is just Singapore
-    road_name = json_val["result"]["name"]
-    if road_name == "Singapore":
-        road_name = "Unnamed Road"
-
-    coordinates = json_val["result"]["geometry"]["location"]
-    lat = coordinates["lat"]
-    lng = coordinates["lng"]
-
-    return lat, lng, road_name
