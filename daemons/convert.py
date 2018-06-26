@@ -19,7 +19,7 @@ class ConvertHeatmap:
             Default:
                 Width and height of Singapore in terms of lng, lat.
                 width, height: 0.445, 0.2655 (lng, lat).
-                xbins, ybins: 4450, 2655 is 4 decimal place accuracy.
+                xbins, ybins: 531, 890 is 3.5 decimal place accuracy.
                 See https://en.wikipedia.org/wiki/Decimal_degrees.
 
                 Excludes some islands (assume no taxis in islands).

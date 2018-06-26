@@ -58,7 +58,7 @@ GRID_CLOSEST_ROADS = False
 GRID_LL_LAT = 1.205
 GRID_LL_LNG = 103.605
 GRID_UR_LAT = 1.4705
-GRID_UR_LNG = 104.95
+GRID_UR_LNG = 104.05
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
