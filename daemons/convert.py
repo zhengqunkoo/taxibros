@@ -37,6 +37,7 @@ except OperationalError as e:
 else:
     print("Successfully populated locs and tree.")
 
+
 class ConvertHeatmap:
     """Converts coordinates into heatmap.
     Heatmap is sparse matrix of intensities (mostly zeros).
@@ -134,8 +135,6 @@ class ConvertRoad:
     def __init__(self):
         pass
 
-
-
     @classmethod
     def process_closest_roads(cls, coordinates, timestamp):
         """Processes the coordinates by tabulating counts for their respective road segments
@@ -144,15 +143,15 @@ class ConvertRoad:
         print("Number of grid points (sanity check): {}.".format(len(coordinates)))
 
         try:
-            #corresponding points of kdtree are returned to passed in coordinates
-            #distances: distance of coordinate from closest coordinate in kdtree
-            #indexes: index of closest coordinate in tree.data
-            #These two arrays are sorted by distance
+            # corresponding points of kdtree are returned to passed in coordinates
+            # distances: distance of coordinate from closest coordinate in kdtree
+            # indexes: index of closest coordinate in tree.data
+            # These two arrays are sorted by distance
             distances, indexes = tree.query(coordinates)
-            #Assumption: data is an array of
+            # Assumption: data is an array of
             data = tree.data
-            #threshold if coordinate is too far from any closest road dont store
-            threshold = 20/M_PER_LAT
+            # threshold if coordinate is too far from any closest road dont store
+            threshold = 20 / M_PER_LAT
             vals = {}
             for i in range(len(indexes)):
                 if distances[i] > threshold:
@@ -166,7 +165,6 @@ class ConvertRoad:
         except Exception as e:
             print(str(e))
 
-
     @classmethod
     def store_road_data(cls, vals, timestamp):
         """Stores a dictionary of road ids and count into a db
@@ -174,7 +172,9 @@ class ConvertRoad:
         for coord, count in vals.items():
             try:
                 location = find_corresponding_location(coord)
-                LocationRecord(count=count, location=location, timestamp=timestamp).save()
+                LocationRecord(
+                    count=count, location=location, timestamp=timestamp
+                ).save()
             except Exception as e:
                 print(str(e))
                 print("Corresponding location for coordinate not found in db:")
@@ -189,7 +189,6 @@ class ConvertRoad:
         lng = coordinate[1]
         location = Location.objects.get(lat=lat, lng=lng)
         return location
-
 
     @classmethod
     def get_road_info_from_id(cls, roadID, tries=4):
@@ -227,7 +226,6 @@ class ConvertRoad:
         location, created = Location.objects.get_or_create(pk=road_id)
         lat, lng, road_name = cls.get_road_info_from_id(road_id)
         Location(roadID=road_id, road_name=road_name, lat=lat, lng=lng).save()
-
 
 
 def process_location_coordinates():

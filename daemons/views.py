@@ -18,8 +18,6 @@ M_PER_LAT = 110570
 M_PER_LONG = 111320
 
 
-
-
 def index(request):
     """View function for home page of site."""
 
