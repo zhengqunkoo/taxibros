@@ -174,27 +174,34 @@
     top: 10px;
     position: absolute;
     width: 55%;
-    overflow:hidden;
     z-index:1;
+    display:inline-block;
+}
+#container-itinerary-inner {
+    position:absolute;
+    width:90%;
+    display:inline-block;
+    z-index:inherit;
+    overflow:hidden;
 }
 
+
+
+#itineraryTable {
+  float: left;
+  width: 100%;
+  display:inline-block;
+  table-layout: fixed;
+}
 #slider {
   float:left;
   display:inline;
   width:10%;
   height:30px;
 }
-
-#itineraryTable {
-  float: left;
-  width: 90%;
-  display:inline-block;
-  table-layout: fixed;
-}
-
 #addRow {
-  position: relative;
-  display: block;
+  display: inline;
+  float:left;
 }
 
 #itineraryTable td {

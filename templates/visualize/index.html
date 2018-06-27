@@ -161,37 +161,45 @@
 
     <!-- Itinerary table (top left)-->
     <div id = "container-itinerary">
-        <div class = "container-bg"></div>
         <input type="button" id="slider" value=">>">
-        <input type="button" id="addRow" value="Add row">
-        <table id="itineraryTable" class="tablesorter" cellspacing="1">
-            <thead>
-                <tr>
-                    <th>Pickup Location</th>
-                    <th>Pickup Time</th>
-                    <th>Arrival Location</th>
-                    <th>Arrival Time</th>
-                    <th>Delete</th>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
-        <label for="importFromCsv" class="btn btn-default csv">Import</label>
-        <input id="importFromCsv" type="file"/>
-        <div id="pager" class="pager">
-            <form>
-                <img src="http://tablesorter.com/addons/pager/icons/first.png" class="first"/>
-                <img src="http://tablesorter.com/addons/pager/icons/prev.png" class="prev"/>
-                <input type="text" class="pagedisplay"/>
-                <img src="http://tablesorter.com/addons/pager/icons/next.png" class="next"/>
-                <img src="http://tablesorter.com/addons/pager/icons/last.png" class="last"/>
-                <select class="pagesize">
-                    <option selected="selected" value="5">5</option>
-                    <option value="10">10</option>
-                    <option value="10">15</option>
-                    <option value="20">20</option>
-                </select>
-            </form>
+        <div id = "container-itinerary-inner">
+            <div class = "container-bg"></div>
+            <input type="button" id="addRow" value="Add row">
+            <table id="itineraryTable" class="tablesorter" cellspacing="1">
+
+
+                <thead>
+                    <tr>
+                        <th>Pickup Location</th>
+                        <th>Pickup Time</th>
+                        <th>Arrival Location</th>
+                        <th>Arrival Time</th>
+                        <th>Delete</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+                <caption id="tableimport-caption" class = "bottom">
+                <label for="importFromCsv" class="btn btn-default csv">Import</label>
+                <input id="importFromCsv" type="file"/>
+                </caption>
+            </table>
+
+
+            <div id="pager" class="pager">
+                <form>
+                    <img src="http://tablesorter.com/addons/pager/icons/first.png" class="first"/>
+                    <img src="http://tablesorter.com/addons/pager/icons/prev.png" class="prev"/>
+                    <input type="text" class="pagedisplay"/>
+                    <img src="http://tablesorter.com/addons/pager/icons/next.png" class="next"/>
+                    <img src="http://tablesorter.com/addons/pager/icons/last.png" class="last"/>
+                    <select class="pagesize">
+                        <option selected="selected" value="5">5</option>
+                        <option value="10">10</option>
+                        <option value="10">15</option>
+                        <option value="20">20</option>
+                    </select>
+                </form>
+            </div>
         </div>
     </div>
 
