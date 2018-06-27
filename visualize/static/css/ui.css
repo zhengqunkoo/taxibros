@@ -183,14 +183,65 @@
     display:inline-block;
     z-index:inherit;
     overflow:hidden;
+    left:10%;
+}
+body {
+  background-color: white;
+}
+#arrow-holder {
+    float:left;
+    display:inline;
+    width:30px;
+    height:30px;
+    position: absolute;
+    left:0;
 }
 
-#slider {
-    color: white;
-    background-color:#cdcdcd;
-    outline:black;
-    border:none;
+div.arrow {
+  width: 6vmin;
+  height: 6vmin;
+  box-sizing: border-box;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: rotate(45deg);
 }
+div.arrow::before {
+  content: '';
+  width: 100%;
+  height: 100%;
+  border-width: .3vmin .3vmin 0 0;
+  border-style: solid;
+  border-color: #black;
+  transition: .2s ease;
+  display: block;
+  transform-origin: 100% 0;
+}
+div.arrow:after {
+  content: '';
+  float: left;
+  position: relative;
+  top: -100%;
+  width: 100%;
+  height: 100%;
+  border-width: 0 .3vmin 0 0;
+  border-style: solid;
+  border-color: #black;
+  transform-origin: 100% 0;
+  transition: .2s ease;
+}
+div.arrow:hover::after {
+  transform: rotate(45deg);
+  border-color: orange;
+  height: 110%;
+}
+div.arrow:hover::before {
+  border-color: orange;
+  transform: scale(1.0);
+}
+
+
+
 
 #itineraryTable {
   float: left;
@@ -198,12 +249,7 @@
   display:inline-block;
   table-layout: fixed;
 }
-#slider {
-  float:left;
-  display:inline;
-  width:10%;
-  height:30px;
-}
+
 #addRow {
   display: inline;
   float:left;
