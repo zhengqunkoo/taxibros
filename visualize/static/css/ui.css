@@ -198,8 +198,8 @@ body {
 }
 
 div.arrow {
-  width: 6vmin;
-  height: 6vmin;
+  width: 5vmin;
+  height: 5vmin;
   box-sizing: border-box;
   position: absolute;
   left: 50%;
@@ -210,9 +210,9 @@ div.arrow::before {
   content: '';
   width: 100%;
   height: 100%;
-  border-width: .3vmin .3vmin 0 0;
+  border-width: .4vmin .4vmin 0 0;
   border-style: solid;
-  border-color: #black;
+  border-color: #cdcdcd;
   transition: .2s ease;
   display: block;
   transform-origin: 100% 0;
@@ -224,9 +224,9 @@ div.arrow:after {
   top: -100%;
   width: 100%;
   height: 100%;
-  border-width: 0 .3vmin 0 0;
+  border-width: 0 .4vmin 0 0;
   border-style: solid;
-  border-color: #black;
+  border-color: #cdcdcd;
   transform-origin: 100% 0;
   transition: .2s ease;
 }
