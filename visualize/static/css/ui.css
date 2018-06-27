@@ -185,7 +185,12 @@
     overflow:hidden;
 }
 
-
+#slider {
+    color: white;
+    background-color:#cdcdcd;
+    outline:black;
+    border:none;
+}
 
 #itineraryTable {
   float: left;
