@@ -34,10 +34,10 @@ ONEMAP_EXPIRY_TIMESTAMP = os.getenv("ONEMAP_EXPIRY_TIMESTAMP")
 # False: do not start daemon on server start.
 DAEMON_START = True
 
-# Toggle update location with location details
-# True: Process locations if daemon_start is false
-# False: do not process location (default)
-UPDATE_ROADS = False
+# Toggledownloading of locations
+# True: Downloads locations, don't download location records/timestamp/heatmap if daemon start is true
+# False: Downloads location records/timestamp/heatmap, don't download locations if daemon start is true
+INITIALIZE_LOCATIONS = False
 
 # Relative time to display heatmaps.
 # True: relative to real-time.
