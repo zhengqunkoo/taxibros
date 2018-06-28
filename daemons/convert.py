@@ -250,30 +250,93 @@ class ConvertLocation:
 
         return lat, lng, road_name
 
+
+class ConvertLocationRecords:
+    def __init__(self):
+        pass
+
     @classmethod
-    def process_location_coordinates(cls, road_id):
-        """Store @param road_id as a Location model along with other info."""
-        location, created = Location.objects.get_or_create(pk=road_id)
-        lat, lng, road_name = cls.get_road_info_from_id(road_id)
-        Location(roadID=road_id, road_name=road_name, lat=lat, lng=lng).save()
+    def get_json(cls, url):
+        """Generic method to download JSON streams.
+        @param url: URL to download from.
+        @return JSON.
+        """
+        response = requests.get(url)
+        return response.json()
 
+    @classmethod
+    def store_location_records(cls, coordinates, timestamp):
+        """Processes the coordinates by tabulating counts for their respective road segments
+        """
+        # TODO: Remove this eventually
+        # coordinates = list(map(lambda x:(x[1], x[0]), coordinates))
+        print("ConvertLocation {}".format(timestamp))
+        print("Number of coordinates: {}.".format(len(coordinates)))
 
-def process_location_coordinates():
-    """Auxiliary task to run after sufficient downloads of information to update locaiton info
-    with lat lng and road_name"""
-    locations = Location.objects.filter(lat=0)
-
-    print("Total to process: " + str(len(locations)))
-    count = 1
-    for loc in locations:
-        print(str(count) + ": Processing " + loc.roadID)
-        count += 1
         try:
-            lat, lng, road_name = ConvertRoad.get_road_info_from_id(loc.roadID)
-            loc.lat = lat
-            loc.lng = lng
-            loc.road_name = road_name
-            loc.save()
+            vals = cls.get_closest_roads_kdtree(coordinates)
+            cls.store_location_record_data(vals, timestamp)
+            print("    Success!")
+
         except Exception as e:
-            loc.delete()
             print(str(e))
+
+    @classmethod
+    def get_closest_roads_kdtree(cls, coordinates):
+        """Retrieves the closest road segments to the coordinates
+        Used ONLY during download of location records
+        @param: coordinates of the taxis
+        @return: Dictionary of values where keys are coordinates in tuple and value is count"""
+        # corresponding points of kdtree are returned to passed in coordinates
+        # distances: distance of coordinate from closest coordinate in kdtree
+        # indexes: index of closest coordinate in tree.data
+        # These two arrays are sorted by distance
+        coordinates = list(map(lambda x:(x[1], x[0]), coordinates))
+        distances, indexes = tree.query(coordinates)
+
+        # Assumption: data is an array of
+        data = tree.data
+        # threshold if coordinate is too far from any closest road dont store
+        threshold = 200 / M_PER_LAT
+        exceed_thresh_count = 0
+        vals = {}
+        for i in range(len(indexes)):
+            if distances[i] > threshold:
+                exceed_thresh_count += 1
+                continue
+            key = tuple(data[i])
+            if key not in vals:
+                vals[key] = 1
+            else:
+                vals[key] += 1
+        print(
+            "Percentage of coordinates without coresponding location: {}%".format(
+                100 * exceed_thresh_count / len(coordinates)
+            )
+        )
+        return vals
+
+    @classmethod
+    def store_location_record_data(cls, vals, timestamp):
+        """Stores a dictionary of road ids and count into a db
+        """
+        for coord, count in vals.items():
+            try:
+                location = cls.find_corresponding_location(coord)
+                LocationRecord(
+                    count=count, location=location, timestamp=timestamp
+                ).save()
+            except Exception as e:
+                print("Error in finding coordinate:")
+                print("    " + str(e))
+                print("    " + str(coord))
+
+    @classmethod
+    def find_corresponding_location(cls, coordinate):
+        """Finds corresponding location from coordinate
+        If not found, django model manager get will raise does not exist error
+        If multiple objects found, django model will raise multiple objects returned error"""
+        lat = coordinate[0]
+        lng = coordinate[1]
+        location = Location.objects.get(lat=lat, lng=lng)
+        return location
