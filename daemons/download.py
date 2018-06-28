@@ -6,7 +6,7 @@ import pytz
 import requests
 import time
 
-from .convert import ConvertHeatmap, ConvertRoad
+from .convert import ConvertHeatmap, ConvertLocation, ConvertLocationRecords
 from .models import Timestamp, Coordinate
 from django.utils import dateparse, timezone
 from django.conf import settings
@@ -197,14 +197,17 @@ class DownloadJson:
         self._logger.debug(" ".join(map(str, args)))
 
 
-class TaxiAvailability(DownloadJson, ConvertHeatmap, ConvertRoad):
+class TaxiAvailability(
+    DownloadJson, ConvertHeatmap, ConvertLocation, ConvertLocationRecords
+):
     """Downloads taxi availability JSON."""
 
     def __init__(self):
         url = "https://api.data.gov.sg/v1/transport/taxi-availability"
         DownloadJson.__init__(self, url)
         ConvertHeatmap.__init__(self)
-        ConvertRoad.__init__(self)
+        ConvertLocation.__init__(self)
+        ConvertLocationRecords.__init__(self)
 
     def get_time_features(self, json_val):
         features = json_val["features"][0]
@@ -220,13 +223,16 @@ class TaxiAvailability(DownloadJson, ConvertHeatmap, ConvertRoad):
         return taxi_count, status
 
     def store_timestamp_coordinates(self, date_time, taxi_count, coordinates):
-        created, timestamp, coordinates = super(
-            TaxiAvailability, self
-        ).store_timestamp_coordinates(date_time, taxi_count, coordinates)
-        if created:
-            self.store_heatmap(timestamp, coordinates)
-            if not settings.GRID_CLOSEST_ROADS:
-                self.process_closest_roads(coordinates, timestamp)
+        if settings.INITIALIZE_LOCATIONS:
+            self.store_locations(coordinates)
+            return
+        else:
+            created, timestamp, coordinates = super(
+                TaxiAvailability, self
+            ).store_timestamp_coordinates(date_time, taxi_count, coordinates)
+            if created:
+                self.store_heatmap(timestamp, coordinates)
+                self.store_location_records(coordinates, timestamp)
 
 
 @background(queue="taxi-availability")
