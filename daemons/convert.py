@@ -167,38 +167,21 @@ class ConvertLocation:
         return [coordinates[x : x + 100] for x in range(0, len(coordinates), 100)]
 
     @classmethod
-    def process_closest_roads(cls, coordinates, timestamp):
-        """Processes the coordinates by tabulating counts for their respective road segments
+    def add_list_to_dict(cls, road_id_list, vals):
+        """Stores a road_id_list into a dictionary
         """
-        print("ConvertRoad {}".format(timestamp))
-        print("Number of grid points (sanity check): {}.".format(len(coordinates)))
-
-        try:
-            # corresponding points of kdtree are returned to passed in coordinates
-            # distances: distance of coordinate from closest coordinate in kdtree
-            # indexes: index of closest coordinate in tree.data
-            # These two arrays are sorted by distance
-            distances, indexes = tree.query(coordinates)
-            # Assumption: data is an array of
-            data = tree.data
-            # threshold if coordinate is too far from any closest road dont store
-            threshold = 20 / M_PER_LAT
-            vals = {}
-            for i in range(len(indexes)):
-                if distances[i] > threshold:
-                    continue
-                if vals[data[i]] not in vals:
-                    vals[data[i]] = 1
-                else:
-                    vals[data[i]] += 1
-            cls.store_road_data(vals, timestamp)
-
-        except Exception as e:
-            print(str(e))
+        for id in road_id_list:
+            if id == None:
+                continue
+            if id in vals:
+                vals[id] += 1
+            else:
+                vals[id] = 1
 
     @classmethod
-    def get_closest_roads(cls, coordinates):
+    def get_closest_roads_api(cls, coordinates):
         """Retrieves the closest road segments to the coordinates
+        Used ONLY during initial downloading of all location coordinates
         @param: coordinates of the taxis
         @return: list of same size as coordinates containing road segment or None if none is found"""
         coords_params = "|".join(
@@ -226,44 +209,16 @@ class ConvertLocation:
                     result[index] != None and point["placeId"] > result[index]
                 ) or result[index] == None:
                     result[index] = point["placeId"]
+
         return result
 
     @classmethod
-    def add_list_to_dict(cls, road_id_list, vals):
-        """Stores a road_id_list into a dictionary
-        """
-        for id in road_id_list:
-            if id == None:
-                continue
-            if id in vals:
-                vals[id] += 1
-            else:
-                vals[id] = 1
-
-    @classmethod
-    def store_road_data(cls, vals, timestamp):
-        """Stores a dictionary of road ids and count into a db
-        """
-        for coord, count in vals.items():
-            try:
-                location = find_corresponding_location(coord)
-                LocationRecord(
-                    count=count, location=location, timestamp=timestamp
-                ).save()
-            except Exception as e:
-                print(str(e))
-                print("Corresponding location for coordinate not found in db:")
-                print(str(coord))
-
-    @classmethod
-    def find_corresponding_location(coordinate):
-        """Finds corresponding location from coordinate
-        If not found, django model manager get will raise does not exist error
-        If multiple objects found, django model will raise multiple objects returned error"""
-        lat = coordinate[0]
-        lng = coordinate[1]
-        location = Location.objects.get(lat=lat, lng=lng)
-        return location
+    def store_location_data(cls, road_id):
+        """Store @param road_id as a Location model along with other info."""
+        location, created = Location.objects.get_or_create(pk=road_id)
+        if created:
+            lat, lng, road_name = cls.get_road_info_from_id(road_id)
+            Location(roadID=road_id, road_name=road_name, lat=lat, lng=lng).save()
 
     @classmethod
     def get_road_info_from_id(cls, roadID, tries=4):
