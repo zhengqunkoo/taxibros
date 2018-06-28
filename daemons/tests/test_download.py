@@ -219,10 +219,10 @@ class DownloadDatabaseTest(TestCase):
         """Check if closest roads are returned in the right format given a json response."""
         mock_get_json.return_value = self._nearest_road_results
         expected = [None, "ChIJqSxg_mgQ2jERVYEAKmGw0aw", "ChIJNWdwM2gQ2jER0Wamoz7a4bU"]
-        actual = self._ta.get_closest_roads([(0, 0), (1, 1), (2, 2)])
+        actual = self._ta.get_closest_roads_api([(0, 0), (1, 1), (2, 2)])
         self.assertEquals(expected, actual)
 
-    @patch("daemons.convert.ConvertRoad.get_closest_roads")
+    @patch("daemons.convert.ConvertLocation.get_closest_roads_api")
     @patch("daemons.download.DownloadJson.get_json")
     def test_unique_location(self, mock_get_json, mock_get_closest_roads):
         """Download two timestamps, each with locations that both share and are unique to each
