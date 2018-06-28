@@ -131,7 +131,7 @@ class ConvertHeatmap:
         )
 
 
-class ConvertRoad:
+class ConvertLocation:
     def __init__(self):
         pass
 
@@ -143,6 +143,21 @@ class ConvertRoad:
         """
         response = requests.get(url)
         return response.json()
+
+    ##########################
+    ##Downloading Locations###
+    ##########################
+    @classmethod
+    def store_locations(cls, coordinates):
+        """Entry point to save many @param coordinates as many Locations."""
+        print("Number of coordinates (sanity check): {}.".format(len(coordinates)))
+        for coord_chunk in cls.get_coord_chunks(coordinates):
+            print("Processing coord chunk of length {}.".format(len(coord_chunk)))
+            for road_id in cls.get_closest_roads_api(coord_chunk):
+                if road_id:  # If not none.
+                    print("Processing {}".format(road_id))
+                    cls.store_location_data(road_id)
+        print("Processing finished!")
 
     @classmethod
     def get_coord_chunks(cls, coordinates):
