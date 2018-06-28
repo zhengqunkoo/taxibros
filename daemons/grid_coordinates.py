@@ -1,5 +1,4 @@
 from .models import Location
-from .convert import ConvertRoad
 
 
 class GridCoordinates:
