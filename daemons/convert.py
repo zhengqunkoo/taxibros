@@ -136,8 +136,8 @@ class ConvertLocation:
         pass
 
     @classmethod
-    def get_json(cls, url):
-        """Generic method to download JSON streams.
+    def get_json_nearest_roads(cls, url):
+        """Generic method to download nearest roads
         @param url: URL to download from.
         @return JSON.
         """
@@ -198,7 +198,7 @@ class ConvertLocation:
         )
 
         # Need this call for mock tests.
-        json_val = cls.get_json(url)
+        json_val = cls.get_json_nearest_roads(url)
         result = [None] * len(coordinates)
 
         # Ignore case when no points snap to any road.
