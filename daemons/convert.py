@@ -159,7 +159,6 @@ class ConvertLocation:
             return cls.get_json_road_info(url, tries=tries - 1)
         return response.json()
 
-
     ##########################
     ##Downloading Locations###
     ##########################
@@ -240,6 +239,7 @@ class ConvertLocation:
                 Location(roadID=road_id, road_name=road_name, lat=lat, lng=lng).save()
             except Exception as e:
                 print(str(e))
+
     @classmethod
     def get_road_info_from_id(cls, roadID):
 
@@ -273,8 +273,6 @@ class ConvertLocationRecords:
     def __init__(self):
         pass
 
-
-
     @classmethod
     def store_location_records(cls, coordinates, timestamp):
         """Processes the coordinates by tabulating counts for their respective road segments
@@ -302,7 +300,7 @@ class ConvertLocationRecords:
         # distances: distance of coordinate from closest coordinate in kdtree
         # indexes: index of closest coordinate in tree.data
         # These two arrays are sorted by distance
-        coordinates = list(map(lambda x:(x[1], x[0]), coordinates))
+        coordinates = list(map(lambda x: (x[1], x[0]), coordinates))
         distances, indexes = tree.query(coordinates)
 
         # Assumption: data is an array of

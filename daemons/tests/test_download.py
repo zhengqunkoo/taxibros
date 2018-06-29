@@ -9,7 +9,7 @@ from daemons.download import DownloadJson, TaxiAvailability
 from daemons.models import Timestamp, Location
 
 
-@patch("daemons.download.DownloadJson.get_json")
+@patch("daemons.download.DownloadJson.get_json_coordinates")
 class DownloadApiTest(TestCase):
     """Tests if daemon extracts correct information from API.
     Mock API calls in DownloadJson.
@@ -98,7 +98,7 @@ class DownloadDatabaseTest(TestCase):
         from django.conf import settings
 
         timezone.activate(pytz.timezone(settings.TIME_ZONE))
-        cls._json_results = {
+        cls._json_results1 = {
             "type": "FeatureCollection",
             "crs": {
                 "type": "link",
@@ -159,7 +159,7 @@ class DownloadDatabaseTest(TestCase):
             ],
         }
 
-        cls._nearest_road_results = {
+        cls._nearest_road_result = {
             "snappedPoints": [
                 {
                     "location": {
@@ -189,6 +189,13 @@ class DownloadDatabaseTest(TestCase):
         }
         cls._closest_road_result1 = ["0", "1", "2"]
         cls._closest_road_result2 = ["2", "3", "4"]
+        cls._road_info_result = {
+            "status": "ok",
+            "result": {
+                "name": "mock_name",
+                "geometry": {"location": {"lat": 1.0, "lng": 1.0}},
+            },
+        }
 
     # Make start_date_time always one minute before end_date_time (now).
     @override_settings(
@@ -202,40 +209,47 @@ class DownloadDatabaseTest(TestCase):
         """
         self._ta = TaxiAvailability()
 
-    @patch("daemons.download.DownloadJson.get_json")
+    @patch("daemons.convert.ConvertLocation.get_json_nearest_roads")
     def test_unique_timestamp(self, mock_get_json):
         """Download one timestamp. Download the same timestamp again.
         On second download, Timestamp.save() shouldn't be called.
         """
-        mock_get_json.return_value = self._json_results
+        settings.INITIALIZE_LOCATIONS = False
+        mock_get_json.return_value = self._nearest_road_result
         self.assertEquals(Timestamp.objects.all().count(), 0)
         self._ta.download()
         self.assertEquals(Timestamp.objects.all().count(), 1)
         self._ta.download()
         self.assertEquals(Timestamp.objects.all().count(), 1)
 
-    @patch("daemons.download.DownloadJson.get_json")
+    @patch("daemons.convert.ConvertLocation.get_json_nearest_roads")
     def test_process_closest_roads(self, mock_get_json):
         """Check if closest roads are returned in the right format given a json response."""
-        mock_get_json.return_value = self._nearest_road_results
+        mock_get_json.return_value = self._nearest_road_result
         expected = [None, "ChIJqSxg_mgQ2jERVYEAKmGw0aw", "ChIJNWdwM2gQ2jER0Wamoz7a4bU"]
         actual = self._ta.get_closest_roads_api([(0, 0), (1, 1), (2, 2)])
         self.assertEquals(expected, actual)
 
+    @patch("daemons.convert.ConvertLocation.get_json_road_info")
     @patch("daemons.convert.ConvertLocation.get_closest_roads_api")
-    @patch("daemons.download.DownloadJson.get_json")
-    def test_unique_location(self, mock_get_json, mock_get_closest_roads):
+    @patch("daemons.download.DownloadJson.get_json_coordinates")
+    def test_unique_location(
+        self, mock_get_json_coordinates, mock_get_closest_roads, mock_get_json_road_info
+    ):
         """Download two timestamps, each with locations that both share and are unique to each
         timestamp. The right number should be returned after each call"""
+        # Initialize settings
+        settings.INITIALIZE_LOCATIONS = True
+        mock_get_json_road_info.return_value = self._road_info_result
 
         self.assertEquals(Location.objects.all().count(), 0)
         # First download
-        mock_get_json.return_value = self._json_results
+        mock_get_json_coordinates.return_value = self._json_results1
         mock_get_closest_roads.return_value = self._closest_road_result1
         self._ta.download()
         self.assertEquals(Location.objects.all().count(), 3)
         # Second download
-        mock_get_json.return_value = self._json_results2
+        mock_get_json_coordinates.return_value = self._json_results2
         mock_get_closest_roads.return_value = self._closest_road_result2
         self._ta.download()
         self.assertEquals(Location.objects.all().count(), 5)
