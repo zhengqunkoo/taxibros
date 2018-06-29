@@ -273,14 +273,7 @@ class ConvertLocationRecords:
     def __init__(self):
         pass
 
-    @classmethod
-    def get_json(cls, url):
-        """Generic method to download JSON streams.
-        @param url: URL to download from.
-        @return JSON.
-        """
-        response = requests.get(url)
-        return response.json()
+
 
     @classmethod
     def store_location_records(cls, coordinates, timestamp):
