@@ -59,7 +59,7 @@ class DownloadJson:
         @param url: URL to download from. Default: None.
         @return date_time: LTA date_time that JSON was updated.
         """
-        json_val = self.get_json(url)
+        json_val = self.get_json_coordinates(url)
 
         # Log errors and exit from function if error.
         # Assume 'code' or 'message' in JSON means error.
@@ -81,7 +81,7 @@ class DownloadJson:
         self.store_timestamp_coordinates(date_time, taxi_count, coordinates)
         return date_time
 
-    def get_json(self, url=None):
+    def get_json_coordinates(self, url=None):
         """Generic method to download JSON streams.
         @param url: URL to download from. Default: self._url.
         @return JSON.
