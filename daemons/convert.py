@@ -144,6 +144,22 @@ class ConvertLocation:
         response = requests.get(url)
         return response.json()
 
+    @classmethod
+    def get_json_road_info(cls, url, tries=4):
+        """Generic method to download road info
+        @param url: URL to download from.
+        @return JSON.
+        """
+        if tries == 0:
+            raise Exception("Cannot get location")
+        response = requests.get(url)
+        if response.status_code != 200:
+            # Retries if status code not 200. Road info is important.
+            time.sleep(1)
+            return cls.get_json_road_info(url, tries=tries - 1)
+        return response.json()
+
+
     ##########################
     ##Downloading Locations###
     ##########################
@@ -219,26 +235,28 @@ class ConvertLocation:
         if created:
             lat, lng, road_name = cls.get_road_info_from_id(road_id)
             Location(roadID=road_id, road_name=road_name, lat=lat, lng=lng).save()
-
+            try:
+                lat, lng, road_name = cls.get_road_info_from_id(road_id)
+                Location(roadID=road_id, road_name=road_name, lat=lat, lng=lng).save()
+            except Exception as e:
+                print(str(e))
     @classmethod
-    def get_road_info_from_id(cls, roadID, tries=4):
-        if tries == 0:
-            raise Exception("Cannot get location")
+    def get_road_info_from_id(cls, roadID):
+
         url = (
             "https://maps.googleapis.com/maps/api/place/details/json?placeid="
             + roadID
             + "&key="
             + settings.GOOGLEMAPS_SECRET_KEY
         )
-        r = requests.get(url)
-        if r.status_code != 200:
-            time.sleep(1)
-            return get_road_info_from_id(roadID, tries=tries - 1)
-        json_val = r.json()
+        json_val = cls.get_json_road_info(url)
+
         if "error_message" in json_val:
             raise Exception(json_val["error_message"])
         if json_val["status"] == "NOT_FOUND":
             raise Exception("RoadID not available")
+        if json_val["status"] == "INVALID_REQUEST":
+            raise Exception("Invalid Request. Check params")
         # Sometimes, road_name is just Singapore
         road_name = json_val["result"]["name"]
         if road_name == "Singapore":
