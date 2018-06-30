@@ -109,7 +109,6 @@
   -webkit-font-smoothing: antialiased;
   color:#4a4a4a;
   font-family: "Avenir Next", "Avenir", sans-serif;
-  font-weight:bold;
 
 
   transform-origin: 0% 0%;
@@ -142,16 +141,23 @@
 	background: #BABABA;
 }
 
-#container-slider {
+.container-slider {
     z-index:1;
     display: inline;
     position:absolute;
     bottom: 5%;
-    right: 5%;
     width:20%;
     overflow: hidden;
     padding: 10px;
 }
+#container-slider-now {
+    right: 5%;
+}
+
+#container-slider-later {
+    right: -1000px;
+}
+
 
 
 #container-chart {
