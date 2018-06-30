@@ -51,6 +51,9 @@
 
         <ul id="container-controls"><!--Switch-->
             <div class = "container-bg"></div>
+            <div class = "container-controls-headers"> DISPLAY CONTROLS
+
+            </div>
 
             <table>
                 <tr>
@@ -125,12 +128,16 @@
                 </tr>
             </table>
 
-            <button onclick="showNearby()">Show near-by taxis</button>
-            <button onclick="unsetLocation()">Reset location</button>
+            <div class = "container-controls-headers"> FUNCTION CONTROLS </div>
+            <div id = "controls-container-functions">
+                <button class="controls-functions" onclick="showNearby()">Show near-by taxis</button>
+                <button class="controls-functions" onclick="unsetLocation()">Reset location</button>
+            </div>
         </ul>
     </div>
     <div id="description-controls">
-        DISPLAY CONTROLS
+        CONTROL PANEL
+
     </div>
 
 
