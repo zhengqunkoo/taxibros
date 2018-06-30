@@ -161,17 +161,22 @@
     <div id="container-ui">
 
     <!--Sliders (top right)-->
-    <div id="container-slider">
+    <div class="container-slider" id="container-slider-now">
         <div class = "container-bg"></div>
-        <div> VISUALIZATION SLIDERS </div>
-        <div> Slide across time </div>
-        <input type="range" id="genTime" data-slider-id="genTimeSlider" type="text" data-slider-min="0" data-slider-max="43200" data-slider-step="1" data-slider-value="0"><br>
-        <div>Slide location radius</div>
-        <input type="range" id="genLocationRadius" data-slider-id="genLocationRadiusSlider" type="text" data-slider-min="50" data-slider-max="5000" data-slider-step="10" data-slider-value="500"><br>
+        <div> VISUALIZATION SLIDERS (NOW)</div>
         <div> Slide across heatmap </div>
         <input type="range" id="genHeatmap" data-slider-id="genHeatmapSlider" type="text" data-slider-min="0" data-slider-max="43200" data-slider-step="1" data-slider-value="0"><br>
         <div> Slide across heatmap intensity</div>
         <input type="range" id="genHeatmapIntensity" data-slider-id="genHeatmapIntensitySlider" type="text" data-slider-min="1" data-slider-max="10" data-slider-step="1" data-slider-value="0"><br>
+    </div>
+
+    <div class = "container-slider" id="container-slider-later">
+        <div class = "container-bg"></div>
+        <div> VISUALIZATION SLIDERS (LATER)</div>
+        <div> Slide across time </div>
+        <input type="range" id="genTime" data-slider-id="genTimeSlider" type="text" data-slider-min="0" data-slider-max="43200" data-slider-step="1" data-slider-value="0"><br>
+        <div>Slide location radius</div>
+        <input type="range" id="genLocationRadius" data-slider-id="genLocationRadiusSlider" type="text" data-slider-min="50" data-slider-max="5000" data-slider-step="10" data-slider-value="500"><br>
         <div class='input-group date' id='datetimepicker'>
             <input type='text' class="form-control"/>
             <span class="input-group-addon">
