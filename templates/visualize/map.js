@@ -735,3 +735,47 @@ function unsetMapObj(obj) {
   obj.setMap(null);
   obj = null;
 }
+
+
+
+
+
+function toggleNowLater(){
+    //LATER SERVICE
+    //Toggle container-itinerary
+
+    var leftVal,rightVal;
+    rightVal = $("#container-itinerary").css("right");
+    //Toggle container itinerary value
+    if (rightVal == '-1000px'){
+        $('#container-itinerary').stop().animate({right:"10px"},500);
+        document.querySelector('.arrow').style.transform = ("rotate(45deg)");
+    } else {
+        $('#container-itinerary').stop().animate({right:"-1000px"}, 500);
+        document.querySelector('.arrow').style.transform = ("rotate(-135deg)");
+    }
+    //Toggle container chart now value
+    rightVal = $("#container-slider-later").css("right");
+    if (rightVal == '-1000px') {
+        $('#container-slider-later').stop().animate({right:"5%"});
+    } else {
+        $('#container-slider-later').stop().animate({right:"-1000px"});
+    }
+    //Toggle container-chart
+    leftVal = $('#container-chart').css("left");
+    if (leftVal == '-1000px'){
+        $('#container-chart').stop().animate({left:"28px"},500)
+    } else {
+        $('#container-chart').stop().animate({left:"-1000px"},500);
+    }
+
+    //NOW SERVICE
+    rightVal = $('#container-slider-now').css("right");
+    if (rightVal == '-1000px') {
+        $('#container-slider-now').stop().animate({right:"5%"});
+    } else {
+        $('#container-slider-now').stop().animate({right:"-1000px"});
+    }
+
+
+}
