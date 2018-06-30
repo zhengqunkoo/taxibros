@@ -232,8 +232,7 @@ class ConvertLocation:
         """Store @param road_id as a Location model along with other info."""
         location, created = Location.objects.get_or_create(pk=road_id)
         if created:
-            lat, lng, road_name = cls.get_road_info_from_id(road_id)
-            Location(roadID=road_id, road_name=road_name, lat=lat, lng=lng).save()
+
             try:
                 lat, lng, road_name = cls.get_road_info_from_id(road_id)
                 Location(roadID=road_id, road_name=road_name, lat=lat, lng=lng).save()
