@@ -488,7 +488,7 @@ function showNearby() {
       infoWindow.setPosition(pos);
       infoWindow.setContent('Location found.');
       infoWindow.open(map);
-      genLoc(pos, locationRadius, locationMinutes, 'showNearby', false);
+      genLoc(pos, locationRadius, locationMinutes, 'showNearby', true);
     }, function() {
       handleLocationError(true, infoWindow, map.getCenter());
     });
@@ -581,7 +581,7 @@ function initAutocomplete(input, isCallGenLoc) {
       // Create list element.
       var place = places[0];
       if (isCallGenLoc) {
-        genLoc(place.geometry.location, locationRadius, locationMinutes, input.getAttribute('id'), false);
+        genLoc(place.geometry.location, locationRadius, locationMinutes, input.getAttribute('id'), true);
       } else {
 
         // Extract origin from hidden info in table.
