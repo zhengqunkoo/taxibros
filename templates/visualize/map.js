@@ -776,6 +776,4 @@ function toggleNowLater(){
     } else {
         $('#container-slider-now').stop().animate({right:"-1000px"});
     }
-
-
 }
