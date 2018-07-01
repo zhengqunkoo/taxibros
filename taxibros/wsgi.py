@@ -71,7 +71,6 @@ if settings.DAEMON_START:
         subprocess.Popen(cmd)
 
 
-"""
 if settings.INITIALIZE_LOCATIONS and not settings.DAEMON_START:
     if settings.GRID_CLOSEST_ROADS:
         ConvertLocation().store_locations(
@@ -82,4 +81,3 @@ if settings.INITIALIZE_LOCATIONS and not settings.DAEMON_START:
                 ur_lng=settings.GRID_UR_LNG,
             )
         )
-"""

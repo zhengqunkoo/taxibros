@@ -52,8 +52,14 @@ SLIDE_EVENT = "slideStop"
 # Daemon downloads all timestamps starting from DATE_TIME_START.
 DATE_TIME_START = "2018-05-24T20:34:00+0800"
 
-# Call Google Maps Nearest Roads API with a grid of coordinates.
-# If set, ConvertRoad.process_closest_roads will not be called on every downloaded timestamp.
+# If true,
+#   ConvertRoad.store_locations will not be called on every downloaded timestamp.
+#   If DAEMON_START and INITIALIZE_LOCATIONS:
+#     Call Google Maps Nearest Roads API with a grid-set of locations
+#     (within bounds of LL and UR) on server startup.
+# If false,
+#   ConvertRoad.store_locations will be called on every downloaded timestamp.
+#   Will not call Google Maps Nearest Roads API on server startup.
 GRID_CLOSEST_ROADS = False
 GRID_LL_LAT = 1.205
 GRID_LL_LNG = 103.605

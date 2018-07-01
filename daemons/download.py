@@ -224,8 +224,8 @@ class TaxiAvailability(
 
     def store_timestamp_coordinates(self, date_time, taxi_count, coordinates):
         if settings.INITIALIZE_LOCATIONS:
-            self.store_locations(coordinates)
-            return
+            if not settings.GRID_CLOSEST_ROADS:
+                self.store_locations(coordinates)
         else:
             created, timestamp, coordinates = super(
                 TaxiAvailability, self
