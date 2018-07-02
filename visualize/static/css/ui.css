@@ -147,8 +147,11 @@
     position:absolute;
     bottom: 5%;
     width:20%;
-    overflow: hidden;
-    padding: 10px;
+
+}
+
+.container-slider-inner {
+    margin:10px;
 }
 #container-slider-now {
     right: 5%;
@@ -199,8 +202,15 @@
     width:90%;
     display:inline-block;
     z-index:inherit;
-    overflow:hidden;
     left:10%;
+}
+
+.container-bg-container {
+    z-index:-1;
+    overflow:hidden;
+    height:100%;
+    width:100%;
+    position:absolute;
 }
 
 .container-controls-headers {
