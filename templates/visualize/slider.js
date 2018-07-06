@@ -34,7 +34,7 @@ function pickDate(e) {
    * Reset sliders to middle.
    * Set min and max value of sliders relative to picked date.
    * Call genHeatmapChange.
-   *   Assume when users pick date, they want heatmaps from long ago.
+   *   Assume when users pick date, they want heatmaps from long into the future.
    */
 
   // Update global date on all callbacks.
@@ -92,6 +92,7 @@ function dateSlider(sliderName, sliderChangeCallback) {
   /**
    * Create new slider.
    * Bind slider event to datetimepicker date value.
+   * Slider value should be offset at least one day in the past.
    */
   $(sliderName).slider({
     formatter: minutesToDate
@@ -99,7 +100,7 @@ function dateSlider(sliderName, sliderChangeCallback) {
 
     // Update global date on all callbacks.
     date = new Date();
-    sliderChangeCallback(genSliderValue(e));
+    sliderChangeCallback(1440-genSliderValue(e));
     $('#datetimepicker').datetimepicker('date', minutesToDate(e.value.newValue));
   });
 }

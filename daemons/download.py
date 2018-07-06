@@ -10,7 +10,6 @@ from .convert import ConvertHeatmap, ConvertLocation, ConvertLocationRecords
 from .models import Timestamp, Coordinate
 from django.utils import dateparse, timezone
 from django.conf import settings
-from scipy.spatial import KDTree
 
 
 class DownloadJson:
