@@ -41,15 +41,40 @@ def get_timestamp(request):
             default: 0 (meaning now).
     @return Timestamp if exists, else None.
     """
+    timestamps = get_timestamps(request, 1)
+    if timestamps == None:
+        return None
+    else:
+        return timestamps[0]
+
+
+def get_timestamps(request, minutes_length):
+    """Retrieve many timestamps based on request time and local_settings.
+    @param request: HTTP GET request containing other variables.
+        minutes:
+            predict taxi locations at this amount of time into the future.
+            default: 0 (meaning now).
+    @param minutes_length:
+        number of minutes into the past from @param request.minutes
+        to range search. Must be greater than 0.
+    Both minutes params will be restricted to 43200 minutes to avoid old data.
+    @return Timestamps if exist, else None.
+    """
     minutes = request.GET.get("minutes")
     if minutes == None:
         minutes = 0
     else:
         minutes = int(minutes)
+    if minutes_length == None:
+        minutes_length = 1
+    else:
+        minutes_length = int(minutes_length)
 
     # 30 day limit
     if minutes > 43200:
         return None
+    if minutes_length > 43200:
+        minutes_length = 43200
 
     # If true, minutes=0 means current time.
     # If false, minutes=0 means time of latest timestamp.
@@ -67,7 +92,7 @@ def get_timestamp(request):
     if not times:
         return None
     else:
-        return times[0]
+        return times
 
 
 def get_coordinates_time(request):
