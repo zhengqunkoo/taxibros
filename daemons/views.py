@@ -8,6 +8,7 @@ from .download import start_download
 from .models import Timestamp, Coordinate, Location, LocationRecord
 from django.conf import settings
 from django.shortcuts import render
+from django.utils import dateformat
 from scipy.sparse import coo_matrix
 from scipy.spatial import KDTree
 
@@ -298,21 +299,24 @@ def get_closest_roads(lat, lng, locs, tree, radius):
     return [locs[idx] for idx in road_indexes]
 
 
-"""
-def get_taxi_route(start_lat, start_lng, end_lat, end_lng):
-    requests.get("https://maps.googleapis.com/maps/api/directions/json")
-    params = {
-        "origin": "{},{}".format(start_lat, start_lng),
-        "destination": "{},{}".format(end_lat, end_lng),
-        "key": settings.GOOGLEMAPS_SECRET_KEY,
-    }#Default mode is driving
-    r = requests.get(url, params=params)
-    if r.status_code != 200:
-        return None
-    json_val = r.json()
-    if json_val["status"] == "ZERO_RESULTS":# If route not found, only field is error
-        return None
-"""
+def get_chart_data(request):
+    """
+    @param request: HTTP GET request containing other variables.
+        minutes:
+            predict taxi locations at this amount of time into the future.
+            default: 0 (meaning now).
+    @return list of coordinates.
+    """
+    # Get one day's timestamps
+    timestamps = get_timestamps(request, 1440)
+
+    # Generate the coordinates in 10min intervals for yesterday's time
+    timestamps = filter(
+        lambda time: int(dateformat.format(time.date_time, "U")) % 1200 == 0, timestamps
+    )
+
+    day_stats = [timestamp.taxi_count for timestamp in timestamps]
+    return day_stats, "Distribution of available taxis across 24h"
 
 
 def serialize_coordinates(coordinates):

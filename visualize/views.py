@@ -9,6 +9,7 @@ from daemons.views import (
     get_heatmap_time,
     serialize_coordinates,
     get_best_road,
+    get_chart_data,
 )
 from django.shortcuts import render
 from django.utils import timezone
@@ -107,34 +108,9 @@ def chart_js(request):
     return render(request, "visualize/chart.js")
 
 
-def get_chart_data_js(request):
-    timezone.activate(pytz.timezone(settings.TIME_ZONE))
-    date_time_end = Timestamp.objects.latest("date_time").date_time
-    # TODO: Uncomment below. Currently this way cause not enough data
-    # date_time_end = timezone.localtime(date_time_end)
-    # date_time_end = date_time_end.replace(hour=0, minute=0, second=0)
-    date_time_end = date_time_end.replace(second=0)  # remove this in future.
-    date_time_start = date_time_end - datetime.timedelta(days=1)
-
-    # Generating the coordinates in 10min intervals for yesterday's time
-    timestamps = Timestamp.objects.filter(
-        date_time__range=(date_time_start, date_time_end)
-    )
-
-    timestamps = filter(
-        lambda time: ((time.date_time.replace(second=0) - date_time_start).seconds)
-        % 1200
-        == 0,
-        timestamps,
-    )
-
-    day_stats = [timestamp.taxi_count for timestamp in timestamps]
-    return JsonResponse(
-        {
-            "day_stats": day_stats,
-            "chart_title": "Distribution of available taxis across 24h",
-        }
-    )
+def gen_chart_js(request):
+    day_stats, chart_title = get_chart_data(request)
+    return JsonResponse({"day_stats": day_stats, "chart_title": chart_title})
 
 
 def get_cost_data_js(request):
