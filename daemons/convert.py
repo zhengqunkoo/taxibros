@@ -280,7 +280,6 @@ class ConvertLocationRecords:
         # TODO: Remove this eventually
         # coordinates = list(map(lambda x:(x[1], x[0]), coordinates))
         print("ConvertLocation {}".format(timestamp))
-        print("Number of coordinates: {}.".format(len(coordinates)))
 
         try:
             vals = cls.get_closest_roads_kdtree(coordinates)

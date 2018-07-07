@@ -142,31 +142,46 @@ class DownloadJson:
             [self._date_time_start, self._date_time_end]
             + [timezone.localtime(x.date_time) for x in times]
         )
+        five_minute_seconds = 305
 
-        # If current and next timestamps more than missing_seconds apart,
+        # If pre and cur timestamps more than missing_seconds apart,
         # then there could be a missing timestamp before (current + missing_seconds).
         # If not, then there must be a missing timestamp before (current + missing_seconds_long).
         # If not, raise exception.
         missing_seconds = 65
         missing_seconds_long = 95
         missing = []
-        for i in range(len(times) - 1):
-            cur, next = times[i], times[i + 1]
+        for i in range(1, len(times)):
+            pre, cur = times[i - 1], times[i]
 
-            # Download all contiguous missing timestamps.
-            while (next - cur).seconds > missing_seconds:
-                missing = self.download_missing_timestamp(cur, missing_seconds)
+            # Split into old and new (less than 5 minutes old) timestamps.
+            # For old timestamps.
+            if (self._date_time_end - pre).seconds > five_minute_seconds:
 
-                # Try longer missing seconds.
-                if cur == missing:
-                    missing = self.download_missing_timestamp(cur, missing_seconds_long)
-                    if cur == missing:
-                        raise Exception(
-                            "Gap between adjacent timestamps greater than {} seconds.".format(
-                                missing_seconds_long
-                            )
+                # Download every 5th minute's timestamps.
+                while (cur - pre).seconds > five_minute_seconds:
+                    missing = self.download_missing_timestamp(pre, five_minute_seconds)
+                    pre = missing
+
+            else:
+
+                # Download all contiguous missing timestamps.
+                # Advance pre to downloaded timestamp until (cur-pre) gap <= missing_seconds.
+                while (cur - pre).seconds > missing_seconds:
+                    missing = self.download_missing_timestamp(pre, missing_seconds)
+
+                    # Try longer missing seconds.
+                    if pre == missing:
+                        missing = self.download_missing_timestamp(
+                            pre, missing_seconds_long
                         )
-                cur = missing
+                        if pre == missing:
+                            raise Exception(
+                                "Gap between adjacent timestamps greater than {} seconds.".format(
+                                    missing_seconds_long
+                                )
+                            )
+                    pre = missing
 
     def download_missing_timestamp(self, cur, seconds):
         """
