@@ -764,7 +764,7 @@ function toggleNowLater(){
     //Toggle container-chart
     leftVal = $('#container-chart').css("left");
     if (leftVal == '-1000px'){
-        $('#container-chart').stop().animate({left:"28px"},500)
+        $('#container-chart').stop().animate({left:"28px"},500);
     } else {
         $('#container-chart').stop().animate({left:"-1000px"},500);
     }
@@ -777,3 +777,11 @@ function toggleNowLater(){
         $('#container-slider-now').stop().animate({right:"-1000px"});
     }
 }
+
+$(document).ready(function() {
+
+  // Initialize autocomplete with location calls
+  isCallGenLoc = true;
+  initAutocomplete($('#pac-input-slider-now')[0], isCallGenLoc);
+  initAutocomplete($('#pac-input-slider-later')[0], isCallGenLoc);
+});
