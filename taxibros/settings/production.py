@@ -39,6 +39,11 @@ DAEMON_START = True
 # False: Downloads location records/timestamp/heatmap, don't download locations if daemon start is true
 INITIALIZE_LOCATIONS = False
 
+# Toggledownloading of locations.
+# True: Populate KDTree with locations (4 times) every server startup.
+# False: Don't populate KDTree. Some functions that depend on tree may raise errors.
+INITIALIZE_KDTREE = True
+
 # Relative time to display heatmaps.
 # True: relative to real-time.
 # False: relative to latest timestamp.

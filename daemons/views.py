@@ -3,7 +3,6 @@ import pytz
 import math
 import requests
 
-from .convert import ConvertHeatmap, tree, locs
 from .download import start_download
 from .models import Timestamp, Coordinate, Location, LocationRecord
 from django.conf import settings
@@ -11,7 +10,10 @@ from django.shortcuts import render
 from django.utils import dateformat
 from scipy.sparse import coo_matrix
 from scipy.spatial import KDTree
-
+if settings.INITIALIZE_KDTREE:
+    from .convert import ConvertHeatmap, tree, locs
+else:
+    from .convert import ConvertHeatmap
 
 # Approximating lat/lng
 # http://www.longitudestore.com/how-big-is-one-gps-degree.html

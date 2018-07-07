@@ -15,27 +15,29 @@ from scipy.spatial import KDTree
 M_PER_LAT = 110570
 M_PER_LONG = 111320
 
-# Set up KDTree once on server start.
-import sys
+if settings.INITIALIZE_KDTREE:
 
-sys.setrecursionlimit(30000)
-try:
-    locs = [loc for loc in Location.objects.all()]
-    locs = list(filter(lambda x: x.lat != 0, locs))
-    if len(locs) > 0:  # Tests initialize kdtree with no values
-        tree = KDTree(
-            list(map(lambda x: (float(x.lat), float(x.lng)), locs)), leafsize=3000
-        )
-        print("Successfully populated KDTree.")
-    else:
+    # Set up KDTree once on server start.
+    import sys
+
+    sys.setrecursionlimit(30000)
+    try:
+        locs = [loc for loc in Location.objects.all()]
+        locs = list(filter(lambda x: x.lat != 0, locs))
+        if len(locs) > 0:  # Tests initialize kdtree with no values
+            tree = KDTree(
+                list(map(lambda x: (float(x.lat), float(x.lng)), locs)), leafsize=3000
+            )
+            print("Successfully populated KDTree.")
+        else:
+            tree = KDTree([[], []])
+            print("Initialized empty KDTree, due to locs empty.")
+    except OperationalError as e:
+        print("Error accessing daemons_location, see: {}.".format(e))
+        locs = []
         tree = KDTree([[], []])
-        print("Initialized empty KDTree, due to locs empty.")
-except OperationalError as e:
-    print("Error accessing daemons_location, see: {}.".format(e))
-    locs = []
-    tree = KDTree([[], []])
-else:
-    print("Successfully populated locs and tree.")
+    else:
+        print("Successfully populated locs and tree.")
 
 
 class ConvertHeatmap:
