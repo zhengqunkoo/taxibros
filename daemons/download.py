@@ -131,18 +131,47 @@ class DownloadJson:
         But sometimes they are 90 seconds apart, subsequently 30 seconds apart.
         @return missing: sorted list of missing timestamps.
         """
+        # Convert to local timezone.
+        timezone.activate(pytz.timezone(settings.TIME_ZONE))
+
         times = Timestamp.objects.filter(
             date_time__range=(self._date_time_start, self._date_time_end)
         )
 
-        # Convert to local timezone.
-        # Get sorted filtered timestamps, between start and end.
-        timezone.activate(pytz.timezone(settings.TIME_ZONE))
-        times = sorted(
-            [self._date_time_start, self._date_time_end]
-            + [timezone.localtime(x.date_time) for x in times]
-        )
+        # Sort the filtered timestamps.
+        times = sorted(times, key=lambda x: x.date_time)
+
+        # Compare pre to cur, while less than 4 minutes apart, delete and advance cur.
+        # Else, advance both pre and cur.
+        four_minute_seconds = 235
         five_minute_seconds = 305
+        i = 1
+        while i < len(times):
+            pre, cur = times[i - 1], times[i]
+
+            # For old timestamps.
+            if (self._date_time_end - pre.date_time).seconds > five_minute_seconds:
+
+                # Delete every timestamp spaced less than 4 minutes apart.
+                while (cur.date_time - pre.date_time).seconds < four_minute_seconds:
+                    print(
+                        "Sparsing old timestamp {}".format(
+                            timezone.localtime(cur.date_time)
+                        )
+                    )
+                    cur.delete()
+                    times.pop(i)
+                    if i >= len(times):
+                        break
+                    cur = times[i]
+            i += 1
+
+        # Get sorted filtered local timestamps, between start and end inclusive.
+        times = (
+            [self._date_time_start]
+            + [timezone.localtime(x.date_time) for x in times]
+            + [self._date_time_end]
+        )
 
         # If pre and cur timestamps more than missing_seconds apart,
         # then there could be a missing timestamp before (current + missing_seconds).
