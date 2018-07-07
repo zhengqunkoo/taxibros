@@ -782,6 +782,6 @@ $(document).ready(function() {
 
   // Initialize autocomplete with location calls
   isCallGenLoc = true;
-  initAutocomplete($('#pac-input-slider-now')[0], isCallGenLoc);
-  initAutocomplete($('#pac-input-slider-later')[0], isCallGenLoc);
+  initAutocomplete($('.pac-input-slider')[0], isCallGenLoc);
+  initAutocomplete($('.pac-input-slider')[1], isCallGenLoc);
 });
