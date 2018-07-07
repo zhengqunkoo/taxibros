@@ -18,6 +18,7 @@ import time
 from background_task.models import Task
 from daemons.convert import ConvertLocation
 from daemons.download import start_download
+from daemons.models import Location
 from daemons.grid_coordinates import GridCoordinates
 from django.core.wsgi import get_wsgi_application
 from django.conf import settings
@@ -72,6 +73,9 @@ if settings.DAEMON_START:
 
 
 if settings.INITIALIZE_LOCATIONS and not settings.DAEMON_START:
+    for location in Location.objects.filter(lat=0, lng=0):
+        ConvertLocation().store_location_data(location.roadID)
+
     if settings.GRID_CLOSEST_ROADS:
         ConvertLocation().store_locations(
             GridCoordinates().interpolate(
