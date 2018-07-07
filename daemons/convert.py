@@ -173,7 +173,7 @@ class ConvertLocation:
             for road_id in cls.get_closest_roads_api(coord_chunk):
                 if road_id:  # If not none.
                     print("Processing {}".format(road_id))
-                    cls.store_location_data(road_id)
+                    cls.store_location(road_id)
         print("Processing finished!")
 
     @classmethod
@@ -230,17 +230,22 @@ class ConvertLocation:
         return result
 
     @classmethod
-    def store_location_data(cls, road_id):
+    def store_location(cls, road_id):
         """Store @param road_id as a Location model along with other info."""
         location, created = Location.objects.get_or_create(pk=road_id)
         if created:
             print("Created    {}".format(road_id))
+            cls.store_location_data(road_id)
 
-            try:
-                lat, lng, road_name = cls.get_road_info_from_id(road_id)
-                Location(roadID=road_id, road_name=road_name, lat=lat, lng=lng).save()
-            except Exception as e:
-                print(str(e))
+    @classmethod
+    def store_location_data(cls, road_id):
+        """Get other info and store @param road_id as Location."""
+        try:
+            lat, lng, road_name = cls.get_road_info_from_id(road_id)
+            print("Got data   {}".format(road_id))
+            Location(roadID=road_id, road_name=road_name, lat=lat, lng=lng).save()
+        except Exception as e:
+            print(str(e))
 
     @classmethod
     def get_road_info_from_id(cls, roadID):

@@ -10,6 +10,7 @@ from django.shortcuts import render
 from django.utils import dateformat
 from scipy.sparse import coo_matrix
 from scipy.spatial import KDTree
+
 if settings.INITIALIZE_KDTREE:
     from .convert import ConvertHeatmap, tree, locs
 else:
