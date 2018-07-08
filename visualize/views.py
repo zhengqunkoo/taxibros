@@ -98,11 +98,6 @@ def slider_js(request):
     return render(request, "visualize/slider.js", {"SLIDE_EVENT": settings.SLIDE_EVENT})
 
 
-def table_js(request):
-    """Render Javascript file."""
-    return render(request, "visualize/table.js")
-
-
 def chart_js(request):
     """Render Javascript file."""
     return render(request, "visualize/chart.js")
@@ -111,11 +106,6 @@ def chart_js(request):
 def stats_js(request):
     """Render Javascript file."""
     return render(request, "visualize/stats.js")
-
-
-def ui_js(request):
-    """Render Javascript file."""
-    return render(request, "visualize/ui.js")
 
 
 def gen_chart_js(request):
