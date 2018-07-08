@@ -122,3 +122,12 @@ function toggleNowLater(){
         $('#container-slider-now').stop().animate({right:"-1000px"});
     }
 }
+
+function disappearStats() {
+    //Function for container stats to disappear to the side
+  $('#container-stats').stop().animate({right: "-50%"},1200);
+}
+
+function appearStats() {
+  $('#container-stats').stop().animate({right: "0%"},400);
+}
