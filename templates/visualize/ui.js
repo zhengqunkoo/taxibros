@@ -108,9 +108,9 @@ function toggleContainerSliderLater() {
 function toggleContainerChart() {
   var val = $('#container-chart').css("left");
   if (val == '-1000px'){
-    $('#container-chart').stop().animate({left:"28px"},500);
+    appearContainerChart();
   } else {
-    $('#container-chart').stop().animate({left:"-1000px"},500);
+    disappearContainerChart();
   }
 }
 
@@ -140,4 +140,12 @@ function disappearStats() {
 
 function appearStats() {
   $('#container-stats').stop().animate({right: "0%"},400);
+}
+
+function disappearContainerChart() {
+  $('#container-chart').stop().animate({left:"-1000px"},500);
+}
+
+function appearContainerChart() {
+  $('#container-chart').stop().animate({left:"28px"},500);
 }
