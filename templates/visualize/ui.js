@@ -36,11 +36,11 @@ function toggleHeatmap() {
 
 function showNearby() {
   /**
-   * Show geolocated position in infoWindow.
+   * Show HTML5 geolocated position in infoWindow.
    * @return: undefined.
    */
   if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(function(position) {
+    navigator.geolocation.watchPosition(function(position) {
       var pos = new google.maps.LatLng(
         position.coords.latitude,
         position.coords.longitude
