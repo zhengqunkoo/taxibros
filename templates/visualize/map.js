@@ -501,6 +501,7 @@ function initAutocomplete(input, isCallGenLoc) {
       input.innerText = place.name;
       input.value = place.name;
       updateTable();
+      appearContainerChart();
     }
   });
 }
