@@ -347,8 +347,9 @@ class ConvertLocationRecords:
     def find_corresponding_location(cls, coordinate):
         """Finds corresponding location from coordinate
         If not found, django model manager get will raise does not exist error
-        If multiple objects found, django model will raise multiple objects returned error"""
+        If multiple objects found, return one object.
+        """
         lat = coordinate[0]
         lng = coordinate[1]
-        location = Location.objects.get(lat=lat, lng=lng)
-        return location
+        locations = Location.objects.filter(lat=lat, lng=lng)
+        return locations[0]
