@@ -50,23 +50,38 @@ function showNearby() {
       infoWindow.setContent('Location found.');
       infoWindow.open(map);
       genLoc(pos, locationRadius, locationMinutes, 'showNearby', true);
-    }, function() {
-      handleLocationError(true, infoWindow, map.getCenter());
+    }, function(error) {
+      var message;
+      switch(error.code) {
+        case error.PERMISSION_DENIED:
+          message = "User denied the request for Geolocation."
+          break;
+        case error.POSITION_UNAVAILABLE:
+          message = "Location information is unavailable."
+          break;
+        case error.TIMEOUT:
+          message = "The request to get user location timed out."
+          break;
+        case error.UNKNOWN_ERROR:
+          message = "An unknown error occurred."
+          break;
+      }
+      handleLocationError(infoWindow, map.getCenter(), "Error " + error.code + ": " + message);
     });
   } else {
     // Browser doesn't support Geolocation
-    handleLocationError(false, infoWindow, map.getCenter());
+    handleLocationError(infoWindow, map.getCenter());
   }
 }
 
-function handleLocationError(browserHasGeolocation, infoWindow, pos) {
+function handleLocationError(infoWindow, pos, errorMessage) {
   /**
    * Writes an error message to @param infoWindow.
    */
   infoWindow.setPosition(pos);
-  infoWindow.setContent(browserHasGeolocation ?
-                        'Error: The Geolocation service failed.' :
-                        'Error: Your browser doesn\'t support geolocation.');
+  infoWindow.setContent((errorMessage === undefined) ?
+                        'Error: Your browser doesn\'t support geolocation.' :
+                         errorMessage);
   infoWindow.open(map);
 }
 
