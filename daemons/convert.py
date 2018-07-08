@@ -309,7 +309,7 @@ class ConvertLocationRecords:
         # Assumption: data is an array of
         data = tree.data
         # threshold if coordinate is too far from any closest road dont store
-        threshold = 200 / M_PER_LAT
+        threshold = 300 / M_PER_LAT
         exceed_thresh_count = 0
         vals = {}
         for i in range(len(indexes)):
