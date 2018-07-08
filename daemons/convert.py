@@ -284,10 +284,7 @@ class ConvertLocationRecords:
     def store_location_records(cls, coordinates, timestamp):
         """Processes the coordinates by tabulating counts for their respective road segments
         """
-        # TODO: Remove this eventually
-        # coordinates = list(map(lambda x:(x[1], x[0]), coordinates))
         print("ConvertLocation {}".format(timestamp))
-
         try:
             vals = cls.get_closest_roads_kdtree(coordinates)
             cls.store_location_record_data(vals, timestamp)
@@ -316,10 +313,10 @@ class ConvertLocationRecords:
         exceed_thresh_count = 0
         vals = {}
         for i in range(len(indexes)):
+            key = tuple(data[indexes[i]])
             if distances[i] > threshold:
                 exceed_thresh_count += 1
                 continue
-            key = tuple(data[i])
             if key not in vals:
                 vals[key] = 1
             else:
