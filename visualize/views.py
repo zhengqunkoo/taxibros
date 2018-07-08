@@ -108,6 +108,11 @@ def chart_js(request):
     return render(request, "visualize/chart.js")
 
 
+def stats_js(request):
+    """Render Javascript file."""
+    return render(request, "visualize/stats.js")
+
+
 def gen_chart_js(request):
     day_stats, chart_title = get_chart_data(request)
     return JsonResponse({"day_stats": day_stats, "chart_title": chart_title})
