@@ -61,7 +61,7 @@ def get_timestamps(request, minutes_length):
     @param minutes_length:
         number of minutes into the past from @param request.minutes
         to range search. Must be greater than 0.
-    Both minutes params will be restricted to 43200 minutes to avoid old data.
+    Both minutes params will be restricted to 10080 minutes to avoid old data.
     @return Timestamps if exist, else None.
     """
     minutes = request.GET.get("minutes")
@@ -75,10 +75,10 @@ def get_timestamps(request, minutes_length):
         minutes_length = int(minutes_length)
 
     # 30 day limit
-    if minutes > 43200:
+    if minutes > 10080:
         return None
-    if minutes_length > 43200:
-        minutes_length = 43200
+    if minutes_length > 10080:
+        minutes_length = 10080
 
     # If true, minutes=0 means current time.
     # If false, minutes=0 means time of latest timestamp.

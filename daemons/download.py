@@ -114,7 +114,7 @@ class DownloadJson:
                 ).save()
         return created, timestamp, coordinates
 
-    def delete_old_timestamps(self, minutes=43200):
+    def delete_old_timestamps(self, minutes=10080):
         """Delete timestamps older than 30 days."""
         timestamps = Timestamp.objects.filter(
             date_time__lte=self._date_time_end - datetime.timedelta(minutes=minutes)
