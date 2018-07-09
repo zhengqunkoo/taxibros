@@ -34,6 +34,9 @@ ONEMAP_EXPIRY_TIMESTAMP = os.getenv("ONEMAP_EXPIRY_TIMESTAMP")
 # False: do not start daemon on server start.
 DAEMON_START = True
 
+# True: see locations on /visualize page load, else don't.
+VISUALIZE_LOCATIONS = False
+
 # Toggledownloading of locations
 # True: Downloads locations, don't download location records/timestamp/heatmap if daemon start is true
 # False: Downloads location records/timestamp/heatmap, don't download locations if daemon start is true

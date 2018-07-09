@@ -2,7 +2,7 @@ import datetime
 import pytz
 
 from background_task.models import Task
-from daemons.models import Coordinate, Timestamp
+from daemons.models import Coordinate, Timestamp, Location
 from daemons.views import (
     get_coordinates_time,
     get_coordinates_location,
@@ -83,11 +83,28 @@ def gen_loc_js(request):
     )
 
 
-def map_js(request):
-    """Render Javascript file with list of coordinates in context."""
-    return render(
-        request, "visualize/map.js", {"coordinates": get_coordinates_time(request)}
-    )
+if settings.VISUALIZE_LOCATIONS:
+
+    def map_js(request):
+        """Render Javascript file with coordinates of Locations."""
+        return render(
+            request,
+            "visualize/map.js",
+            {
+                "coordinates": Location.objects.exclude(
+                    lat=1.352083, lng=103.819836
+                ).all()
+            },
+        )
+
+
+else:
+
+    def map_js(request):
+        """Render Javascript file with list of coordinates in context."""
+        return render(
+            request, "visualize/map.js", {"coordinates": get_coordinates_time(request)}
+        )
 
 
 def slider_js(request):
