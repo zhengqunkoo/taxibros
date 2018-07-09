@@ -100,8 +100,9 @@
 #container-controls
 {
   position: absolute;
-  width: 1000%;
-  margin: -100px 0 0 -50px;
+  width: 100vw;
+  height:100vh;
+  margin: -15vw 0 0 -5vw;
   padding: 50px;
   padding-top: 125px;
   overflow: hidden;
