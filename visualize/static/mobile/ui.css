@@ -6,8 +6,8 @@
 }
 
 #description-controls {
-    top: 50px;
-    left: 100px;
+    top: 5vw;
+    left: 15vw;
     position:absolute;
     z-index:2;
     color: #cdcdcd;
@@ -19,8 +19,8 @@
 {
   display: block;
   position: absolute;
-  top: 50px;
-  left: 50px;
+  top: 5vw;
+  left: 5vw;
 
   z-index: 1;
 
