@@ -150,10 +150,14 @@ class DownloadJson:
             pre, cur = times[i - 1], times[i]
 
             # For old timestamps.
-            if (self._date_time_end - pre.date_time).seconds > five_minute_seconds:
+            if (
+                self._date_time_end - pre.date_time
+            ).total_seconds() > five_minute_seconds:
 
                 # Delete every timestamp spaced less than 4 minutes apart.
-                while (cur.date_time - pre.date_time).seconds < four_minute_seconds:
+                while (
+                    cur.date_time - pre.date_time
+                ).total_seconds() < four_minute_seconds:
                     print(
                         "Sparsing old timestamp {}".format(
                             timezone.localtime(cur.date_time)
@@ -185,10 +189,10 @@ class DownloadJson:
 
             # Split into old and new (less than 5 minutes old) timestamps.
             # For old timestamps.
-            if (self._date_time_end - pre).seconds > five_minute_seconds:
+            if (self._date_time_end - pre).total_seconds() > five_minute_seconds:
 
                 # Download every 5th minute's timestamps.
-                while (cur - pre).seconds > five_minute_seconds:
+                while (cur - pre).total_seconds() > five_minute_seconds:
                     missing = self.download_missing_timestamp(pre, five_minute_seconds)
                     pre = missing
 
@@ -196,7 +200,7 @@ class DownloadJson:
 
                 # Download all contiguous missing timestamps.
                 # Advance pre to downloaded timestamp until (cur-pre) gap <= missing_seconds.
-                while (cur - pre).seconds > missing_seconds:
+                while (cur - pre).total_seconds() > missing_seconds:
                     missing = self.download_missing_timestamp(pre, missing_seconds)
 
                     # Try longer missing seconds.
