@@ -21,10 +21,7 @@ from daemons.farecalculator import calculateCost
 
 def index(request):
     """View function for home page of site."""
-    context = {
-        "GOOGLEMAPS_SECRET_KEY": settings.GOOGLEMAPS_SECRET_KEY,
-        "SLIDE_EVENT": settings.SLIDE_EVENT,
-    }
+    context = {"GOOGLEMAPS_SECRET_KEY": settings.GOOGLEMAPS_SECRET_KEY}
 
     # CHECK1:If daemon is running
     if Task.objects.all().count() == 0:
