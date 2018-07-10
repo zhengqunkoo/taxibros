@@ -425,3 +425,10 @@ input[type="file"] {
   font-size: 0.875rem;
   color: #0c3e5f;
 }
+
+#bottom-display {
+    position:absolute;
+    bottom: 5rem;
+    height:20vh;
+    width:100vw;
+}
