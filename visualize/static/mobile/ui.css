@@ -294,12 +294,12 @@ div.arrow:hover::before {
 
 #container-stats {
     z-index:1;
-  position: absolute;
-  right: -50%;
-  top: 40%;
+  position: relative;
   color:black;
   overflow:hidden;
   padding:20px;
+  width:100%;
+  height:100%;
 }
 
 .container-bg {
