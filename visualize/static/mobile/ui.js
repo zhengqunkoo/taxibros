@@ -170,4 +170,73 @@ function toggleStats() {
       currentDisplay = null;
   }
 }
+
+function toggleSliders() {
+    var nowHTML = "    <div class='container-slider' id='container-slider-now'>\
+            <div class = 'container-bg-container'>\
+                <div class = 'container-bg'></div>\
+            </div>\
+            <div class = 'container-slider-inner'>\
+                <div> VISUALIZATION SLIDERS (NOW)</div>\
+                <div> Slide across time </div>\
+                <input type='range' id='genTime' data-slider-id='genTimeSlider' type='text' data-slider-min='0' data-slider-max='5' data-slider-step='1' data-slider-value='0'><br>\
+                <input id='pac-input-slider' class='controls td-height pac-input-slider' type='text' placeholder='Search Google Maps'>\
+            </div>\
+        </div>";
+  var laterHtml = "    <div class='container-slider' id='container-slider-later'>\
+          <div class = 'container-bg-container'>\
+              <div class = 'container-bg'></div>\
+          </div>\
+          <div class = 'container-slider-inner'>\
+              <div> VISUALIZATION SLIDERS (LATER)</div>\
+              <div> Slide across heatmap </div>\
+              <input type='range' id='genHeatmap' data-slider-id='genHeatmapSlider' type='text' data-slider-min='0' data-slider-max='1440' data-slider-step='5' data-slider-value='0'><br>\
+              <div> Slide across heatmap intensity</div>\
+              <input type='range' id='genHeatmapIntensity' data-slider-id='genHeatmapIntensitySlider' type='text' data-slider-min='1' data-slider-max='10' data-slider-step='1' data-slider-value='0'><br>\
+              <div>Slide location radius</div>\
+              <input type='range' id='genLocationRadius' data-slider-id='genLocationRadiusSlider' type='text' data-slider-min='50' data-slider-max='5000' data-slider-step='10' data-slider-value='500'><br>\
+              <div class='input-group date' id='datetimepicker'>\
+                  <input type='text' class='form-control'/>\
+                  <span class='input-group-addon'>\
+                  <span class='glyphicon glyphicon-calendar'></span>\
+                  </span>\
+              </div>\
+              <input id='pac-input-slider' class='controls td-height pac-input-slider' type='text' placeholder='Search Google Maps'>\
+          </div>\
+      </div>";
+  if (currentDisplay!="slider") {
+      if (nowLater == "later") {
+          $('#bottom-display').html(nowHtml);
+          dateSlider('#genHeatmap', genHeatmapSliderChange);
+          $('#genHeatmapIntensity').slider({
+            formatter: function(value) {
+              return value;
+            }
+          }).on('{{ SLIDE_EVENT }}', function(e) {
+            genHeatmapIntensitySliderChange(genSliderValue(e))
+          });
+          $('#genLocationRadius').slider({
+            formatter: function(value) {
+              return value;
+            }
+          }).on('change', function(e) {
+            genLocationRadiusSliderChange(genSliderValue(e))
+          }).on('slideStop', function(e) {
+            genLocationRadiusSliderStop(genSliderValue(e))
+          });
+
+          $('#datetimepicker').datetimepicker({
+            format: 'YYYY/MM/DD HH:mm:ss',
+            date: date
+          }).on('dp.hide', pickDate);
+
+      } else {
+          $('#bottom-display').html(laterHtml);
+          //dateSlider('#genTime', genTimeSliderChange);
+      }
+      currentDisplay="slider";
+  } else {
+      $('#bottom-display').html("");
+      currentDisplay=null;
+  }
 }
