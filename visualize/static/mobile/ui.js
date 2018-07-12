@@ -1,3 +1,5 @@
+var nowLater = "now";
+var currentDisplay = null;
 function toggleUi() {
   $('#container-ui').toggle();
 }
