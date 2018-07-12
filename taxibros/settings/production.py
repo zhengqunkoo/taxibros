@@ -92,6 +92,7 @@ INSTALLED_APPS = [
     "background_task",
     "daemons.apps.DaemonsConfig",
     "visualize.apps.VisualizeConfig",
+    'django_user_agents'
 ]
 
 MIDDLEWARE = [
@@ -102,7 +103,10 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    'django_user_agents.middleware.UserAgentMiddleware'
+
 ]
+
 
 ROOT_URLCONF = "taxibros.urls"
 
@@ -202,3 +206,6 @@ LOGGING = {
 }
 
 CACHES = {"default": {"BACKEND": "django.core.cache.backends.dummy.DummyCache"}}
+
+#Caching speeds up user agent parsing
+USER_AGENTS_CACHE = 'default'
