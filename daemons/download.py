@@ -114,16 +114,16 @@ class DownloadJson:
                 ).save()
         return created, timestamp, coordinates
 
-    def delete_old_timestamps(self, minutes=43200):
+    def delete_old_timestamps(self, minutes=10080):
         """Delete timestamps older than 30 days."""
         timestamps = Timestamp.objects.filter(
             date_time__lte=self._date_time_end - datetime.timedelta(minutes=minutes)
         )
         print("Deleting old timestamps:")
         for timestamp in timestamps:
-            print(timestamp.date_time)
+            timestamp.delete()
+            print("Deleted timestamp: {}".format(timestamp.date_time))
         print("Finished deleting old timestamps.")
-        timestamps.delete()
 
     def download_missing_timestamps(self):
         """Get current timestamps in database. Identify missing timestamps.
