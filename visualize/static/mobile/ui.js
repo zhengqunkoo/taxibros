@@ -140,8 +140,11 @@ function disappearStats() {
   $('#container-stats').css("right", "-100%");
 }
 
-function appearStats() {
-  $('#bottom-display').html("        <!--Local statistics(Right)-->\
+
+
+
+function toggleStats() {
+  var statsHtml = "        <!--Local statistics(Right)-->\
           <div id = 'container-stats'>\
               <button id='remove-stats' onclick='disappearStats()'type='button' class='close' aria-label='Close'>\
               <span aria-hidden='true'>&times;</span></button>\
@@ -158,5 +161,13 @@ function appearStats() {
                       <td id='average_dist'> '-'</td>\
                   </tr>\
               </table>\
-          </div>");
+          </div>";
+  if (currentDisplay != "stats") {
+      $('#bottom-display').html(statsHtml);
+      currentDisplay = "stats";
+  } else {
+      $('#bottom-display').html("");
+      currentDisplay = null;
+  }
+}
 }
