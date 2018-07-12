@@ -1,4 +1,4 @@
-var nowLater = "now";
+var nowLater = "later";
 var currentDisplay = null;
 function toggleUi() {
   $('#container-ui').toggle();
@@ -172,7 +172,7 @@ function toggleStats() {
 }
 
 function toggleSliders() {
-    var nowHTML = "    <div class='container-slider' id='container-slider-now'>\
+    var nowHtml = "    <div class='container-slider' id='container-slider-now'>\
             <div class = 'container-bg-container'>\
                 <div class = 'container-bg'></div>\
             </div>\
@@ -206,33 +206,34 @@ function toggleSliders() {
       </div>";
   if (currentDisplay!="slider") {
       if (nowLater == "later") {
-          $('#bottom-display').html(nowHtml);
-          dateSlider('#genHeatmap', genHeatmapSliderChange);
-          $('#genHeatmapIntensity').slider({
-            formatter: function(value) {
-              return value;
-            }
-          }).on('{{ SLIDE_EVENT }}', function(e) {
-            genHeatmapIntensitySliderChange(genSliderValue(e))
-          });
-          $('#genLocationRadius').slider({
-            formatter: function(value) {
-              return value;
-            }
-          }).on('change', function(e) {
-            genLocationRadiusSliderChange(genSliderValue(e))
-          }).on('slideStop', function(e) {
-            genLocationRadiusSliderStop(genSliderValue(e))
-          });
+          $('#bottom-display').html(laterHtml, function() {
+              dateSlider('#genHeatmap', genHeatmapSliderChange);
+              $('#genHeatmapIntensity').slider({
+                formatter: function(value) {
+                  return value;
+                }
+              }).on('{{ SLIDE_EVENT }}', function(e) {
+                genHeatmapIntensitySliderChange(genSliderValue(e))
+              });
+              $('#genLocationRadius').slider({
+                formatter: function(value) {
+                  return value;
+                }
+              }).on('change', function(e) {
+                genLocationRadiusSliderChange(genSliderValue(e))
+              }).on('slideStop', function(e) {
+                genLocationRadiusSliderStop(genSliderValue(e))
+              });
 
-          $('#datetimepicker').datetimepicker({
-            format: 'YYYY/MM/DD HH:mm:ss',
-            date: date
-          }).on('dp.hide', pickDate);
+              $('#datetimepicker').datetimepicker({
+                format: 'YYYY/MM/DD HH:mm:ss',
+                date: date
+              }).on('dp.hide', pickDate);
+      });
 
       } else {
-          $('#bottom-display').html(laterHtml);
-          //dateSlider('#genTime', genTimeSliderChange);
+          $('#bottom-display').html(nowHtml);
+          dateSlider('#genTime', genTimeSliderChange);
       }
       currentDisplay="slider";
   } else {
