@@ -145,21 +145,15 @@
 .container-slider {
     z-index:1;
     display: inline;
-    position:absolute;
+    position:relative;
     bottom: 5%;
-    width:20%;
+    width:100%;
+    height:100%;
 
 }
 
 .container-slider-inner {
     margin:10px;
-}
-#container-slider-now {
-    right: 5%;
-}
-
-#container-slider-later {
-    right: -1000px;
 }
 
 
