@@ -417,4 +417,5 @@ input[type="file"] {
     bottom: 5rem;
     height:20vh;
     width:100vw;
+    display:none;
 }
