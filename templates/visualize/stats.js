@@ -28,7 +28,7 @@ function genLocHandleData(path_time, path_dist, total_dist, number, best_road, b
   appearStats();
 }
 
-function displayTaxiStats(duration, display_duration, display_distance) {
+function displayTaxiStats(display_duration, display_distance) {
     //Add, modify, or delete data depending on condition
     if ($('#d').length == 0) {
         $('#stats-table tr:last').after('<tr id = "d"><th>Taxi Route Information</th></tr>');
@@ -84,7 +84,7 @@ function calcRoute(origin, destination, tr) {
         display_distance = result.routes[0].legs[0].distance["text"];
         distance = result.routes[0].legs[0].distance["value"]
         calcCost(waiting_duration, distance);
-        displayTaxiStats(duration, display_duration, display_distance);
+        displayTaxiStats(display_duration, display_distance);
         appearStats();
 
     } else {

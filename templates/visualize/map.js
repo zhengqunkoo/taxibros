@@ -481,21 +481,26 @@ function initAutocomplete(input, isCallGenLoc) {
       map.fitBounds(bounds);
     } else {
 
-      // Else if only one place, perform genLoc.
-      // Create list element.
+      // Else if only one place.
       var place = places[0];
       if (isCallGenLoc) {
+
+        // If isCallGenLoc, call genLoc with isCreate circle true.
+        // Only pickupLocation searchBox has isCallGenLoc true.
+        // So guarantee pickupPos will be stored in table's tr's nth-child(9).
         genLoc(place.geometry.location, locationRadius, locationMinutes, input.getAttribute('id'), true);
       } else {
 
-        // Extract origin from hidden info in table.
-        // Calc route only if info is not null.
+        // Only arrivalLocation searchBox has isCallGenLoc false.
+        // So guarantee pickupPos is different from arrivalLocation.
+        // Extract pickupPos from table's tr's nth-child(9).
+        // Call calcRoute only if pickupPos is not null.
         var tr = $('#' + input.getAttribute('id')).closest('tr');
         var pickupPos = tr.children('td:nth-child(9)').find('.hide')[0].innerHTML;
         if (pickupPos) {
           var parsedLatLng = parseLatLng(pickupPos);
-          origin = new google.maps.LatLng(parsedLatLng[0], parsedLatLng[1]);
-          calcRoute(origin, place.geometry.location, tr);
+          pickupPos = new google.maps.LatLng(parsedLatLng[0], parsedLatLng[1]);
+          calcRoute(pickupPos, place.geometry.location, tr);
         }
       }
       input.innerText = place.name;
