@@ -24,7 +24,7 @@
 <script type="text/javascript" src="{% static 'js/itinerary.js' %}" ></script>
 <script type="text/javascript" src="{% static 'mobile/ui.js' %}" ></script>
 <script type="text/javascript" src="{% static 'js/table.js' %}" ></script>
-<script type="text/javascript" src="{% url 'visualize:chart' %}" ></script>
+<!--<script type="text/javascript" src="{% url 'visualize:chart' %}" ></script>-->
 <script type="text/javascript" src="{% url 'visualize:map' %}" ></script>
 <script defer type="text/javascript" src="{% url 'visualize:stats' %}" ></script>
 <script defer type="text/javascript" src="{% url 'visualize:slider' %}" ></script>
@@ -261,10 +261,10 @@
 
     <div class ="mobile-bottom-bar">
         <a href="#" class="footer-link">
-            <i class="fas fa-sliders-h"></i><span class='footer-text'>Sliders</span>
+            <i class="fas fa-sliders-h"></i><span onclick="toggleSliders()"class='footer-text'>Sliders</span>
         </a>
         <a href="#" class="footer-link">
-            <i class="fas fa-calculator"></i> <span onclick = "appearStats()"class='footer-text'>Statistics</span>
+            <i class="fas fa-calculator"></i> <span onclick = "toggleStats()"class='footer-text'>Statistics</span>
         </a>
     </div>
     <div id = "bottom-display">
