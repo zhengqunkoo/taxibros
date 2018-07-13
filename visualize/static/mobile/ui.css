@@ -158,11 +158,6 @@
 
 
 
-#container-chart {
-    position: absolute;
-    bottom: 2em;
-    left: 2em;
-}
 
 #controls-container-functions {
     margin-left: auto;
@@ -185,9 +180,6 @@
     width: 100%;
 }
 #container-itinerary {
-    right: -1000px;
-    top: 10px;
-    position: absolute;
     width: 55%;
     z-index:1;
     display:inline-block;
@@ -420,7 +412,7 @@ input[type="file"] {
   color: #0c3e5f;
 }
 
-#bottom-display {
+.bottom-display {
     position:absolute;
     bottom: 5rem;
     height:20vh;
