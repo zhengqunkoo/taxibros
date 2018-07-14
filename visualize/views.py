@@ -22,13 +22,13 @@ from daemons.farecalculator import calculateCost
 def index(request):
     """View function for home page of site."""
     context = {"GOOGLEMAPS_SECRET_KEY": settings.GOOGLEMAPS_SECRET_KEY}
-
+    index = "mobile/index.html" if request.user_agent.is_mobile else "visualize/index.html"
     # CHECK1:If daemon is running
     if Task.objects.all().count() == 0:
         context[
             "error_message"
         ] = "No daemons running. Please run server once with DAEMON_START=True."
-        return render(request, "visualize/index.html", context)
+        return render(request, index, context)
 
     # CHECK2:If there is insufficient data
     times = Timestamp.objects.filter(
@@ -41,10 +41,10 @@ def index(request):
         context[
             "error_message"
         ] = "Data is still incomplete, please wait a few minutes before refreshing."
-        return render(request, "visualize/index.html", context)
+        return render(request, index, context)
 
     # Else: render with normal context.
-    return render(request, "visualize/index.html", context)
+    return render(request, index, context)
 
 
 def gen_heatmap_js(request):
