@@ -281,12 +281,9 @@ div.arrow:hover::before {
 
 #container-stats {
     z-index:1;
-  position: relative;
   color:black;
   overflow:hidden;
   padding:20px;
-  width:100%;
-  height:100%;
 }
 
 .container-bg {
