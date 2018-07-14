@@ -78,6 +78,13 @@ Tests are executed using the django manager.
 ## Installing Open Street Map
 1. For more context in map (including street and thoroughfare details), [install PROJ.4 datum shifting files].
 
+## Continuous integration
+Automatic CI on each new commit with `.travis.yml` in the repo.
+However, sometimes build errors occur (specifically `test_unique_timestamp` fails),
+even though it passes on your local machine.
+Assuming your `local_settings.py` matches travis' settings in `production.py`,
+restart build on Travis CI and pray.
+
 ## Coverage testing
 1. Generate `.coverage` file.
    ```
