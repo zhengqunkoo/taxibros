@@ -183,16 +183,14 @@
     width: 100%;
 }
 #container-itinerary {
-    width: 55%;
     z-index:1;
-    display:inline-block;
+    height:30%;
 }
 #container-itinerary-inner {
     position:absolute;
     width:90%;
     display:inline-block;
     z-index:inherit;
-    left:10%;
 }
 
 .container-bg-container {
