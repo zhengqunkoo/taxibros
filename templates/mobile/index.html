@@ -3,7 +3,6 @@
 {% block headerstatic %}
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/9.9.0/css/bootstrap-slider.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/TableExport/5.0.2/css/tableexport.min.css">
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.1.0/css/all.css" integrity="sha384-lKuwvrZot6UHsBSfcMvOkWwlCMgc0TaWr+30HWe3a4ltaBwTZhyTEggF5tJv8tbt" crossorigin="anonymous">
 
 
@@ -167,7 +166,7 @@
 
 
 
-    <!--Sliders (top right)-->
+    <!--Sliders-->
     <div class="container-slider bottom-display" id="container-slider-now">
         <div class = "container-bg-container">
             <div class = "container-bg"></div>
@@ -205,11 +204,8 @@
 
 
 
-    <!-- Itinerary table (top left)-->
-    <div id = "container-itinerary bottom-display">
-        <div id="arrow-holder">
-        <div class="arrow" id = "slider"></div>
-        </div>
+    <!-- Itinerary table-->
+    <div id = "container-itinerary" class = "bottom-display">
         <div id = "container-itinerary-inner">
             <div class = "container-bg-container">
                 <div class = "container-bg"></div>
@@ -228,9 +224,6 @@
                     </tr>
                 </thead>
                 <tbody></tbody>
-                <caption id="tableimport-caption" class = "bottom">
-                <label for="importFromCsv" class="btn btn-default csv">Import</label>
-                <input id="importFromCsv" type="file"/>
                 </caption>
             </table>
 
@@ -251,6 +244,23 @@
                 </form>
             </div>
         </div>
+    </div>
+    <!--Local statistics(Right)-->
+    <div id = "container-stats" class = "bottom-display">
+        <div class = "container-bg"></div>
+        <table id = "stats-table">
+            <tr>
+                <th> Statistics of taxis within 500m:</th>
+            <tr>
+                <td> Number of taxis:</td>
+                <td id="num"> "-" </td>
+            </tr>
+            <tr>
+                <td>Average distance:</td>
+                <td id="average_dist"> "-"</td>
+            </tr>
+        </table>
+
     </div>
 
 
