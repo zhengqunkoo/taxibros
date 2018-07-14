@@ -1,4 +1,4 @@
-var nowLater = "later";
+var nowLater = "now";
 var currentDisplay = null;
 function toggleUi() {
   $('#container-ui').toggle();
@@ -87,26 +87,30 @@ function handleLocationError(infoWindow, pos, errorMessage) {
   infoWindow.open(map);
 }
 
-function toggleContainerItinerary() {
-  var val = $("#container-itinerary").css("right");
-  if (val == '-1000px'){
-    $('#container-itinerary').stop().animate({right:"10px"},500);
-    document.querySelector('.arrow').style.transform = ("rotate(45deg)");
+function toggleContainerItineraryButton() {
+  $itineraryButton = "<a id = 'itineraryButton' href='#' class='footer-link'>\
+              <i class='fas fa-clipboard-list'></i><span onclick='toggleContainerItinerary()'class='footer-text'>Itinerary</span>\
+          </a>";
+  if (nowLater == 'later'){
+    $('.mobile-bottom-bar').append($itineraryButton);
   } else {
-    $('#container-itinerary').stop().animate({right:"-1000px"}, 500);
-    document.querySelector('.arrow').style.transform = ("rotate(-135deg)");
+    $('#itineraryButton').remove();
   }
 }
 
-function toggleContainerSliderLater() {
-  var val = $("#container-slider-later").css("right");
-  if (val == '-1000px') {
-    $('#container-slider-later').stop().animate({right:"5%"});
-  } else {
-    $('#container-slider-later').stop().animate({right:"-1000px"});
-  }
+function toggleContainerItinerary(){
+    if (currentDisplay != "itinerary") {
+        undisplayAll()
+        $('#container-itinerary').toggle();
+        currentDisplay = "itinerary";
+    } else {
+        $('#container-itinerary').hide();
+        currentDisplay = null;
+    }
 }
 
+
+/*
 function toggleContainerChart() {
   var val = $('#container-chart').css("left");
   if (val == '-1000px'){
@@ -115,24 +119,25 @@ function toggleContainerChart() {
     disappearContainerChart();
   }
 }
+*/
 
-function toggleContainerSliderNow() {
-  var val = $('#container-slider-now').css("right");
-  if (val == '-1000px') {
-    $('#container-slider-now').stop().animate({right:"5%"});
-  } else {
-    $('#container-slider-now').stop().animate({right:"-1000px"});
-  }
+
+
+function toggleNowLaterSetting() {
+    if (nowLater == "now") {
+        nowLater = "later";
+    } else {
+        nowLater = "now";
+    }
 }
 
 function toggleNowLater(){
+  undisplayAll();
+  toggleNowLaterSetting();
   //LATER SERVICE
-  toggleContainerItinerary();
-  toggleContainerSliderLater();
-  toggleContainerChart();
+  toggleContainerItineraryButton();
+  //toggleContainerChart();
 
-  //NOW SERVICE
-  toggleContainerSliderNow();
 }
 
 function disappearStats() {
