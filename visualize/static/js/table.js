@@ -1,4 +1,5 @@
 var pacInputCount = 0, datetimepickerCount = 0;
+var lastDatetimepickerId = null;
 
 function createPacInput(cell, isCallGenLoc, innerText) {
   var input = document.createElement('input');
@@ -17,26 +18,29 @@ function createPacInput(cell, isCallGenLoc, innerText) {
 
 function createDatetimepicker(cell, innerText) {
   var input = document.createElement('input');
+  var datetimepickerId = 'datetimepicker' + datetimepickerCount;
   input.setAttribute('type', 'text');
   input.setAttribute('class', 'form-control td-height');
-  input.setAttribute('id', 'datetimepicker' + datetimepickerCount);
+  input.setAttribute('id', datetimepickerId);
   input.setAttribute('placeholder', 'Pick a date');
   cell.appendChild(input);
   if (innerText !== undefined) {
-    $('#datetimepicker' + datetimepickerCount).datetimepicker({
+    $('#' + datetimepickerId).datetimepicker({
       format: 'YYYY/MM/DD HH:mm:ss',
       date: innerText
     }).on('dp.hide', function(e) {
       input.innerText = moment(e.date).format('YYYY/MM/DD HH:mm:ss');
       updateTable();
+      lastDatetimepickerId = datetimepickerId;
     });
     input.innerText = innerText;
   } else {
-    $('#datetimepicker' + datetimepickerCount).datetimepicker({
+    $('#' + datetimepickerId).datetimepicker({
       format: 'YYYY/MM/DD HH:mm:ss'
     }).on('dp.hide', function(e) {
       input.innerText = moment(e.date).format('YYYY/MM/DD HH:mm:ss');
       updateTable();
+      lastDatetimepickerId = datetimepickerId;
     });
   }
   datetimepickerCount++;

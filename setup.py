@@ -16,6 +16,7 @@ setup(
         "coverage-badge",
         "django",
         "django-background-tasks",
+        "django-user-agents",
         "matplotlib",
         "psutil",
         "pylibmc",

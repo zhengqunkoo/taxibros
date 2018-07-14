@@ -22,7 +22,9 @@ from daemons.farecalculator import calculateCost
 def index(request):
     """View function for home page of site."""
     context = {"GOOGLEMAPS_SECRET_KEY": settings.GOOGLEMAPS_SECRET_KEY}
-    index = "mobile/index.html" if request.user_agent.is_mobile else "visualize/index.html"
+    index = (
+        "mobile/index.html" if request.user_agent.is_mobile else "visualize/index.html"
+    )
     # CHECK1:If daemon is running
     if Task.objects.all().count() == 0:
         context[

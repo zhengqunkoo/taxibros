@@ -1,3 +1,5 @@
+var MS_PER_SECOND = 1000;
+
 function genLocHandleData(path_time, path_dist, total_dist, number, best_road, best_road_coords) {
   /**
    * Show stats.
@@ -28,7 +30,7 @@ function genLocHandleData(path_time, path_dist, total_dist, number, best_road, b
   appearStats();
 }
 
-function displayTaxiStats(duration, display_duration, display_distance) {
+function displayTaxiStats(display_duration, display_distance) {
     //Add, modify, or delete data depending on condition
     if ($('#d').length == 0) {
         $('#stats-table tr:last').after('<tr id = "d"><th>Taxi Route Information</th></tr>');
@@ -84,7 +86,8 @@ function calcRoute(origin, destination, tr) {
         display_distance = result.routes[0].legs[0].distance["text"];
         distance = result.routes[0].legs[0].distance["value"]
         calcCost(waiting_duration, distance);
-        displayTaxiStats(duration, display_duration, display_distance);
+        displayTaxiStats(display_duration, display_distance);
+        updateDatetimepicker(duration, tr);
         appearStats();
 
     } else {
@@ -128,4 +131,48 @@ function displayCosts(costs) {
         $('#taxi-cost-l').html("$" + parseFloat(costs[0]/100).toFixed(2));
         $('#taxi-cost-h').html("$" + parseFloat(costs[1]/100).toFixed(2));
     }
+}
+
+function updateDatetimepicker(duration, tr) {
+  /**
+   * Update most unused datetimepicker (either pickup, or arrival).
+   * Assume user does not value most unused datetimepicker.
+   * If no last recently used datetimepicker, do nothing.
+   * Else if get datetime is null, do nothing.
+   * Else,
+   *   If pickup last recently used,
+   *     get pickup datetime,
+   *     add duration,
+   *     set arrival datetime and innerText.
+   *   If arrival last recently used,
+   *     get arrival datetime,
+   *     minus duration,
+   *     set pickup datetime and innerText.
+   *   Update table.
+   */
+  if (lastDatetimepickerId) {
+    var pickupDatetimepicker = tr.children('td:nth-child(2)').find('input');
+    var arrivalDatetimepicker = tr.children('td:nth-child(4)').find('input');
+    duration = duration * MS_PER_SECOND;
+
+    if (lastDatetimepickerId == pickupDatetimepicker.attr('id')) {
+      var pickupDate = pickupDatetimepicker.data('DateTimePicker').date();
+      if (pickupDate) {
+        var arrivalDate = new Date(pickupDate.toDate().getTime() + duration);
+        arrivalDatetimepicker.datetimepicker('date', arrivalDate);
+        arrivalDatetimepicker = arrivalDatetimepicker[0];
+        arrivalDatetimepicker.innerText = moment(arrivalDate).format('YYYY/MM/DD HH:mm:ss');
+        updateTable();
+      }
+    } else {
+      var arrivalDate = arrivalDatetimepicker.data('DateTimePicker').date();
+      if (arrivalDate) {
+        var pickupDate = new Date(arrivalDate.toDate().getTime() - duration);
+        pickupDatetimepicker.datetimepicker('date', pickupDate);
+        pickupDatetimepicker = pickupDatetimepicker[0];
+        pickupDatetimepicker.innerText = moment(pickupDate).format('YYYY/MM/DD HH:mm:ss');
+        updateTable();
+      }
+    }
+  }
 }
