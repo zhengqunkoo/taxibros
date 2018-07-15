@@ -132,10 +132,3 @@ def gen_chart_js(request):
 def get_cost_data_js(request):
     cost = calculateCost(request.GET.get("distance"), request.GET.get("time"))
     return JsonResponse({"cost": cost})
-
-
-def serialize_coordinates(coordinates):
-    """Helper function to serialize list to output as needed in JsonResponse.
-    @return serialized list of coordinates.
-    """
-    return [[float(c.lat), float(c.lng)] for c in coordinates]
