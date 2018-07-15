@@ -188,9 +188,10 @@
 }
 #container-itinerary-inner {
     position:absolute;
-    width:90%;
+    width:100%;
     display:inline-block;
     z-index:inherit;
+    height:100%;
 }
 
 .container-bg-container {
