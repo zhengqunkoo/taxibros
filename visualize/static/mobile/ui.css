@@ -264,7 +264,6 @@ div.arrow:hover::before {
 
 #itineraryTable {
   float: left;
-  width: 100%;
   display:inline-block;
   table-layout: fixed;
 }
@@ -274,11 +273,14 @@ div.arrow:hover::before {
   float:left;
 }
 
-#itineraryTable td {
+#itineraryTable > tbody > tr > td {
   position: relative;
-  width: 25%;
   white-space:nowrap;
+  display:inline-block;
+  width:50vw;
 }
+
+
 
 #container-stats {
     z-index:1;
