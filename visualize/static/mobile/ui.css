@@ -184,7 +184,7 @@
 }
 #container-itinerary {
     z-index:1;
-    height:30%;
+    height:40%;
 }
 #container-itinerary-inner {
     position:absolute;
@@ -259,7 +259,17 @@ div.arrow:hover::before {
   transform: scale(1.0);
 }
 
+thead {
+  float: left;
+}
 
+thead th {
+  display: block;
+}
+
+tbody {
+  float: right;
+}
 
 
 #itineraryTable {
@@ -269,7 +279,7 @@ div.arrow:hover::before {
 }
 
 #addRow {
-  display: inline;
+  display: inline-block;
   float:left;
 }
 
@@ -278,6 +288,9 @@ div.arrow:hover::before {
   white-space:nowrap;
   display:inline-block;
   width:50vw;
+}
+#itineraryTable > tbody {
+  width: 50%;
 }
 
 
