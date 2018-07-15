@@ -122,7 +122,7 @@ def chart_js(request):
 
 def stats_js(request):
     """Render Javascript file."""
-    return render(request, "visualize/stats.js")
+    return render(request, "visualize/stats.js", {"mobile":request.user_agent.is_mobile})
 
 
 def gen_chart_js(request):

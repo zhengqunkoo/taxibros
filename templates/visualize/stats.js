@@ -26,8 +26,9 @@ function genLocHandleData(path_time, path_dist, total_dist, number, best_road, b
       $('#path-time').html(path_time + "s");
       $('#path-dist').html(path_dist + "m");
   }
-
+  {% if not mobile %}
   appearStats();
+  {% endif %}
 }
 
 function displayTaxiStats(display_duration, display_distance) {
@@ -88,8 +89,9 @@ function calcRoute(origin, destination, tr) {
         calcCost(waiting_duration, distance);
         displayTaxiStats(display_duration, display_distance);
         updateDatetimepicker(duration, tr);
+        {% if mobile %}
         appearStats();
-
+        {% endif %}
     } else {
       window.alert('Directions request failed due to ' + status);
     }
