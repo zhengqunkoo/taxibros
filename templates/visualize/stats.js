@@ -89,7 +89,7 @@ function calcRoute(origin, destination, tr) {
         calcCost(waiting_duration, distance);
         displayTaxiStats(display_duration, display_distance);
         updateDatetimepicker(duration, tr);
-        {% if mobile %}
+        {% if not mobile %}
         appearStats();
         {% endif %}
     } else {
