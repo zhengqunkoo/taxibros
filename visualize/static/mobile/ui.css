@@ -259,17 +259,9 @@ div.arrow:hover::before {
   transform: scale(1.0);
 }
 
-thead {
-  float: left;
-}
 
-thead th {
-  display: block;
-}
 
-tbody {
-  float: right;
-}
+
 
 
 #itineraryTable {
@@ -291,9 +283,16 @@ tbody {
 }
 #itineraryTable > tbody {
   width: 50%;
+  float: right;
 }
 
+#itineraryTable >thead {
+  float: left;
+}
 
+#itineraryTable >thead th {
+  display: block;
+}
 
 #container-stats {
     z-index:1;
