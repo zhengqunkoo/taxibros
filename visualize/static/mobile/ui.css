@@ -28,7 +28,8 @@
   user-select: none;
 }
 
-#menuToggle input:not(#radio-i):not(#radio-j)
+
+#menuToggle input:not(.radio-1):not(.radio-2)
 {
   display: block;
   width: 40px;
@@ -39,12 +40,11 @@
 
   cursor: pointer;
 
-  opacity: 0; /* hide this */
-  z-index: 2; /* and place it over the hamburger */
+  opacity: 0;
+  z-index: 2;
 
   -webkit-touch-callout: none;
 }
-
 
 #menuToggle span:not(.toggle-inside):not(.toggle-outside)
 {
