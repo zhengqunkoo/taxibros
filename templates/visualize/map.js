@@ -139,8 +139,9 @@ function initMap() {
 
   infoWindow = new google.maps.InfoWindow;
   secondInfoWindow = new google.maps.InfoWindow;
-
+  {% if not mobile %}
   drawChart();
+  {% endif %}
 }
 
 function setLocation(pos) {
@@ -506,7 +507,9 @@ function initAutocomplete(input, isCallGenLoc) {
       input.innerText = place.name;
       input.value = place.name;
       updateTable();
+      {% if not mobile %}
       appearContainerChart();
+      {% endif %}
     }
   });
 }

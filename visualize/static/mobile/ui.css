@@ -28,7 +28,8 @@
   user-select: none;
 }
 
-#menuToggle input:not(#radio-i):not(#radio-j)
+
+#menuToggle input:not(.radio-1):not(.radio-2)
 {
   display: block;
   width: 40px;
@@ -39,12 +40,11 @@
 
   cursor: pointer;
 
-  opacity: 0; /* hide this */
-  z-index: 2; /* and place it over the hamburger */
+  opacity: 0;
+  z-index: 2;
 
   -webkit-touch-callout: none;
 }
-
 
 #menuToggle span:not(.toggle-inside):not(.toggle-outside)
 {
@@ -182,15 +182,19 @@
     height: 100%;
     width: 100%;
 }
+
 #container-itinerary {
     z-index:1;
-    height:30%;
+    height:80px;
 }
+
+
 #container-itinerary-inner {
     position:absolute;
-    width:90%;
+    width:100%;
     display:inline-block;
     z-index:inherit;
+    height:100%;
 }
 
 .container-bg-container {
@@ -261,22 +265,36 @@ div.arrow:hover::before {
 
 
 
+
+
 #itineraryTable {
   float: left;
-  width: 100%;
   display:inline-block;
   table-layout: fixed;
+  height:80%;
 }
 
 #addRow {
-  display: inline;
-  float:left;
+  display: block;
 }
 
-#itineraryTable td {
+#itineraryTable > tbody > tr > td {
   position: relative;
-  width: 25%;
   white-space:nowrap;
+  display:inline-block;
+  width:50vw;
+}
+#itineraryTable > tbody {
+  width: 50%;
+  float: right;
+}
+
+#itineraryTable >thead {
+  float: left;
+}
+
+#itineraryTable >thead th {
+  display: block;
 }
 
 #container-stats {

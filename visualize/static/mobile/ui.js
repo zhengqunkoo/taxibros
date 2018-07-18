@@ -132,7 +132,7 @@ function toggleNowLaterSetting() {
 }
 
 function toggleNowLater(){
-  undisplayAll();
+  undisplayBottom();
   toggleNowLaterSetting();
   //LATER SERVICE
   toggleContainerItineraryButton();
@@ -176,5 +176,17 @@ function toggleSliders() {
 }
 
 function undisplayAll() {
-    $('.bottom-display').hide()
+    $('#menuToggle > input:checked').prop('checked',false);
+    undisplayBottom();
 }
+function undisplayBottom() {
+    $('.bottom-display').hide();
+}
+
+$(document).ready(function() {
+    $('#menuToggle > input[type=checkbox]').change(function(){
+        if($(this).is(':checked')) {
+            undisplayBottom();
+        }
+    });
+});

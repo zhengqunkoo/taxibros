@@ -95,7 +95,7 @@ if settings.VISUALIZE_LOCATIONS:
             {
                 "coordinates": Location.objects.exclude(
                     lat=1.352083, lng=103.819836
-                ).all()
+                ).all(),
             },
         )
 
@@ -105,7 +105,8 @@ else:
     def map_js(request):
         """Render Javascript file with list of coordinates in context."""
         return render(
-            request, "visualize/map.js", {"coordinates": get_coordinates_time(request)}
+            request, "visualize/map.js", {"coordinates": get_coordinates_time(request),"mobile": request.user_agent.is_mobile}
+
         )
 
 
@@ -121,7 +122,7 @@ def chart_js(request):
 
 def stats_js(request):
     """Render Javascript file."""
-    return render(request, "visualize/stats.js")
+    return render(request, "visualize/stats.js", {"mobile":request.user_agent.is_mobile})
 
 
 def gen_chart_js(request):
