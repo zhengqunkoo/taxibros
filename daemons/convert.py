@@ -22,11 +22,11 @@ if settings.INITIALIZE_KDTREE:
 
     sys.setrecursionlimit(30000)
     try:
-        locs = [loc for loc in Location.objects.all()]
-        locs = list(filter(lambda x: x.lat != 0, locs))
+        locs = list(filter(lambda x: x.lat != 0, Location.objects.all()))
+        locs = list(set(map(lambda x: (float(x.lat), float(x.lng)), locs)))
         if len(locs) > 0:  # Tests initialize kdtree with no values
             tree = KDTree(
-                list(map(lambda x: (float(x.lat), float(x.lng)), locs)), leafsize=3000
+                locs, leafsize=3000
             )
             print("Successfully populated KDTree.")
         else:
