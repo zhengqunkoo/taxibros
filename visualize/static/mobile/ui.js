@@ -185,7 +185,7 @@ function undisplayBottom() {
     $('.bottom-display').hide();
 }
 
-$(document).ready(function() {
+$(function() {
     $('#menuToggle > input[type=checkbox]').change(function(){
         if($(this).is(':checked')) {
             undisplayBottom();

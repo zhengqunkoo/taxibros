@@ -547,7 +547,7 @@ function unsetMapObj(obj) {
   obj = null;
 }
 
-$(document).ready(function() {
+$(function() {
 
   // Initialize autocomplete with location calls
   isCallGenLoc = true;
