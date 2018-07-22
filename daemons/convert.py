@@ -22,7 +22,7 @@ if settings.INITIALIZE_KDTREE:
 
     sys.setrecursionlimit(30000)
     try:
-        raw_locs = [loc for loc in Location.objects.all() if loc.lat!=0]
+        raw_locs = [loc for loc in Location.objects.all() if loc.lat != 0]
         coords = set()
         locs = []
         for loc in raw_locs:
