@@ -200,7 +200,7 @@
 
 #container-itinerary {
     z-index:1;
-    height:80px;
+    height:95px;
 }
 
 
@@ -286,7 +286,8 @@ div.arrow:hover::before {
   float: left;
   display:inline-block;
   table-layout: fixed;
-  height:80%;
+  height:100%;
+  padding:10px 10px 10px 10px;
 }
 
 #addRow {
