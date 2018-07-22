@@ -57,10 +57,31 @@
 
         <ul id="container-controls"><!--Switch-->
             <div class = "container-bg"></div>
-            <div class = "container-controls-headers"> DISPLAY CONTROLS
 
+            <div class = "container-controls-headers"> FUNCTION CONTROLS </div>
+            <div id = "controls-container-functions">
+            <table>
+                <tr>
+                    <td>
+                        Toggle Now/Later
+                    </td>
+                    <td>
+                        <div class="switch switch--horizontal switch--expanding-inner">
+                            <input id="radio-i" type="radio" name="fifth-switch" checked="checked" onchange="toggleNowLater()"/>
+                            <label for="radio-i">Now</label>
+                            <input id="radio-j" type="radio" name="fifth-switch" onchange="toggleNowLater()"/>
+                            <label for="radio-j">Later</label>
+                            <span class="toggle-outside"><span class="toggle-inside"></span></span>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+                <button class="controls-functions" onclick="showNearby()">Show near-by taxis</button>
+                <button class="controls-functions" onclick="unsetLocation()">Reset location</button>
             </div>
 
+
+            <div class = "container-controls-headers"> DISPLAY CONTROLS</div>
             <table>
                 <tr>
                     <td>
@@ -134,27 +155,7 @@
                 </tr>
             </table>
 
-            <div class = "container-controls-headers"> FUNCTION CONTROLS </div>
-            <div id = "controls-container-functions">
-            <table>
-                <tr>
-                    <td>
-                        Toggle Now/Later
-                    </td>
-                    <td>
-                        <div class="switch switch--horizontal switch--expanding-inner">
-                            <input id="radio-i" type="radio" name="fifth-switch" checked="checked" onchange="toggleNowLater()"/>
-                            <label for="radio-i">Now</label>
-                            <input id="radio-j" type="radio" name="fifth-switch" onchange="toggleNowLater()"/>
-                            <label for="radio-j">Later</label>
-                            <span class="toggle-outside"><span class="toggle-inside"></span></span>
-                        </div>
-                    </td>
-                </tr>
-            </table>
-                <button class="controls-functions" onclick="showNearby()">Show near-by taxis</button>
-                <button class="controls-functions" onclick="unsetLocation()">Reset location</button>
-            </div>
+
         </ul>
     </div>
     <div id="description-controls">
