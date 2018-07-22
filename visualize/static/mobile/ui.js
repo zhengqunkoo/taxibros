@@ -52,6 +52,8 @@ function showNearby() {
       infoWindow.setContent('Location found.');
       infoWindow.open(map);
       genLoc(pos, locationRadius, locationMinutes, 'showNearby', true);
+      undisplayAll();
+      toggleStats();
     }, function(error) {
       var message;
       switch(error.code) {
