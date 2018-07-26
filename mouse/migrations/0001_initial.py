@@ -9,31 +9,51 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='Frame',
+            name="Frame",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('mode', models.CharField(help_text='Mode of mouse frame.', max_length=1)),
-                ('x', models.IntegerField(help_text='X-coordinate of mouse.')),
-                ('y', models.IntegerField(help_text='Y-coordinate of mouse.')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "mode",
+                    models.CharField(help_text="Mode of mouse frame.", max_length=1),
+                ),
+                ("x", models.IntegerField(help_text="X-coordinate of mouse.")),
+                ("y", models.IntegerField(help_text="Y-coordinate of mouse.")),
             ],
         ),
         migrations.CreateModel(
-            name='Record',
+            name="Record",
             fields=[
-                ('id', models.UUIDField(default=uuid.uuid4, help_text='Unique ID for recording.', primary_key=True, serialize=False)),
-                ('time', models.FloatField(help_text='Time elapsed.')),
-                ('width', models.IntegerField(help_text='Width of screen.')),
-                ('height', models.IntegerField(help_text='Height of screen.')),
+                (
+                    "id",
+                    models.UUIDField(
+                        default=uuid.uuid4,
+                        help_text="Unique ID for recording.",
+                        primary_key=True,
+                        serialize=False,
+                    ),
+                ),
+                ("time", models.FloatField(help_text="Time elapsed.")),
+                ("width", models.IntegerField(help_text="Width of screen.")),
+                ("height", models.IntegerField(help_text="Height of screen.")),
             ],
         ),
         migrations.AddField(
-            model_name='frame',
-            name='record',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='mouse.Record'),
+            model_name="frame",
+            name="record",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, to="mouse.Record"
+            ),
         ),
     ]
