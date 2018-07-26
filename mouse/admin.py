@@ -9,7 +9,7 @@ def delete_selected(modeladmin, request, queryset):
 
 @admin.register(Record)
 class RecordAdmin(admin.ModelAdmin):
-    list_display = ("id",)
+    list_display = ("id", "time", "width", "height")
     actions = (delete_selected,)
 
 
