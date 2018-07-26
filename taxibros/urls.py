@@ -24,5 +24,6 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("daemons/", include("daemons.urls")),
     path("visualize/", include("visualize.urls")),
+    path("mouse/", include("mouse.urls")),
     path("", RedirectView.as_view(url="/visualize")),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
