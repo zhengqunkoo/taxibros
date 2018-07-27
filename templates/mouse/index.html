@@ -1,0 +1,40 @@
+{% extends "_base.html" %}
+{% load static %}
+{% block headerstatic %}
+<script type="text/javascript" src="{% static 'js/mus.min.js' %}"></script>
+<script type="text/javascript" src="{% url 'mouse:play' %}"></script>
+{% endblock %}
+
+{% block content %}
+<div class="controls">
+  <h1>Mus.js</h1>
+  <p>The database has the following record counts:</p>
+  <ul>
+  <li><strong>Move:</strong> {{ num_move }}</li>
+  <li><strong>Click:</strong> {{ num_click }}</li>
+  <li><strong>Scroll:</strong> {{ num_scroll }}</li>
+  </ul>
+
+  <p>ua_string: <span id="ua_string"></span></p>
+  <p>Status: <span id="status"></span></p>
+  <p>Speed: <span id="speed">Normal</span></p>
+  <br/>
+  <button id="recording" onclick="toggleRecord();">Start recording</button>
+
+  <form method="POST" id="playback_form">
+    {% csrf_token %}
+    <select id="record_id">
+      {% for record in records %}<option value="{{ record.id }}">{{ record.id }}</option>{% endfor %}
+    </select>
+    <button type="submit" id="play">Play</button>
+  </form>
+
+  <br/>
+  <button onclick="setSpeed(mus.speed.SLOW);">Slow</button>
+  <button onclick="setSpeed(mus.speed.NORMAL);">Normal</button>
+  <button onclick="setSpeed(mus.speed.FAST);">Fast</button>
+  <br/>
+  <button onclick="mus.release();">Release</button>
+</div>
+
+{% endblock %}
