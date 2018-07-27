@@ -19,8 +19,8 @@ var toggleRecord = function() {
     // Send recorded data to database, then reset mus.
     $.ajax({
       url: "{% url 'mouse:set_record' %}",
-      data: {"data":JSON.stringify(mus.getData())},
-      dataType: 'json',
+      data: JSON.stringify(mus.getData()),
+      method: "POST",
       success: function(data) {
         console.log("Sent mouse data to {% url 'mouse:set_record' %}.");
       },

@@ -34,7 +34,7 @@ def play(request):
 
 def set_record(request):
     """Store one mouse recording."""
-    data = json.loads(request.POST.get("data"))
+    data = json.loads(next(iter(request.POST.dict())))
     user_agent = {}
     for attr in dir(request.user_agent):
         # Exclude private variables.
