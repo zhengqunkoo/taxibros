@@ -115,7 +115,8 @@ restart build on Travis CI and pray.
 
 ## Mouse tracking
 We use [musjs].
-1. Play tracked mouse movements at `/mouse`.
+1. Create new mouse database by `python manage.py migrate --database=mouse_db`.
+2. Play tracked mouse movements at `/mouse`.
 
 [travis badge]: https://travis-ci.com/zhengqunkoo/taxibros.svg?token=zQpqs1cgYrwMmHCBfnPg&branch=master "From travis-ci."
 [coverage badge]: https://github.com/zhengqunkoo/taxibros/raw/master/coverage.svg?sanitize=True "Generated using coverage-badge."
