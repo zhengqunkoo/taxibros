@@ -575,20 +575,21 @@ window.onload = function() {
 
 window.onunload = function() {
   mus.stop();
-  console.log(mus.getData());
   console.log("Stop recording mouse data.");
-  /* TODO sendBeacon with CSRF token.
-  // Try sendBeacon https://developer.mozilla.org/en-US/docs/Web/API/Navigator/sendBeacon.
-  if (!navigator.sendBeacon("{% url 'mouse:set_record' %}", {"data":JSON.stringify(mus.getData())})) {
-  }
-  */
-  // TODO duplicate code from mouse/play.js.
-  // Do not do sync AJAX, even though sync guarantees sending data to server.
-  // Because sync AJAX makes browser wait for response before user changes web page.
-  $.ajax({
-    url: "{% url 'mouse:set_record' %}",
-    data: {"data":JSON.stringify(mus.getData())},
-    dataType: 'json',
+
+  // https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API
+  fetch("{% url 'mouse:set_record' %}", {
+    method: "POST",
+    mode: "cors",
+    credentials: "include",
+    body: JSON.stringify(mus.getData()),
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+      "X-Requested-With": "XMLHttpRequest",
+      "X-CSRFToken": csrftoken,
+    },
+  }).catch(err => {
+    console.error(err);
   });
   mus.release();
 }
