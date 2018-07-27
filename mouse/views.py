@@ -34,17 +34,26 @@ def play(request):
 
 def set_record(request):
     """Store one mouse recording."""
-    request = json.loads(request.GET.get("data"))
-    if request:
-        window = request["window"]
+    data = json.loads(request.POST.get("data"))
+    user_agent = {}
+    for attr in dir(request.user_agent):
+        # Exclude private variables.
+        if not "_" == attr[0]:
+            # Exclude complex objects.
+            if attr != "browser" and attr != "os" and attr != "device":
+                user_agent[attr] = getattr(request.user_agent, attr)
+    if data:
+        window = data["window"]
         rec = Record(
-            time=float(request["timeElapsed"]),
+            time=float(data["timeElapsed"]),
             width=int(window["width"]),
             height=int(window["height"]),
+            **user_agent,
         )
         rec.save()
-        for frame in request["frames"]:
+        for frame in data["frames"]:
             Frame(mode=frame[0], x=frame[1], y=frame[2], record=rec).save()
+
     # No Content, according to https://www.w3.org/TR/beacon/#sec-sendBeacon-method.
     return HttpResponse(status=204)
 
