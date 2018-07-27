@@ -47,9 +47,11 @@ var play = function(record_id) {
     $.ajax({
       url: "{% url 'mouse:get_record' %}",
       data: {"id": record_id},
+      dataType: 'json',
       success: function(data) {
         if (data.success) {
           mus.setData(data.data);
+          document.getElementById("ua_string").innerHTML = data.ua_string;
           mus.play(function() {
             document.getElementById("play").innerHTML = "Play";
             document.getElementById("status").innerHTML = "Stand by";

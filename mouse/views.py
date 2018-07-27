@@ -74,6 +74,7 @@ def get_record(request):
                     "timeElapsed": record.time,
                     "window": {"width": record.width, "height": record.height},
                 },
+                "ua_string": record.ua_string,
             }
         )
     return JsonResponse({"success": False})
