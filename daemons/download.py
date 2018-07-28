@@ -195,13 +195,17 @@ class DownloadJson:
             if (self._date_time_end - pre).total_seconds() > five_minute_seconds:
 
                 # Download every 5th minute's timestamps.
-                while (cur - pre).total_seconds() > five_minute_seconds:
-                    missing = self.download_missing_timestamp(pre, five_minute_seconds)
+                # If LTA timestamp doesn't change, increase offset by five minutes.
+                # Assume if (cur - pre) more than offset, then download succeeds.
+                offset = five_minute_seconds
+                while (cur - pre).total_seconds() > offset:
+                    missing = self.download_missing_timestamp(pre, offset)
                     pre = missing
+                    offset += five_minute_seconds
 
             else:
 
-                # Download all contiguous missing timestamps.
+                # Download every 1 minute's timestamps.
                 # Advance pre to downloaded timestamp until (cur-pre) gap <= missing_seconds.
                 while (cur - pre).total_seconds() > missing_seconds:
                     missing = self.download_missing_timestamp(pre, missing_seconds)
