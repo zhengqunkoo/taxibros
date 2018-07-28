@@ -60,6 +60,7 @@ function pickDate(e) {
   genHeatmap.slider('setValue', minutes);
 
   genHeatmapSliderChange(minutes);
+  drawChart(minutes);
 }
 
 function minutesToDate(m) {
@@ -101,7 +102,9 @@ function dateSlider(sliderName, sliderChangeCallback) {
     // Update global date on all callbacks.
     date = new Date();
     sliderChangeCallback(1440-genSliderValue(e));
-    $('#datetimepicker').datetimepicker('date', minutesToDate(e.value.newValue));
+    var minutes = e.value.newValue;
+    $('#datetimepicker').datetimepicker('date', minutesToDate(minutes));
+    drawChart(minutes);
   });
 }
 

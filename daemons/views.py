@@ -83,12 +83,9 @@ def get_timestamps(request, minutes_length):
     # If true, minutes=0 means current time.
     # If false, minutes=0 means time of latest timestamp.
     if settings.HEATMAP_NOW:
-        print("Using datetime from HEATMAP_NOW variable")
         now = datetime.datetime.now(pytz.utc)
     else:
-        print("Using latest datetime")
         now = Timestamp.objects.latest("date_time").date_time
-    print(now)
 
     start_window = datetime.timedelta(minutes=minutes + minutes_length)
     end_window = datetime.timedelta(minutes=minutes)

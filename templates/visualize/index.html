@@ -29,15 +29,16 @@
 <script defer src="https://maps.googleapis.com/maps/api/js?key={{ GOOGLEMAPS_SECRET_KEY }}&libraries=visualization,places&callback=initMap&region=SG"></script>
 {% endblock %}
 {% block content %}
-<!--Error Message-->
-<div id="container-error">
-  {% if error_message %}
-  <p><strong>{{ error_message }}</strong></p>
-  {% endif %}
-</div>
-
 
 <div id= "map-all">
+
+    <!--Error Message-->
+    <div id="container-error">
+      {% if error_message %}
+      <button id="remove-stats" onclick="document.getElementById('container-error').innerHTML='';" type="button" class="close" aria-label="Close" style="left:auto;right:-5px"><span aria-hidden="true">&times;</span></button>
+      <p><strong>{{ error_message }}</strong></p>
+      {% endif %}
+    </div>
 
     <!-- Google maps. -->
     <div id="map"></div>

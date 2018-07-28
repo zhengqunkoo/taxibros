@@ -21,29 +21,13 @@ from daemons.farecalculator import calculateCost
 
 def index(request):
     """View function for home page of site."""
-    context = {"GOOGLEMAPS_SECRET_KEY": settings.GOOGLEMAPS_SECRET_KEY}
+    context = {
+        "GOOGLEMAPS_SECRET_KEY": settings.GOOGLEMAPS_SECRET_KEY,
+        "error_message": "Location is not accurate.",
+    }
     index = (
         "mobile/index.html" if request.user_agent.is_mobile else "visualize/index.html"
     )
-    # CHECK1:If daemon is running
-    if Task.objects.all().count() == 0:
-        context[
-            "error_message"
-        ] = "No daemons running. Please run server once with DAEMON_START=True."
-        return render(request, index, context)
-
-    # CHECK2:If there is insufficient data
-    times = Timestamp.objects.filter(
-        date_time__range=[
-            timezone.now() - datetime.timedelta(minutes=5),
-            timezone.now(),
-        ]
-    )
-    if times.count() < 5:
-        context[
-            "error_message"
-        ] = "Data is still incomplete, please wait a few minutes before refreshing."
-        return render(request, index, context)
 
     # Else: render with normal context.
     return render(request, index, context)

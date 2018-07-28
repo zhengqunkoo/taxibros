@@ -32,6 +32,7 @@ function createDatetimepicker(cell, innerText) {
       input.innerText = moment(e.date).format('YYYY/MM/DD HH:mm:ss');
       updateTable();
       lastDatetimepickerId = datetimepickerId;
+      drawChart(dateToMinutes(e.date));
     });
     input.innerText = innerText;
   } else {
@@ -41,6 +42,7 @@ function createDatetimepicker(cell, innerText) {
       input.innerText = moment(e.date).format('YYYY/MM/DD HH:mm:ss');
       updateTable();
       lastDatetimepickerId = datetimepickerId;
+      drawChart(dateToMinutes(e.date));
     });
   }
   datetimepickerCount++;
