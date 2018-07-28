@@ -31,7 +31,10 @@ class DownloadJson:
         timezone.activate(pytz.timezone(settings.TIME_ZONE))
 
         # Range of date_time to search missing timestamps.
-        self._date_time_start = dateparse.parse_datetime(settings.DATE_TIME_START)
+        if settings.DATE_TIME_START:
+            self._date_time_start = dateparse.parse_datetime(settings.DATE_TIME_START)
+        else:
+            self._date_time_start = timezone.localtime(timezone.now()) - datetime.timedelta(weeks=1)
 
         if settings.DATE_TIME_END:
             self._date_time_end = dateparse.parse_datetime(settings.DATE_TIME_END)

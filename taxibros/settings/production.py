@@ -58,7 +58,7 @@ SLIDE_EVENT = "slideStop"
 
 # Define starting timestamp of database.
 # Daemon downloads all timestamps starting from DATE_TIME_START.
-DATE_TIME_START = "2018-05-24T20:34:00+0800"
+DATE_TIME_START = ""
 
 # Define ending timestamp of database.
 # Daemon downloads all timestamps ending at DATE_TIME_START.
