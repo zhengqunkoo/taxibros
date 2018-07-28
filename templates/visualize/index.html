@@ -35,6 +35,7 @@
     <!--Error Message-->
     <div id="container-error">
       {% if error_message %}
+      <button id="remove-stats" onclick="document.getElementById('container-error').innerHTML='';" type="button" class="close" aria-label="Close" style="left:auto;right:-5px"><span aria-hidden="true">&times;</span></button>
       <p><strong>{{ error_message }}</strong></p>
       {% endif %}
     </div>
