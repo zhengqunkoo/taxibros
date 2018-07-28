@@ -188,7 +188,7 @@ function parseLatLng(latlng) {
   return [parseFloat(latlng[0]), parseFloat(latlng[1])];
 }
 
-$(document).ready(function() {
+$(function() {
   $('#addRow').on('click', function() {
     addRow();
   });

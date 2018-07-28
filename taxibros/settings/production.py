@@ -90,9 +90,10 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "background_task",
+    "django_user_agents",
     "daemons.apps.DaemonsConfig",
     "visualize.apps.VisualizeConfig",
-    "django_user_agents",
+    "mouse.apps.MouseConfig",
 ]
 
 MIDDLEWARE = [
@@ -135,9 +136,15 @@ DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
         "NAME": os.path.join(BASE_DIR, "db.sqlite3"),
-    }
+    },
+    "mouse_db": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": os.path.join(BASE_DIR, "mouse_db.sqlite3"),
+    },
 }
 
+
+DATABASE_ROUTERS = ["taxibros.app_router.AppRouter"]
 
 # Password validation
 # https://docs.djangoproject.com/en/2.0/ref/settings/#auth-password-validators

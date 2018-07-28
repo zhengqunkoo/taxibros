@@ -34,45 +34,63 @@ function toggleHeatmap() {
   heatmap.setMap(heatmap.getMap() ? null : map);
 }
 
+function showPosition(position) {
+  var pos = new google.maps.LatLng(
+    position.coords.latitude,
+    position.coords.longitude
+  );
+  infoWindow.setPosition(pos);
+  infoWindow.setContent('Location found.');
+  infoWindow.open(map);
+  genLoc(pos, locationRadius, locationMinutes, 'showNearby', true);
+}
+
+var browserGeolocationFail = function(error) {
+  var message;
+  switch(error.code) {
+    case error.PERMISSION_DENIED:
+      message = "User denied the request for Geolocation."
+      if(error.message.indexOf("Only secure origins are allowed") == 0) {
+        geolocatePosition();
+      }
+      break;
+    case error.POSITION_UNAVAILABLE:
+      message = "Location information is unavailable."
+      geolocatePosition();
+      break;
+    case error.TIMEOUT:
+      message = "The request to get user location timed out."
+      geolocatePosition();
+      break;
+    case error.UNKNOWN_ERROR:
+      message = "An unknown error occurred."
+      geolocatePosition();
+      break;
+  }
+  handleLocationError(infoWindow, map.getCenter(), "Error " + error.code + ": " + message);
+};
+
 function showNearby() {
   /**
    * Show HTML5 geolocated position in infoWindow.
    * @return: undefined.
    */
   if (navigator.geolocation) {
-    navigator.geolocation.watchPosition(function(position) {
-      var pos = new google.maps.LatLng(
-        position.coords.latitude,
-        position.coords.longitude
-      );
-
-      infoWindow.setPosition(pos);
-      infoWindow.setContent('Location found.');
-      infoWindow.open(map);
-      genLoc(pos, locationRadius, locationMinutes, 'showNearby', true);
-    }, function(error) {
-      var message;
-      switch(error.code) {
-        case error.PERMISSION_DENIED:
-          message = "User denied the request for Geolocation."
-          break;
-        case error.POSITION_UNAVAILABLE:
-          message = "Location information is unavailable."
-          break;
-        case error.TIMEOUT:
-          message = "The request to get user location timed out."
-          break;
-        case error.UNKNOWN_ERROR:
-          message = "An unknown error occurred."
-          break;
-      }
-      handleLocationError(infoWindow, map.getCenter(), "Error " + error.code + ": " + message);
-    });
+    navigator.geolocation.getCurrentPosition(showPosition, browserGeolocationFail);
   } else {
     // Browser doesn't support Geolocation
     handleLocationError(infoWindow, map.getCenter());
   }
 }
+
+function geolocatePosition() {
+  $.post( "https://www.googleapis.com/geolocation/v1/geolocate?key={{ GOOGLEMAPS_SECRET_KEY }}", function(pos) {
+    var position = {coords: {latitude: pos.location.lat, longitude: pos.location.lng}}
+    showPosition(position);
+  }).fail(function(err) {
+    console.log("API Geolocation error: "+err);
+  });
+};
 
 function handleLocationError(infoWindow, pos, errorMessage) {
   /**

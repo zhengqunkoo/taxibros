@@ -12,6 +12,24 @@ var locationCenter, locationCircle;
 var directionsService;
 var directionsDisplay;
 
+function getCookie(name) {
+    var cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        var cookies = document.cookie.split(';');
+        for (var i = 0; i < cookies.length; i++) {
+            var cookie = $.trim(cookies[i]);
+            // Does this cookie string begin with the name we want?
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+var csrftoken = getCookie('csrftoken');
+
+
 function initMap() {
     directionsService = new google.maps.DirectionsService;
     directionsDisplay = new google.maps.DirectionsRenderer;
@@ -547,7 +565,36 @@ function unsetMapObj(obj) {
   obj = null;
 }
 
-$(document).ready(function() {
+var mus = new Mus();
+
+window.onload = function() {
+  mus.release();
+  mus.record();
+  console.log("Recording mouse data.");
+}
+
+window.onunload = function() {
+  mus.stop();
+  console.log("Stop recording mouse data.");
+
+  // https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API
+  fetch("{% url 'mouse:set_record' %}", {
+    method: "POST",
+    mode: "cors",
+    credentials: "include",
+    body: JSON.stringify(mus.getData()),
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+      "X-Requested-With": "XMLHttpRequest",
+      "X-CSRFToken": csrftoken,
+    },
+  }).catch(err => {
+    console.error(err);
+  });
+  mus.release();
+}
+
+$(function() {
 
   // Initialize autocomplete with location calls
   isCallGenLoc = true;

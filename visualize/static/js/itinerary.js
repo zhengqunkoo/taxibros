@@ -1,4 +1,4 @@
-$(document).ready(function() {
+$(function() {
   $('#slider').click(function() {
       var rightVal = $("#container-itinerary").css("right");
       if (rightVal == '10px'){

@@ -124,6 +124,20 @@ def chart_js(request):
     return render(request, "visualize/chart.js")
 
 
+def ui_base_js(request, app):
+    """Render Javascript file."""
+    context = {"GOOGLEMAPS_SECRET_KEY": settings.GOOGLEMAPS_SECRET_KEY}
+    return render(request, app + "/ui.js", context)
+
+
+def ui_mobile_js(request):
+    return ui_base_js(request, "mobile")
+
+
+def ui_js(request):
+    return ui_base_js(request, "visualize")
+
+
 def stats_js(request):
     """Render Javascript file."""
     return render(
