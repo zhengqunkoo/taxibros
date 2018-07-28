@@ -60,7 +60,7 @@ function drawChart(minutes) {
         .attr("height", function(d) {return height-y(d.count);});
 
       rect.transition()
-        .delay(function(d, i) {return i * 100; })
+        .delay(function(d, i) {return (i * 20); })
         .attr("y",function(d) {return y(d.count);});
 
 
