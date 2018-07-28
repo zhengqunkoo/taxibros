@@ -27,13 +27,16 @@ class DownloadJson:
         self._url = url
         self._logger = getLogger(__name__)
 
+        # Convert to local timezone.
+        timezone.activate(pytz.timezone(settings.TIME_ZONE))
+
         # Range of date_time to search missing timestamps.
         self._date_time_start = dateparse.parse_datetime(settings.DATE_TIME_START)
 
         if settings.DATE_TIME_END:
             self._date_time_end = dateparse.parse_datetime(settings.DATE_TIME_END)
         else:
-            self._date_time_end = timezone.now()
+            self._date_time_end = timezone.localtime(timezone.now())
 
     @abc.abstractmethod
     def get_time_features(self, json_val):
@@ -135,9 +138,6 @@ class DownloadJson:
         But sometimes they are 90 seconds apart, subsequently 30 seconds apart.
         @return missing: sorted list of missing timestamps.
         """
-        # Convert to local timezone.
-        timezone.activate(pytz.timezone(settings.TIME_ZONE))
-
         times = Timestamp.objects.filter(
             date_time__range=(self._date_time_start, self._date_time_end)
         )
