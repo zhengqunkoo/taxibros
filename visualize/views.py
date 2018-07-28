@@ -23,7 +23,7 @@ def index(request):
     """View function for home page of site."""
     context = {
         "GOOGLEMAPS_SECRET_KEY": settings.GOOGLEMAPS_SECRET_KEY,
-        "error_message": "Location is not accurate.",
+        "error_message": "Note: Location may not be accurate. We store your mouse data.",
     }
     index = (
         "mobile/index.html" if request.user_agent.is_mobile else "visualize/index.html"
