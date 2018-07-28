@@ -5,12 +5,17 @@
 
     position:absolute;
     background: #d9b99b;
-    font-family: "Avenir Next", "Avenir", sans-serif;
-    font-weight:bold;
-    color: #0c3e5f;
-    font-size: 14px;
+    font-size: 20px;
+    height:30px;
+    width:28px;
+    text-align: center;
+    vertical-align: middle;
     padding: 4px 4px 4px 4px;
-    text-decoration: none;
+    border-radius: 10px
+}
+#here-button{
+    color: #0c3e5f;
+
 }
 
 

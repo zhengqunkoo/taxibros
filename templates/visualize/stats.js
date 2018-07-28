@@ -109,10 +109,8 @@ function calcCost(waiting_time, distance) {
       },
       dataType: 'json',
       success: function(data) {
-
             var costs = data.cost;
             displayCosts(costs);
-
         },
         error: function(rs, e) {
           console.log("Failed to reach {% url 'visualize:cost' %}.");

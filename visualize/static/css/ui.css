@@ -1,3 +1,11 @@
+#container-error {
+    z-index:5;
+    display:block;
+    background: #FF91A4;
+    color:#a94442;
+    border:2px solid #a94442;
+    vertical-align: middle;
+}
 
 #description-controls:hover
 {
@@ -100,7 +108,7 @@
 {
   position: absolute;
   width: 1000%;
-  margin: -100px 0 0 -50px;
+  margin: -77px 0 0 -50px;
   padding: 50px;
   padding-top: 125px;
   overflow: hidden;
