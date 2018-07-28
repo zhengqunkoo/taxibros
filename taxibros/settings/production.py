@@ -60,6 +60,11 @@ SLIDE_EVENT = "slideStop"
 # Daemon downloads all timestamps starting from DATE_TIME_START.
 DATE_TIME_START = "2018-05-24T20:34:00+0800"
 
+# Define ending timestamp of database.
+# Daemon downloads all timestamps ending at DATE_TIME_START.
+# If empty string, DATE_TIME_END is current time.
+DATE_TIME_END = ""
+
 # If true,
 #   ConvertRoad.store_locations will not be called on every downloaded timestamp.
 #   If DAEMON_START and INITIALIZE_LOCATIONS:

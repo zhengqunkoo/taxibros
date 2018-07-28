@@ -29,7 +29,11 @@ class DownloadJson:
 
         # Range of date_time to search missing timestamps.
         self._date_time_start = dateparse.parse_datetime(settings.DATE_TIME_START)
-        self._date_time_end = timezone.now()
+
+        if settings.DATE_TIME_END:
+            self._date_time_end = dateparse.parse_datetime(settings.DATE_TIME_END)
+        else:
+            self._date_time_end = timezone.now()
 
     @abc.abstractmethod
     def get_time_features(self, json_val):
@@ -183,7 +187,6 @@ class DownloadJson:
         # If not, raise exception.
         missing_seconds = 65
         missing_seconds_long = 95
-        missing = []
         for i in range(1, len(times)):
             pre, cur = times[i - 1], times[i]
 
@@ -230,11 +233,12 @@ class DownloadJson:
 
     def download_timestamps(self):
         """Make timestamps in database continuous, in terms of minutes.
-        Also, download with latest timestamp.
+        Only download latest timestamp if DATE_TIME_END not defined.
         """
         self.download_missing_timestamps()
-        print("Check latest")
-        self.download()
+        if not settings.DATE_TIME_END:
+            print("Check latest")
+            self.download()
         print("Stored all missing timestamps!")
 
     def log(self, *args):
