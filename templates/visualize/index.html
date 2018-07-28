@@ -30,15 +30,16 @@
 {% endblock %}
 {% block content %}
 
+<!--Error Message-->
+<div id="container-error">
+  {% if error_message %}
+  <button onclick="document.getElementById('container-error').style.display='none';" type="button" class="close" aria-label="Close" style="float:left;display:inline-block"><span aria-hidden="true">&times;</span></button>
+  <p style="display:inline-block;padding-left:10px"><strong>{{ error_message }}</strong></p>
+  {% endif %}
+</div>
 <div id= "map-all">
 
-    <!--Error Message-->
-    <div id="container-error">
-      {% if error_message %}
-      <button id="remove-stats" onclick="document.getElementById('container-error').innerHTML='';" type="button" class="close" aria-label="Close" style="left:auto;right:-5px"><span aria-hidden="true">&times;</span></button>
-      <p><strong>{{ error_message }}</strong></p>
-      {% endif %}
-    </div>
+
 
     <!-- Google maps. -->
     <div id="map"></div>
