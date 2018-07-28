@@ -76,7 +76,7 @@ function showNearby() {
    * @return: undefined.
    */
   if (navigator.geolocation) {
-    navigator.geolocation.watchPosition(showPosition, browserGeolocationFail);
+    navigator.geolocation.getCurrentPosition(showPosition, browserGeolocationFail);
   } else {
     // Browser doesn't support Geolocation
     handleLocationError(infoWindow, map.getCenter());
