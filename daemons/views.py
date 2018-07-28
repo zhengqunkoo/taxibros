@@ -74,7 +74,7 @@ def get_timestamps(request, minutes_length):
     else:
         minutes_length = int(minutes_length)
 
-    # 30 day limit
+    # 7 day limit
     if minutes > 10080:
         return None
     if minutes_length > 10080:
@@ -83,11 +83,14 @@ def get_timestamps(request, minutes_length):
     # If true, minutes=0 means current time.
     # If false, minutes=0 means time of latest timestamp.
     if settings.HEATMAP_NOW:
+        print("Using datetime from HEATMAP_NOW variable")
         now = datetime.datetime.now(pytz.utc)
     else:
+        print("Using latest datetime")
         now = Timestamp.objects.latest("date_time").date_time
+    print(now)
 
-    start_window = datetime.timedelta(minutes=minutes + 1)
+    start_window = datetime.timedelta(minutes=minutes + minutes_length)
     end_window = datetime.timedelta(minutes=minutes)
     times = Timestamp.objects.filter(
         date_time__range=(now - start_window, now - end_window)
@@ -315,10 +318,16 @@ def get_chart_data(request):
 
     # Generate the coordinates in 10min intervals for yesterday's time
     timestamps = filter(
-        lambda time: int(dateformat.format(time.date_time, "U")) % 1200 == 0, timestamps
+        lambda time: (int(dateformat.format(time.date_time, "U")) // 60) % 10 == 0,
+        timestamps,
     )
-
-    day_stats = [timestamp.taxi_count for timestamp in timestamps]
+    day_stats = [
+        {
+            "count": timestamp.taxi_count,
+            "timestamp": int(dateformat.format(timestamp.date_time, "U")),
+        }
+        for timestamp in timestamps
+    ]
     return day_stats, "Distribution of available taxis across 24h"
 
 
