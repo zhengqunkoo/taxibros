@@ -20,19 +20,21 @@ function drawChart() {
            width = width - margin.left - margin.right;
            var barWidth = width/day_stats.length;
 
+           var parseTime = d3.timeParse("%s");
+           day_stats.forEach(function(d) { d.count = d.count; d.timestamp = parseTime(d.timestamp); return d;});
+
+
            var y = d3.scaleLinear()
-               .domain([0, d3.max(day_stats)])
+               .domain(d3.extent(day_stats, function(d) {return d.count;}))
                .range([height,0]);
            var yAxis = d3.axisLeft(y)
                .scale(y)
                .ticks(5, "s");
 
-           var parseTime = d3.timeParse("%I:%M %p");
-           var startTime = parseTime("06:00 AM");
-           var endTime = parseTime("05:00 AM");
 
-           var x = d3.scaleTime().domain([startTime, endTime]).range([0,width]);
-           var xAxis = d3.axisBottom(x).tickFormat(d3.timeFormat("%I:%M %p")).tickArguments(d3.timeMinute.every(60));
+
+           var x = d3.scaleTime().domain(d3.extent(day_stats, function(d) {return d.timestamp;})).range([0,width]);
+           var xAxis = d3.axisBottom(x).tickFormat(d3.timeFormat("%I:00 %p")).tickArguments(d3.timeHour.every(1));
 
 
 
@@ -42,11 +44,11 @@ function drawChart() {
                .attr("transform", function(d, i) { return "translate(" + (margin.left + (i * barWidth)) + ",0)"; })
                .attr("y", height) //To initialize bar outside chart
                .attr("width", barWidth - 1)
-               .attr("height", function(d) {return height-y(d);});
+               .attr("height", function(d) {return height-y(d.count);});
 
            rect.transition()
                .delay(function(d, i) {return i * 100; })
-               .attr("y",function(d) {return y(d);});
+               .attr("y",function(d) {return y(d.count);});
 
 
            chart.append("g")

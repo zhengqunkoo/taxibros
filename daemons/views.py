@@ -320,8 +320,7 @@ def get_chart_data(request):
     timestamps = filter(
         lambda time: (int(dateformat.format(time.date_time, "U"))//60) % 10 == 0, timestamps
     )
-
-    day_stats = [timestamp.taxi_count for timestamp in timestamps]
+    day_stats = [{"count":timestamp.taxi_count, "timestamp":int(dateformat.format(timestamp.date_time, "U"))} for timestamp in timestamps]
     return day_stats, "Distribution of available taxis across 24h"
 
 
