@@ -25,7 +25,7 @@ class Record(models.Model):
         """String for representing the Model object."""
         return "{} {} {},{} {}".format(
             self.id, self.time, self.width, self.height, self.ua_string
-       )
+        )
 
 
 class Frame(models.Model):
