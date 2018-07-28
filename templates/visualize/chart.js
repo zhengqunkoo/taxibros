@@ -21,8 +21,12 @@ function drawChart(minutes) {
         width = 300;
       var margin = {top: 20, right: 10, bottom: 30, left: 40};
 
-      var chart = d3.select(".chart")
-        .attr("height", height);
+
+      //Empty all child elements
+
+      var chart = d3.select(".chart");
+      chart.selectAll("*").remove();
+      chart.attr("height", height);
       chart.attr("width", width);
 
       height = height - margin.top - margin.bottom;
