@@ -143,39 +143,9 @@ class DownloadJson:
         """
         times = Timestamp.objects.filter(
             date_time__range=(self._date_time_start, self._date_time_end)
-        )
+        ).order_by("date_time")
 
-        # Sort the filtered timestamps.
-        times = sorted(times, key=lambda x: x.date_time)
-
-        # Compare pre to cur, while less than 4 minutes apart, delete and advance cur.
-        # Else, advance both pre and cur.
-        four_minute_seconds = 235
-        five_minute_seconds = 305
-        i = 1
-        while i < len(times):
-            pre, cur = times[i - 1], times[i]
-
-            # For old timestamps.
-            if (
-                self._date_time_end - pre.date_time
-            ).total_seconds() > five_minute_seconds:
-
-                # Delete every timestamp spaced less than 4 minutes apart.
-                while (
-                    cur.date_time - pre.date_time
-                ).total_seconds() < four_minute_seconds:
-                    print(
-                        "Sparsing old timestamp {}".format(
-                            timezone.localtime(cur.date_time)
-                        )
-                    )
-                    cur.delete()
-                    times.pop(i)
-                    if i >= len(times):
-                        break
-                    cur = times[i]
-            i += 1
+        self.sparse_old_timestamps(times)
 
         # Get sorted filtered local timestamps, between start and end inclusive.
         times = (
@@ -190,6 +160,7 @@ class DownloadJson:
         # If not, raise exception.
         missing_seconds = 65
         missing_seconds_long = 95
+        five_minute_seconds = 305
         for i in range(1, len(times)):
             pre, cur = times[i - 1], times[i]
 
@@ -225,6 +196,41 @@ class DownloadJson:
                                 )
                             )
                     pre = missing
+
+    def sparse_old_timestamps(times):
+        """
+        Delete every timestamp spaced less than 4 minutes apart.
+        @param times: sorted list of all Timestamp objects in database.
+        """
+
+        # Compare pre to cur, while less than 4 minutes apart, delete and advance cur.
+        # Else, advance both pre and cur.
+        four_minute_seconds = 235
+        five_minute_seconds = 305
+        i = 1
+        while i < len(times):
+            pre, cur = times[i - 1], times[i]
+
+            # For old timestamps.
+            if (
+                self._date_time_end - pre.date_time
+            ).total_seconds() > five_minute_seconds:
+
+                # Delete every timestamp spaced less than 4 minutes apart.
+                while (
+                    cur.date_time - pre.date_time
+                ).total_seconds() < four_minute_seconds:
+                    print(
+                        "Sparsing old timestamp {}".format(
+                            timezone.localtime(cur.date_time)
+                        )
+                    )
+                    cur.delete()
+                    times.pop(i)
+                    if i >= len(times):
+                        break
+                    cur = times[i]
+            i += 1
 
     def download_missing_timestamp(self, cur, seconds):
         """
