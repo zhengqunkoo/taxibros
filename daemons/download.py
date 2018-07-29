@@ -65,9 +65,10 @@ class DownloadJson:
         """
         ...
 
-    def download(self, url=None):
+    def download(self, url=None, old_timestamp=False):
         """Generic method to download JSON streams.
         @param url: URL to download from. Default: None.
+        @param old_timestamp: if True, downloaded timestamp is old.
         @return date_time: LTA date_time that JSON was updated.
         """
         json_val = self.get_json_coordinates(url)
@@ -89,7 +90,9 @@ class DownloadJson:
         taxi_count, status = self.get_properties(features)
         self.log(date_time, taxi_count, status)
         coordinates = self.get_coordinates(features)
-        self.store_timestamp_coordinates(date_time, taxi_count, coordinates)
+        self.store_timestamp_coordinates(
+            date_time, taxi_count, coordinates, old_timestamp=old_timestamp
+        )
         return date_time
 
     def get_json_coordinates(self, url=None):
@@ -102,13 +105,16 @@ class DownloadJson:
         response = requests.get(url)
         return response.json()
 
-    def store_timestamp_coordinates(self, date_time, taxi_count, coordinates):
+    def store_timestamp_coordinates(
+        self, date_time, taxi_count, coordinates, old_timestamp=False
+    ):
         """If date_time is not unique, do not do anything.
         Stores each coordinate with the same unique date_time.
 
         @param date_time: LTA date_time that JSON was updated.
         @param taxi_count: Number of taxis in timestamp.
         @param coordinates: list of coordinates to be stored.
+        @param old_timestamp: if True, do not store coordinates.
         @return
             created: True if unique date_time, False if duplicate date_time.
             timestamp: Timestamp object of LTA date_time that JSON was updated.
@@ -120,10 +126,12 @@ class DownloadJson:
         if created:
             # If created timestamp, store coordinates.
             print("Store {}".format(date_time))
-            for coordinate in coordinates:
-                Coordinate(
-                    lat=coordinate[1], lng=coordinate[0], timestamp=timestamp
-                ).save()
+            if not old_timestamp:
+                for coordinate in coordinates:
+                    Coordinate(
+                        lat=coordinate[1], lng=coordinate[0], timestamp=timestamp
+                    ).save()
+                print("Store {} coordinates".format(date_time))
         return created, timestamp, coordinates
 
     def delete_old(self):
@@ -190,7 +198,9 @@ class DownloadJson:
                 # Assume if (cur - pre) more than offset, then download succeeds.
                 offset = five_minute_seconds
                 while (cur - pre).total_seconds() > offset:
-                    missing = self.download_missing_timestamp(pre, offset)
+                    missing = self.download_missing_timestamp(
+                        pre, offset, old_timestamp=True
+                    )
                     pre = missing
                     offset += five_minute_seconds
 
@@ -199,12 +209,14 @@ class DownloadJson:
                 # Download every 1 minute's timestamps.
                 # Advance pre to downloaded timestamp until (cur-pre) gap <= missing_seconds.
                 while (cur - pre).total_seconds() > missing_seconds:
-                    missing = self.download_missing_timestamp(pre, missing_seconds)
+                    missing = self.download_missing_timestamp(
+                        pre, missing_seconds, old_timestamp=False
+                    )
 
                     # Try longer missing seconds.
                     if pre == missing:
                         missing = self.download_missing_timestamp(
-                            pre, missing_seconds_long
+                            pre, missing_seconds_long, old_timestamp=False
                         )
                         if pre == missing:
                             raise Exception(
@@ -214,7 +226,7 @@ class DownloadJson:
                             )
                     pre = missing
 
-    def sparse_old_timestamps(times):
+    def sparse_old_timestamps(self, times):
         """
         Delete every timestamp spaced less than 4 minutes apart.
         @param times: sorted list of all Timestamp objects in database.
@@ -249,16 +261,19 @@ class DownloadJson:
                     cur = times[i]
             i += 1
 
-    def download_missing_timestamp(self, cur, seconds):
+    def download_missing_timestamp(self, cur, seconds, old_timestamp=False):
         """
         @param cur: current timestamp.
         @param seconds: time after @param cur to query the API with.
+        @param old_timestamp: if True, downloaded timestamp is old.
         @return datetime object of LTA timestamp.
         """
         missing = cur + datetime.timedelta(seconds=seconds)
         missing = missing.strftime("%Y-%m-%dT%H:%M:%S")
         print("Check {}".format(missing))
-        date_time = self.download("{}?date_time={}".format(self._url, missing))
+        date_time = self.download(
+            "{}?date_time={}".format(self._url, missing), old_timestamp=old_timestamp
+        )
         return dateparse.parse_datetime(date_time)
 
     def download_timestamps(self):
@@ -268,7 +283,7 @@ class DownloadJson:
         self.download_missing_timestamps()
         if not settings.DATE_TIME_END:
             print("Check latest")
-            self.download()
+            self.download(old_timestamp=False)
         print("Stored all missing timestamps!")
 
     def log(self, *args):
@@ -303,14 +318,14 @@ class TaxiAvailability(
         status = json_val["properties"]["api_info"]["status"]
         return taxi_count, status
 
-    def store_timestamp_coordinates(self, date_time, taxi_count, coordinates):
+    def store_timestamp_coordinates(self, date_time, taxi_count, coordinates, old_timestamp=False):
         if settings.INITIALIZE_LOCATIONS:
             if not settings.GRID_CLOSEST_ROADS:
                 self.store_locations(coordinates)
         else:
             created, timestamp, coordinates = super(
                 TaxiAvailability, self
-            ).store_timestamp_coordinates(date_time, taxi_count, coordinates)
+            ).store_timestamp_coordinates(date_time, taxi_count, coordinates, old_timestamp=old_timestamp)
             if created:
                 self.store_heatmap(timestamp, coordinates)
                 self.store_location_records(coordinates, timestamp)
