@@ -24,9 +24,26 @@ $('#genLocationRadius').slider({
   genLocationRadiusSliderStop(genSliderValue(e))
 });
 
+Date.prototype.addDays = function(days) {
+  var dat = new Date(this.valueOf())
+  dat.setDate(dat.getDate() + days);
+  return dat;
+}
+
+function getDates(startDate, stopDate) {
+  var dateArray = new Array();
+  var currentDate = startDate;
+  while (currentDate <= stopDate) {
+    dateArray.push(currentDate)
+    currentDate = currentDate.addDays(1);
+  }
+  return dateArray;
+}
+
 $('#datetimepicker').datetimepicker({
   format: 'YYYY/MM/DD HH:mm:ss',
-  date: date
+  date: date,
+  enabledDates: getDates(new Date(), (new Date()).addDays(7)),
 }).on('dp.hide', pickDate);
 
 function pickDate(e) {

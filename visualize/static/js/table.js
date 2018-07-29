@@ -27,7 +27,8 @@ function createDatetimepicker(cell, innerText) {
   if (innerText !== undefined) {
     $('#' + datetimepickerId).datetimepicker({
       format: 'YYYY/MM/DD HH:mm:ss',
-      date: innerText
+      date: innerText,
+      enabledDates: getDates(new Date(), (new Date()).addDays(7)),
     }).on('dp.hide', function(e) {
       input.innerText = moment(e.date).format('YYYY/MM/DD HH:mm:ss');
       updateTable();
@@ -37,7 +38,8 @@ function createDatetimepicker(cell, innerText) {
     input.innerText = innerText;
   } else {
     $('#' + datetimepickerId).datetimepicker({
-      format: 'YYYY/MM/DD HH:mm:ss'
+      format: 'YYYY/MM/DD HH:mm:ss',
+      enabledDates: getDates(new Date(), (new Date()).addDays(7)),
     }).on('dp.hide', function(e) {
       input.innerText = moment(e.date).format('YYYY/MM/DD HH:mm:ss');
       updateTable();

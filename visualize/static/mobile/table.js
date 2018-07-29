@@ -1,6 +1,22 @@
 var pacInputCount = 0, datetimepickerCount = 0;
 var lastDatetimepickerId = null;
 
+Date.prototype.addDays = function(days) {
+  var dat = new Date(this.valueOf())
+  dat.setDate(dat.getDate() + days);
+  return dat;
+}
+
+function getDates(startDate, stopDate) {
+  var dateArray = new Array();
+  var currentDate = startDate;
+  while (currentDate <= stopDate) {
+    dateArray.push(currentDate)
+    currentDate = currentDate.addDays(1);
+  }
+  return dateArray;
+}
+
 function createPacInput(cell, isCallGenLoc, innerText) {
   var input = document.createElement('input');
   input.setAttribute('id', 'pac-input' + pacInputCount);
@@ -27,7 +43,8 @@ function createDatetimepicker(cell, innerText) {
   if (innerText !== undefined) {
     $('#' + datetimepickerId).datetimepicker({
       format: 'YYYY/MM/DD HH:mm:ss',
-      date: innerText
+      date: innerText,
+      enabledDates: getDates(new Date(), (new Date()).addDays(7)),
     }).on('dp.hide', function(e) {
       input.innerText = moment(e.date).format('YYYY/MM/DD HH:mm:ss');
       lastDatetimepickerId = datetimepickerId;
@@ -35,7 +52,8 @@ function createDatetimepicker(cell, innerText) {
     input.innerText = innerText;
   } else {
     $('#' + datetimepickerId).datetimepicker({
-      format: 'YYYY/MM/DD HH:mm:ss'
+      format: 'YYYY/MM/DD HH:mm:ss',
+      enabledDates: getDates(new Date(), (new Date()).addDays(7)),
     }).on('dp.hide', function(e) {
       input.innerText = moment(e.date).format('YYYY/MM/DD HH:mm:ss');
       lastDatetimepickerId = datetimepickerId;
