@@ -410,7 +410,7 @@ function updateLocationCircle(pos, radius, pickupId, isCreate) {
   map.fitBounds(locationCircle.getBounds());
 
   // No need fit bounds here.
-  // Only function that calls with isCreate set is searchBox event listener.
+  // Only function that calls with isCreate set is autocomplete event listener.
   // That listener already fits bounds on returned search places.
   if (isCreate) {
     var circle = new google.maps.Circle({
@@ -441,19 +441,30 @@ function initAutocomplete(input, isCallGenLoc) {
    *   If false, call calcRoute.
    * @return undefined.
    */
-  // Create the search box and link it to the UI element.
-  var searchBox = new google.maps.places.SearchBox(input);
 
-  // Bias the SearchBox results towards current map's viewport.
-  map.addListener('bounds_changed', function() {
-    searchBox.setBounds(map.getBounds());
-  });
+  // Return only geocoding results.
+  // Restrict the search to a specific country.
+  // Restrict the search to the bounds.
+  var options = {
+    types: ['geocode'],
+    componentRestrictions: {country: 'sg'},
+    strictBounds: true,
+  };
+
+  // Create the search box and link it to the UI element.
+  var autocomplete = new google.maps.places.Autocomplete(input, options);
+
+  // Bias the results to the map's viewport, even while that viewport changes.
+  autocomplete.bindTo('bounds', map);
+
+  // Set the data fields to return when the user selects a place.
+  autocomplete.setFields(['name', 'geometry']);
 
   var markers = [];
   // Listen for the event fired when the user selects a prediction and retrieve
   // more details for that place.
-  searchBox.addListener('places_changed', function() {
-    var places = searchBox.getPlaces();
+  autocomplete.addListener('places_changed', function() {
+    var places = autocomplete.getPlaces();
 
     if (places.length == 0) {
       return;
@@ -474,18 +485,10 @@ function initAutocomplete(input, isCallGenLoc) {
           console.log("Returned place contains no geometry");
           return;
         }
-        var icon = {
-          url: place.icon,
-          size: new google.maps.Size(71, 71),
-          origin: new google.maps.Point(0, 0),
-          anchor: new google.maps.Point(17, 34),
-          scaledSize: new google.maps.Size(25, 25)
-        };
 
         // Create a marker for each place.
         markers.push(new google.maps.Marker({
           map: map,
-          icon: icon,
           title: place.name,
           position: place.geometry.location
         }));
@@ -505,12 +508,12 @@ function initAutocomplete(input, isCallGenLoc) {
       if (isCallGenLoc) {
 
         // If isCallGenLoc, call genLoc with isCreate circle true.
-        // Only pickupLocation searchBox has isCallGenLoc true.
+        // Only pickupLocation autocomplete has isCallGenLoc true.
         // So guarantee pickupPos will be stored in table's tr's nth-child(9).
         genLoc(place.geometry.location, locationRadius, locationMinutes, input.getAttribute('id'), true);
       } else {
 
-        // Only arrivalLocation searchBox has isCallGenLoc false.
+        // Only arrivalLocation autocomplete has isCallGenLoc false.
         // So guarantee pickupPos is different from arrivalLocation.
         // Extract pickupPos from table's tr's nth-child(9).
         // Call calcRoute only if pickupPos is not null.
