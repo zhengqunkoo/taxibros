@@ -34,7 +34,9 @@ class DownloadJson:
         if settings.DATE_TIME_START:
             self._date_time_start = dateparse.parse_datetime(settings.DATE_TIME_START)
         else:
-            self._date_time_start = timezone.localtime(timezone.now()) - datetime.timedelta(weeks=1)
+            self._date_time_start = timezone.localtime(
+                timezone.now()
+            ) - datetime.timedelta(weeks=1)
 
         if settings.DATE_TIME_END:
             self._date_time_end = dateparse.parse_datetime(settings.DATE_TIME_END)
@@ -124,8 +126,12 @@ class DownloadJson:
                 ).save()
         return created, timestamp, coordinates
 
+    def delete_old(self):
+        self.delete_old_timestamps()
+        self.delete_old_coordinates()
+
     def delete_old_timestamps(self, minutes=10080):
-        """Delete timestamps older than 30 days."""
+        """Delete timestamps older than 1 week."""
         timestamps = Timestamp.objects.filter(
             date_time__lte=self._date_time_end - datetime.timedelta(minutes=minutes)
         )
@@ -134,6 +140,17 @@ class DownloadJson:
             timestamp.delete()
             print("Deleted timestamp: {}".format(timestamp.date_time))
         print("Finished deleting old timestamps.")
+
+    def delete_old_coordinates(self, minutes=5):
+        """Delete coordinates older than 5 minutes."""
+        coordinates = Coordinate.objects.filter(
+            timestamp__date_time__lte=self._date_time_end
+            - datetime.timedelta(minutes=minutes)
+        )
+        print("Deleting old coordinates:")
+        for coordinate in coordinates:
+            coordinate.delete()
+        print("Finished deleting old coordinates.")
 
     def download_missing_timestamps(self):
         """Get current timestamps in database. Identify missing timestamps.
@@ -304,5 +321,5 @@ def start_download():
     logger = getLogger(__name__)
     logger.debug("daemons.download.start_download")
     ta = TaxiAvailability()
-    ta.delete_old_timestamps()
+    ta.delete_old()
     ta.download_timestamps()
