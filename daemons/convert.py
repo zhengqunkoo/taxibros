@@ -256,11 +256,14 @@ class ConvertLocation:
     @classmethod
     def get_road_info_from_id(cls, roadID):
 
+        fields = ["name", "geometry"]
         url = (
             "https://maps.googleapis.com/maps/api/place/details/json?placeid="
             + roadID
             + "&key="
             + settings.GOOGLEMAPS_SECRET_KEY
+            + "&fields="
+            + ",".join(fields)
         )
         json_val = cls.get_json_road_info(url)
 
