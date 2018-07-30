@@ -318,14 +318,18 @@ class TaxiAvailability(
         status = json_val["properties"]["api_info"]["status"]
         return taxi_count, status
 
-    def store_timestamp_coordinates(self, date_time, taxi_count, coordinates, old_timestamp=False):
+    def store_timestamp_coordinates(
+        self, date_time, taxi_count, coordinates, old_timestamp=False
+    ):
         if settings.INITIALIZE_LOCATIONS:
             if not settings.GRID_CLOSEST_ROADS:
                 self.store_locations(coordinates)
         else:
             created, timestamp, coordinates = super(
                 TaxiAvailability, self
-            ).store_timestamp_coordinates(date_time, taxi_count, coordinates, old_timestamp=old_timestamp)
+            ).store_timestamp_coordinates(
+                date_time, taxi_count, coordinates, old_timestamp=old_timestamp
+            )
             if created:
                 self.store_heatmap(timestamp, coordinates)
                 self.store_location_records(coordinates, timestamp)

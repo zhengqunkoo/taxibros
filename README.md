@@ -52,6 +52,8 @@ Each instruction is a command, and a description of the command.
 * When the `download_timestamps` function is called, there are some
   changes to the database. These changes are removed if a `SIGINT` by `C-C`
   is sent before `download_timestamps` finishes.
+* If some background_task/task had error, and fixing the cause of error then
+  restarting the server does not fix the issue, then delete task from database.
 
 ## Running Tests
 Tests are executed using the django manager.
