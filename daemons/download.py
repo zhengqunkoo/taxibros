@@ -185,6 +185,7 @@ class DownloadJson:
         # If not, raise exception.
         missing_seconds = 65
         missing_seconds_long = 95
+        four_minute_seconds = 235
         five_minute_seconds = 305
         for i in range(1, len(times)):
             pre, cur = times[i - 1], times[i]
@@ -194,15 +195,41 @@ class DownloadJson:
             if (self._date_time_end - pre).total_seconds() > five_minute_seconds:
 
                 # Download every 5th minute's timestamps.
-                # If LTA timestamp doesn't change, increase offset by five minutes.
                 # Assume if (cur - pre) more than offset, then download succeeds.
+
+                # This fixes timestamps from earlier to later.
+                # As cur iterates, all timestamps before cur have 5 minute gap.
+                # If 7 minute gap, fill a 5 minute gap and cause a 2 minute gap.
+                # 2 minute gap will be fixed in the next call to process_tasks.
                 offset = five_minute_seconds
-                while (cur - pre).total_seconds() > offset:
-                    missing = self.download_missing_timestamp(
-                        pre, offset, old_timestamp=True
-                    )
-                    pre = missing
-                    offset += five_minute_seconds
+                if (cur - pre).total_seconds() > offset:
+                    while True:
+                        missing = self.download_missing_timestamp(
+                            pre, offset, old_timestamp=True
+                        )
+                        cur = missing
+
+                        # Break if,
+                        #   LTA timestamp fixes time gap.
+                        #   LTA timestamp will not be sparsed in next process_tasks.
+                        seconds = (cur - pre).total_seconds()
+                        if seconds <= offset and seconds > four_minute_seconds:
+                            break
+
+                        # Else saved LTA timestamp did not fix time gap.
+                        # Delete saved LTA timestamp.
+                        print("Undo store {}".format(missing))
+                        Timestamp.objects.get(date_time=missing).delete()
+
+                        # Save a dummy (local) time.
+                        dummy = pre + datetime.timedelta(seconds=offset)
+                        timestamp, created = Timestamp.objects.get_or_create(
+                            date_time=dummy, taxi_count=0
+                        )
+                        if created:
+                            print("Store dummy {}".format(dummy))
+                            cur = dummy
+                        offset += five_minute_seconds
 
             else:
 
