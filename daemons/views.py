@@ -45,7 +45,7 @@ def get_timestamp(request):
             default: 0 (meaning now).
     @return Timestamp if exists, else None.
     """
-    timestamps = get_timestamps(request, 1)
+    timestamps = get_timestamps(request, 6)
     if timestamps == None:
         return None
     else:
