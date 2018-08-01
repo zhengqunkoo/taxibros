@@ -313,28 +313,27 @@ class ConvertLocationRecords:
         # indexes: index of closest coordinate in tree.data
         # These two arrays are sorted by distance
         coordinates = list(map(lambda x: (x[1], x[0]), coordinates))
-        distances, indexes = tree.query(coordinates)
-
-        # Assumption: data is an array of
-        data = tree.data
-        # threshold if coordinate is too far from any closest road dont store
-        threshold = 300 / M_PER_LAT
-        exceed_thresh_count = 0
         vals = {}
-        for i in range(len(indexes)):
-            key = tuple(data[indexes[i]])
-            if distances[i] > threshold:
-                exceed_thresh_count += 1
-                continue
-            if key not in vals:
-                vals[key] = 1
-            else:
-                vals[key] += 1
-        print(
-            "Percentage of coordinates without coresponding location: {}%".format(
-                100 * exceed_thresh_count / len(coordinates)
+        if coordinates:
+            distances, indexes = tree.query(coordinates)
+            data = tree.data
+            # threshold if coordinate is too far from any closest road dont store
+            threshold = 300 / M_PER_LAT
+            exceed_thresh_count = 0
+            for i in range(len(indexes)):
+                key = tuple(data[indexes[i]])
+                if distances[i] > threshold:
+                    exceed_thresh_count += 1
+                    continue
+                if key not in vals:
+                    vals[key] = 1
+                else:
+                    vals[key] += 1
+            print(
+                "Percentage of coordinates without coresponding location: {}%".format(
+                    100 * exceed_thresh_count / len(coordinates)
+                )
             )
-        )
         return vals
 
     @classmethod
