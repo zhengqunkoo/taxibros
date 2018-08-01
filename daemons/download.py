@@ -170,6 +170,7 @@ class DownloadJson:
             date_time__range=(self._date_time_start, self._date_time_end)
         ).order_by("date_time")
 
+        times = list(times)
         self.sparse_old_timestamps(times)
 
         # Get sorted filtered local timestamps, between start and end inclusive.
