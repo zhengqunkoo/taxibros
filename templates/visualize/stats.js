@@ -1,6 +1,6 @@
 var MS_PER_SECOND = 1000;
 
-function genLocHandleData(path_time, path_dist, total_dist, number, best_road, best_road_coords) {
+function updateStats(path_time, path_dist, total_dist, number, best_road, best_road_coords) {
   /**
    * Show stats.
    * Dynamically create HTML stats-table, then call appearStats().

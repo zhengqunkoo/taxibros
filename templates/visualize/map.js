@@ -189,7 +189,7 @@ function genLoc(pos, radius, minutes, pickupId, isCreate, path_geom, path_instru
    *   pos: center of circle of interest.
    *   radius: radius of circle of interest.
    *   minutes: time of interest.
-   * Unpack data from API and pass to genLocHandleData.
+   * Unpack data from API and pass to updateStats.
    *
    * Alternatively, if optional arguments, don't call Taxibros API.
    * @return: undefined.
@@ -247,7 +247,7 @@ function genLoc(pos, radius, minutes, pickupId, isCreate, path_geom, path_instru
         updateTable();
 
         updatePickup(circle, pickupId, isCreate, path_geom, path_instructions, coordinates, journey_geom);
-        genLocHandleData(path_time, path_dist, total_dist, number, best_road, best_road_coords);
+        updateStats(path_time, path_dist, total_dist, number, best_road, best_road_coords);
         // Show better location.
         if (best_road_coords.lat != null && best_road_coords.lat != null) {
           infoWindow.setPosition(best_road_coords);
@@ -260,7 +260,7 @@ function genLoc(pos, radius, minutes, pickupId, isCreate, path_geom, path_instru
     });
   } else {
     updatePickup(circle, pickupId, isCreate, path_geom, path_instructions, coordinates, journey_geom);
-    genLocHandleData(path_time, path_dist, total_dist, number, best_road, best_road_coords);
+    updateStats(path_time, path_dist, total_dist, number, best_road, best_road_coords);
     // Show better location.
     if (best_road_coords.lat != null && best_road_coords.lat != null) {
       infoWindow.setPosition(best_road_coords);
