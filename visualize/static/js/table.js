@@ -174,15 +174,13 @@ function visualizePickup() {
   var totalDist = tr.children('td:nth-child(18)').find('.hide')[0].innerHTML;
   var journeyGeom = tr.children('td:nth-child(19)').find('.hide')[0].innerHTML;
 
-  var parsedLatLng = parseLatLng(pickupPos);
-  locationCenter = new google.maps.LatLng(parsedLatLng[0], parsedLatLng[1]);
+  locationCenter = parseLatLngMaps(pickupPos);
   locationRadius = parseInt(locationRadius);
   locationMinutes = parseInt(locationMinutes);
   pickupTaxiCoords = pickupTaxiCoords.split(';');
   pickupTaxiCoords = pickupTaxiCoords.map(parseLatLng);
   number = parseInt(number);
-  var parsedLatLng = parseLatLng(bestRoadCoords);
-  bestRoadCoords = new google.maps.LatLng(parsedLatLng[0], parsedLatLng[1]);
+  bestRoadCoords = parseLatLngMaps(bestRoadCoords);
   totalDist = parseFloat(totalDist);
 
   genLoc(locationCenter, locationRadius, locationMinutes, pickupId, true, walkpathGeom, walkpathInstructions, pickupTaxiCoords, number, bestRoad, bestRoadCoords, pathTime, pathDist, totalDist, journeyGeom);
@@ -191,6 +189,11 @@ function visualizePickup() {
 function parseLatLng(latlng) {
   latlng = latlng.split(',');
   return [parseFloat(latlng[0]), parseFloat(latlng[1])];
+}
+
+function parseLatLngMaps(latlng) {
+  var parsedLatLng = parseLatLng(latlng);
+  return new google.maps.LatLng(parsedLatLng[0], parsedLatLng[1]);
 }
 
 $(function() {

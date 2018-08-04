@@ -480,9 +480,7 @@ function initAutocomplete(input, isCallGenLoc) {
       var tr = $('#' + input.getAttribute('id')).closest('tr');
       var pickupPos = tr.children('td:nth-child(9)').find('.hide')[0].innerHTML;
       if (pickupPos) {
-        var parsedLatLng = parseLatLng(pickupPos);
-        pickupPos = new google.maps.LatLng(parsedLatLng[0], parsedLatLng[1]);
-        calcRoute(pickupPos, place.geometry.location, tr);
+        calcRoute(parseLatLngMaps(pickupPos), place.geometry.location, tr);
       }
     }
     input.innerText = place.name;
