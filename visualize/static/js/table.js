@@ -184,7 +184,8 @@ function visualizePickup() {
   var parsedLatLng = parseLatLng(bestRoadCoords);
   bestRoadCoords = new google.maps.LatLng(parsedLatLng[0], parsedLatLng[1]);
   totalDist = parseFloat(totalDist);
-  genLoc(locationCenter, locationRadius, locationMinutes, pickupId, walkpathGeom, walkpathInstructions, pickupTaxiCoords, number, bestRoad, bestRoadCoords, pathTime, pathDist, totalDist, journeyGeom);
+
+  genLoc(locationCenter, locationRadius, locationMinutes, pickupId, true, walkpathGeom, walkpathInstructions, pickupTaxiCoords, number, bestRoad, bestRoadCoords, pathTime, pathDist, totalDist, journeyGeom);
 }
 
 function parseLatLng(latlng) {
