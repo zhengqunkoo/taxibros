@@ -460,78 +460,37 @@ function initAutocomplete(input, isCallGenLoc) {
   // Set the data fields to return when the user selects a place.
   autocomplete.setFields(['name', 'geometry']);
 
-  var markers = [];
   // Listen for the event fired when the user selects a prediction and retrieve
   // more details for that place.
-  autocomplete.addListener('places_changed', function() {
-    var places = autocomplete.getPlaces();
+  autocomplete.addListener('place_changed', function() {
+    var place = autocomplete.getPlace();
 
-    if (places.length == 0) {
-      return;
-    }
+    if (isCallGenLoc) {
 
-    // Clear out the old markers.
-    markers.forEach(function(marker) {
-      marker.setMap(null);
-    });
-    markers = [];
-
-    var bounds = new google.maps.LatLngBounds();
-    if (places.length > 1) {
-
-      // If more than one place, for each place, get the icon, name and location.
-      places.forEach(function(place) {
-        if (!place.geometry) {
-          console.log("Returned place contains no geometry");
-          return;
-        }
-
-        // Create a marker for each place.
-        markers.push(new google.maps.Marker({
-          map: map,
-          title: place.name,
-          position: place.geometry.location
-        }));
-
-        if (place.geometry.viewport) {
-          // Only geocodes have viewport.
-          bounds.union(place.geometry.viewport);
-        } else {
-          bounds.extend(place.geometry.location);
-        }
-      });
-      map.fitBounds(bounds);
+      // If isCallGenLoc, call genLoc with isCreate circle true.
+      // Only pickupLocation autocomplete has isCallGenLoc true.
+      // So guarantee pickupPos will be stored in table's tr's nth-child(9).
+      genLoc(place.geometry.location, locationRadius, locationMinutes, input.getAttribute('id'), true);
     } else {
 
-      // Else if only one place.
-      var place = places[0];
-      if (isCallGenLoc) {
-
-        // If isCallGenLoc, call genLoc with isCreate circle true.
-        // Only pickupLocation autocomplete has isCallGenLoc true.
-        // So guarantee pickupPos will be stored in table's tr's nth-child(9).
-        genLoc(place.geometry.location, locationRadius, locationMinutes, input.getAttribute('id'), true);
-      } else {
-
-        // Only arrivalLocation autocomplete has isCallGenLoc false.
-        // So guarantee pickupPos is different from arrivalLocation.
-        // Extract pickupPos from table's tr's nth-child(9).
-        // Call calcRoute only if pickupPos is not null.
-        var tr = $('#' + input.getAttribute('id')).closest('tr');
-        var pickupPos = tr.children('td:nth-child(9)').find('.hide')[0].innerHTML;
-        if (pickupPos) {
-          var parsedLatLng = parseLatLng(pickupPos);
-          pickupPos = new google.maps.LatLng(parsedLatLng[0], parsedLatLng[1]);
-          calcRoute(pickupPos, place.geometry.location, tr);
-        }
+      // Only arrivalLocation autocomplete has isCallGenLoc false.
+      // So guarantee pickupPos is different from arrivalLocation.
+      // Extract pickupPos from table's tr's nth-child(9).
+      // Call calcRoute only if pickupPos is not null.
+      var tr = $('#' + input.getAttribute('id')).closest('tr');
+      var pickupPos = tr.children('td:nth-child(9)').find('.hide')[0].innerHTML;
+      if (pickupPos) {
+        var parsedLatLng = parseLatLng(pickupPos);
+        pickupPos = new google.maps.LatLng(parsedLatLng[0], parsedLatLng[1]);
+        calcRoute(pickupPos, place.geometry.location, tr);
       }
-      input.innerText = place.name;
-      input.value = place.name;
-      updateTable();
-      {% if not mobile %}
-      appearContainerChart();
-      {% endif %}
     }
+    input.innerText = place.name;
+    input.value = place.name;
+    updateTable();
+    {% if not mobile %}
+    appearContainerChart();
+    {% endif %}
   });
 }
 
