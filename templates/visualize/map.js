@@ -207,7 +207,7 @@ function genLoc(pos, radius, minutes, pickupId, isCreate, path_geom, path_instru
   // Create new circle here (isCreate==true) because unset old circle.
   var circle = updateLocationCircle(pos, radius, pickupId, isCreate);
 
-  // If no optional arguments, perform ajax call.
+  // If no optional arguments, retrieve latest data with ajax.
   if (arguments.length == 5) {
 
     $.ajax({
@@ -230,7 +230,7 @@ function genLoc(pos, radius, minutes, pickupId, isCreate, path_geom, path_instru
         path_time = data.path_time;
         path_dist = data.path_dist;
 
-        // Update table with latest information.
+        // Update table with latest data.
         var tr = $('#' + pickupId).closest('tr');
         tr.children('td:nth-child(7)').find('.hide').html(path_geom);
         tr.children('td:nth-child(8)').find('.hide').html(path_instructions);
@@ -432,13 +432,16 @@ function updateLocationCircle(pos, radius, pickupId, isCreate) {
   }
 }
 
-function initAutocomplete(input, isCallGenLoc) {
+function initAutocomplete(input, isPickup) {
   /**
    * Call the Place API with string as input. API returns list of places.
    * @param input: HTML input element to put the search box at.
    *   Hidden info from returned place (e.g. name) appends to input element.
-   * @param isCallGenLoc: if true, call genLoc if one place returned from API.
-   *   If false, call calcRoute.
+   * @param isPickup: if true, autocomplete has functionality of pickupLocation.
+   *   If false, autocomplete has functionality of arrivalLocation.
+   *   In both cases,
+   *     Store location in respective cell in table.
+   *     Get both pickup and arrival locations, if not null, call calcRoute. 
    * @return undefined.
    */
 
@@ -461,28 +464,38 @@ function initAutocomplete(input, isCallGenLoc) {
   // more details for that place.
   autocomplete.addListener('place_changed', function() {
     var place = autocomplete.getPlace();
+    var tr = $('#' + input.getAttribute('id')).closest('tr');
 
-    if (isCallGenLoc) {
+    if (isPickup) {
 
-      // If isCallGenLoc, call genLoc with isCreate circle true.
-      // Only pickupLocation autocomplete has isCallGenLoc true.
-      // So guarantee pickupPos will be stored in table's tr's nth-child(9).
-      genLoc(place.geometry.location, locationRadius, locationMinutes, input.getAttribute('id'), true);
+      // If isPickup, call genLoc with isCreate circle true.
+      // Store pickupPos in table's tr's nth-child(9).
+      var pickupPos = place.geometry.location;
+      var arrivalPos = tr.children('td:nth-child(20)').find('.hide')[0].innerHTML;
+      genLoc(pickupPos, locationRadius, locationMinutes, input.getAttribute('id'), true);
+      tr.children('td:nth-child(9)').find('.hide').html(pickupPos.lat() + ',' + pickupPos.lng());
+      if (arrivalPos) {
+        calcRoute(pickupPos, parseLatLngMaps(arrivalPos), tr);
+      }
     } else {
 
-      // Only arrivalLocation autocomplete has isCallGenLoc false.
-      // So guarantee pickupPos is different from arrivalLocation.
-      // Extract pickupPos from table's tr's nth-child(9).
-      // Call calcRoute only if pickupPos is not null.
-      var tr = $('#' + input.getAttribute('id')).closest('tr');
+      // Else, isArrival.
+      // Store arrivalPos in table's tr's nth-child(20).
+      var arrivalPos = place.geometry.location;
       var pickupPos = tr.children('td:nth-child(9)').find('.hide')[0].innerHTML;
+      tr.children('td:nth-child(20)').find('.hide').html(arrivalPos.lat() + ',' + arrivalPos.lng());
       if (pickupPos) {
-        calcRoute(parseLatLngMaps(pickupPos), place.geometry.location, tr);
+        calcRoute(parseLatLngMaps(pickupPos), arrivalPos, tr);
       }
     }
+
+    // Put place name in input, and in innerText for table.
+    // Update table.
     input.innerText = place.name;
     input.value = place.name;
     updateTable();
+
+    // Mobile does not have enough space for chart, do not display chart.
     {% if not mobile %}
     appearContainerChart();
     {% endif %}
@@ -553,8 +566,8 @@ window.onunload = function() {
 
 $(function() {
 
-  // Initialize autocomplete with location calls
-  isCallGenLoc = true;
-  initAutocomplete($('.pac-input-slider')[0], isCallGenLoc);
-  initAutocomplete($('.pac-input-slider')[1], isCallGenLoc);
+  // Initialize autocomplete inside container-slider with location calls
+  isPickup = true;
+  initAutocomplete($('.pac-input-slider')[0], isPickup);
+  initAutocomplete($('.pac-input-slider')[1], isPickup);
 });
