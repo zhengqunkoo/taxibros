@@ -454,9 +454,6 @@ function initAutocomplete(input, isCallGenLoc) {
   // Create the search box and link it to the UI element.
   var autocomplete = new google.maps.places.Autocomplete(input, options);
 
-  // Bias the results to the map's viewport, even while that viewport changes.
-  autocomplete.bindTo('bounds', map);
-
   // Set the data fields to return when the user selects a place.
   autocomplete.setFields(['name', 'geometry']);
 
