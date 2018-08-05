@@ -105,7 +105,7 @@ function addRow(pickupLocationInnerText, pickupTimeInnerText, arrivalLocationInn
   journeyGeomCell.appendChild(createHiddenText(journeyGeomInnerText));
   arrivalPosCell.appendChild(createHiddenText(arrivalPosInnerText));
 
-  createButton(deleteRowButtonCell, 'deleteRow', 'Delete row');
+  createButton(deleteRowButtonCell, 'deleteRow', 'Delete');
   createButton(showPickupButtonCell, 'showPickup', 'Show');
 
   createPacInput(pickupLocationCell, true, pickupLocationInnerText);
