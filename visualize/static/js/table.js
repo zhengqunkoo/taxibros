@@ -187,6 +187,7 @@ function visualizePickup() {
   totalDist = parseFloat(totalDist);
 
   genLoc(locationCenter, locationRadius, locationMinutes, pickupId, true, walkpathGeom, walkpathInstructions, pickupTaxiCoords, number, bestRoad, bestRoadCoords, pathTime, pathDist, totalDist, journeyGeom);
+  calcRoute(locationCenter, parseLatLngMaps(arrivalPos), tr);
 }
 
 function parseLatLng(latlng) {
