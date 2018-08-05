@@ -67,7 +67,7 @@ function createButton(cell, classattr, value) {
   cell.appendChild(input);
 }
 
-function addRow(pickupLocationInnerText, pickupTimeInnerText, arrivalLocationInnerText, arrivalTimeInnerText, walkpathGeomInnerText, walkpathInstructionsInnerText, pickupPosInnerText, pickupTaxiCoordsInnerText, radiusInnerText, minutesInnerText, numberInnerText, bestRoadInnerText, bestRoadCoordsInnerText, pathTimeInnerText, pathDistInnerText, totalDistInnerText, journeyGeomInnerText) {
+function addRow(pickupLocationInnerText, pickupTimeInnerText, arrivalLocationInnerText, arrivalTimeInnerText, walkpathGeomInnerText, walkpathInstructionsInnerText, pickupPosInnerText, pickupTaxiCoordsInnerText, radiusInnerText, minutesInnerText, numberInnerText, bestRoadInnerText, bestRoadCoordsInnerText, pathTimeInnerText, pathDistInnerText, totalDistInnerText, journeyGeomInnerText, arrivalPosInnerText) {
   var row = itineraryTable.getElementsByTagName('tbody')[0].insertRow(-1);
   var pickupLocationCell = row.insertCell(0);
   var pickupTimeCell = row.insertCell(1);
@@ -88,6 +88,7 @@ function addRow(pickupLocationInnerText, pickupTimeInnerText, arrivalLocationInn
   var pathDistCell = row.insertCell(16);
   var totalDistCell = row.insertCell(17);
   var journeyGeomCell = row.insertCell(18);
+  var arrivalPosCell = row.insertCell(19);
 
   walkpathGeomCell.appendChild(createHiddenText(walkpathGeomInnerText));
   walkpathInstructionsCell.appendChild(createHiddenText(walkpathInstructionsInnerText));
@@ -102,6 +103,7 @@ function addRow(pickupLocationInnerText, pickupTimeInnerText, arrivalLocationInn
   pathDistCell.appendChild(createHiddenText(pathDistInnerText));
   totalDistCell.appendChild(createHiddenText(totalDistInnerText));
   journeyGeomCell.appendChild(createHiddenText(journeyGeomInnerText));
+  arrivalPosCell.appendChild(createHiddenText(arrivalPosInnerText));
 
   createButton(deleteRowButtonCell, 'deleteRow', 'Delete row');
   createButton(visualizePickupButtonCell, 'visualizePickup', 'Visualize pickup');
@@ -173,6 +175,7 @@ function visualizePickup() {
   var pathDist = tr.children('td:nth-child(17)').find('.hide')[0].innerHTML;
   var totalDist = tr.children('td:nth-child(18)').find('.hide')[0].innerHTML;
   var journeyGeom = tr.children('td:nth-child(19)').find('.hide')[0].innerHTML;
+  var arrivalPos = tr.children('td:nth-child(20)').find('.hide')[0].innerHTML;
 
   locationCenter = parseLatLngMaps(pickupPos);
   locationRadius = parseInt(locationRadius);
