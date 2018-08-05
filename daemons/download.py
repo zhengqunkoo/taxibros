@@ -140,6 +140,7 @@ class DownloadJson:
 
     def delete_old_timestamps(self, minutes=10080):
         """Delete timestamps older than 1 week."""
+        """
         timestamps = Timestamp.objects.filter(
             date_time__lte=self._date_time_end - datetime.timedelta(minutes=minutes)
         )
@@ -148,6 +149,7 @@ class DownloadJson:
             timestamp.delete()
             print("Deleted timestamp: {}".format(timestamp.date_time))
         print("Finished deleting old timestamps.")
+        """
 
     def delete_old_coordinates(self, minutes=5):
         """Delete coordinates older than 5 minutes."""

@@ -74,7 +74,7 @@ function addRow(pickupLocationInnerText, pickupTimeInnerText, arrivalLocationInn
   var arrivalLocationCell = row.insertCell(2);
   var arrivalTimeCell = row.insertCell(3);
   var deleteRowButtonCell = row.insertCell(4);
-  var visualizePickupButtonCell = row.insertCell(5);
+  var showPickupButtonCell = row.insertCell(5);
   var walkpathGeomCell = row.insertCell(6);
   var walkpathInstructionsCell = row.insertCell(7);
   var pickupPosCell = row.insertCell(8);
@@ -106,7 +106,7 @@ function addRow(pickupLocationInnerText, pickupTimeInnerText, arrivalLocationInn
   arrivalPosCell.appendChild(createHiddenText(arrivalPosInnerText));
 
   createButton(deleteRowButtonCell, 'deleteRow', 'Delete row');
-  createButton(visualizePickupButtonCell, 'visualizePickup', 'Visualize pickup');
+  createButton(showPickupButtonCell, 'showPickup', 'Show');
 
   createPacInput(pickupLocationCell, true, pickupLocationInnerText);
   createDatetimepicker(pickupTimeCell, pickupTimeInnerText);
@@ -159,7 +159,7 @@ function importToItineraryTable(data) {
 
 // TODO detect offline and use info in imported csv to visualize
 // if online, query server database for latest info.
-function visualizePickup() {
+function showPickup() {
   var tr = $(this).closest('tr');
   var pickupId = tr.children('td:first').find('input').attr('id');
   var walkpathGeom = tr.children('td:nth-child(7)').find('.hide')[0].innerHTML;
@@ -205,7 +205,7 @@ $(function() {
     addRow();
   });
   $('#itineraryTable').on('click', '.deleteRow', deleteRow);
-  $('#itineraryTable').on('click', '.visualizePickup', visualizePickup);
+  $('#itineraryTable').on('click', '.showPickup', showPickup);
   $('#importFromCsv').on('change', importFromCsvChange);
   TableExport.prototype.formatConfig.csv.buttonContent = 'Export';
 
