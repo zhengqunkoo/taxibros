@@ -1,11 +1,9 @@
-import datetime
 import numpy as np
 import requests
 from scipy.sparse import coo_matrix
 
 from .models import Heatmap, Heattile, Location, LocationRecord
 from django.conf import settings
-from django.utils import dateparse, timezone
 from django.db import OperationalError
 from scipy.spatial import KDTree
 
