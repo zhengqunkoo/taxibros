@@ -67,15 +67,29 @@ Tests are executed using the django manager.
    ```
    sudo apt install postgresql-server-dev-9.5 postgresql-9.5-postgis-2.3
    ```
-2. Create user and database.
+2. You may have to manually create the data directory and start the server.
+   Filenames might be different.
    ```
-   sudo -u postgres -i
+   su - postgres
+   initdb -D /var/lib/postgresql
+   pg_ctl -D /var/lib/postgresql -l logfile start
+   ```
+3. Create user and database.
+   ```
+   su - postgres
    psql
    CREATE USER geodjango PASSWORD 'geodjango';
    ALTER ROLE geodjango SUPERUSER;
    CREATE DATABASE geodjango OWNER geodjango;
    exit
    ```
+
+## Transitioning from SQLite to PostgreSQL
+1. [Dump and load data](https://stackoverflow.com/questions/3476606/django-what-are-the-best-practices-to-migrate-a-project-from-sqlite-to-postgres#27359683)
+2. [Ignore old django migrations.](https://stackoverflow.com/questions/29888046/django-1-8-create-initial-migrations-for-existing-schema#29898483)
+A few other notes.
+* `netstat -nlp | grep 5432` to see where the socket is, if it exists.
+* Remove/ignore all conversions of `QuerySet`s to Python lists before `AppConfig` is ready. If those conversions are executed, `./manage.py migrate` will query the empty database.
 
 ## Installing Open Street Map
 1. For more context in map (including street and thoroughfare details), [install PROJ.4 datum shifting files].
