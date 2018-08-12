@@ -118,8 +118,8 @@ function dateSlider(sliderName, sliderChangeCallback) {
 
     // Update global date on all callbacks.
     date = new Date();
-    sliderChangeCallback(1440-genSliderValue(e));
-    var minutes = e.value.newValue;
+    var minutes = 1440 - genSliderValue(e);
+    sliderChangeCallback(minutes);
     $('#datetimepicker').datetimepicker('date', minutesToDate(minutes));
     drawChart(minutes);
   });
