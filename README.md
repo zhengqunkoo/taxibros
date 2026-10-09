@@ -7,6 +7,12 @@ Instantly query taxi arrival times.
 
 ![alt text](https://user-images.githubusercontent.com/28092058/48899979-129e5a80-ee8c-11e8-9071-7ebc41ffd901.png)
 
+## Demos
+
+Demo 1: https://youtu.be/ZrskYK6tQws?is=fo7denLhp9BFm1R6
+
+Demo 2: https://youtu.be/YX4g7tvTPUA?is=xbXyw8ebHgNd7mAK
+
 ## Installing and running django server
 All the following instructions executed from same folder as this `README.md`.
 Each instruction is a command, and a description of the command.
